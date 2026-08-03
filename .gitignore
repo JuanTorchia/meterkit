@@ -1,0 +1,14 @@
+node_modules
+dist
+.next
+.env
+.env.local
+playwright-report
+test-results
+coverage
+*.tsbuildinfo
+*.log
+*.key
+*keypair*.json
+.local-wallets/
+artifacts/packs/*.tgz

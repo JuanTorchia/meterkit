@@ -1,0 +1,36 @@
+{
+  "name": "meterkit",
+  "private": true,
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:packages": "pnpm --filter @meterkit/core build && pnpm --filter @meterkit/database build && pnpm --filter @meterkit/sdk build && pnpm --filter @meterkit/subscriptions build",
+    "predev": "pnpm build:packages",
+    "dev": "pnpm --parallel --filter @meterkit/gateway --filter @meterkit/web dev",
+    "lint": "eslint .",
+    "pretypecheck": "pnpm build:packages",
+    "typecheck": "pnpm -r typecheck",
+    "pretest": "pnpm build:packages",
+    "test": "vitest run",
+    "pretest:e2e": "pnpm build:packages",
+    "test:e2e": "playwright test",
+    "wallet:devnet": "tsx scripts/create-devnet-wallet.ts",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.54.2",
+    "@solana/kit": "5.5.1",
+    "@types/node": "^24.3.0",
+    "bs58": "6.0.0",
+    "eslint": "^9.39.1",
+    "prettier": "^3.6.2",
+    "tsx": "4.20.4",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0",
+    "vitest": "^3.2.4"
+  }
+}
