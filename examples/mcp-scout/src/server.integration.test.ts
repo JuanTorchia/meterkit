@@ -37,12 +37,17 @@ afterAll(async () => new Promise<void>((resolve, reject) =>
 
 describe("MCP Scout stdio contract", () => {
   it("advertises the useful tools and challenges an unpaid full report", async () => {
+    const inheritedEnv = Object.fromEntries(
+      Object.entries(process.env).filter(
+        (entry): entry is [string, string] => typeof entry[1] === "string",
+      ),
+    );
     const transport = new StdioClientTransport({
       command: "pnpm",
       args: ["exec", "tsx", "src/server.ts"],
       cwd: new URL("..", import.meta.url).pathname,
       env: {
-        PATH: process.env.PATH ?? "",
+        ...inheritedEnv,
         MERCHANT_WALLET: payTo,
         X402_FACILITATOR_URL: facilitatorUrl,
         SOLANA_RPC_URL: "https://api.devnet.solana.com",
