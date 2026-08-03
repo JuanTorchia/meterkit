@@ -85,7 +85,7 @@ totaling USD 200 for the second-tranche form.
 - Email: `[required]`
 - Country: Argentina, if accurate
 - Public Solana wallet: `[required — public address only]`
-- GitHub repository URL: `[required before claiming it is public]`
+- GitHub repository URL: <https://github.com/JuanTorchia/meterkit>
 - Live devnet URL: `[add after deployment; do not call it production]`
 - AI coding tool and plan: `[confirm it is eligible before purchase]`
 
