@@ -2,6 +2,9 @@
 
 Official listing: <https://superteam.fun/earn/grants/agentic-engineering>
 
+Application status: **submitted by the applicant on 2026-08-04; review pending**.
+Submission does not imply approval.
+
 This document separates completed proof from grant-funded work. Do not claim users,
 revenue, a public deployment, or an approved grant until those facts are true.
 

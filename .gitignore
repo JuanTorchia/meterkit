@@ -12,3 +12,5 @@ coverage
 *keypair*.json
 .local-wallets/
 artifacts/packs/*.tgz
+artifacts/grant-upload/
+artifacts/*-Grant-*.zip

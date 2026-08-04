@@ -2,6 +2,8 @@
 
 Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 
+[![CI](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml)
+
 > Estado: **MVP funcional, sólo devnet**. El flujo x402 completo fue liquidado y finalizado en devnet el 2026-08-03; suscripciones y MCP continúan como módulos experimentales.
 
 ## Qué incluye
@@ -92,5 +94,9 @@ Consulte [`docs/audit.md`](docs/audit.md) para ver la evidencia y los pendientes
 ## Documentación
 
 Arquitectura, dependencias verificadas, seguridad, auditoría, negocio, competencia, financiación, one-pager, pitch deck, demo, grants y roadmap están en [`docs/`](docs/).
+
+La candidatura al Agentic Engineering Grant dispone de un
+[`evidence pack auditable`](docs/agentic-grant-pack/00-READ-ME-FIRST.md) con
+especificación, prueba de trabajo, trazabilidad y resultados de verificación.
 
 Apache-2.0.
