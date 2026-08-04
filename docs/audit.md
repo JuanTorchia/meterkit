@@ -15,11 +15,12 @@ Fecha: **2026-08-04**. Este documento distingue implementación, prueba determin
 | Subscriptions & Allowances | Builders y transacciones firmables probados | fixed, recurring, monthly, subscribe, tres revocaciones y wire v0 |
 | Ciclo subscription onchain | Pendiente | requiere cuentas devnet y envío de instrucciones |
 | Botón de revocación | Implementado | prepara blockhash devnet y usa `solana:signAndSendTransaction`; falta firma con wallet real |
-| MCP Scout cobrado | Contrato stdio probado | challenge de 0,02 USDC, recurso MCP explícito; falta settlement devnet |
+| MCP Scout cobrado | Verificado en devnet | reporte `anza-xyz/kit`, 0,02 USDC directos y firma `4ZkuVW…pM5wg` |
 | Finalidad RPC | Verificada en devnet | el reconciliador promovió la operación real a `finalized` |
 | Idempotencia HTTP | Implementada y probada | key+hash+respuesta en PostgreSQL |
 | SDK publicable | Empaquetado y probado | tarball limpio instalado/importado fuera del monorepo |
 | Pago real USDC devnet | Completado 2026-08-03 | [`61NPoR…Hsqsf`](https://explorer.solana.com/tx/61NPoRT92dwGZby6q4qAoFP9CG9UAUKBM3PZtW1BbwHTWvB3udMKgmcEfUPMCqvjjUjKEpakgmFomVwWVpjHsqsf?cluster=devnet) |
+| Pago MCP real devnet | Completado 2026-08-04 | [`4ZkuVW…pM5wg`](https://explorer.solana.com/tx/4ZkuVWNuEZLJkYxvU485YUWqNq6pgyQG54mVcCYpSgyXAHEWtCqKMsfLVKiNbuQuAPnymYzwS732cvPXzU7pM5wg?cluster=devnet) |
 | Verificador devnet | Ejecutado | saldo proveedor `0 → 10000`, replay HTTP 402, registro PostgreSQL `finalized` |
 
 ## Comandos ejecutados
@@ -67,7 +68,7 @@ El flujo se ejecutó con wallets desechables de devnet. El facilitador patrocin�
 |---|---|---|
 | Aplicación funcional | `apps/web`, `apps/gateway`, PostgreSQL | Público en devnet |
 | SDK/middleware publicable | `packages/sdk`, tarball instalado externamente | Verificado |
-| Servidor MCP útil | `examples/mcp-scout`, test stdio y fuentes GitHub | Verificado salvo pago real |
+| Servidor MCP útil | `examples/mcp-scout`, fuentes GitHub y recibo devnet | Verificado |
 | Landing y dashboard | Next.js + capturas desktop/móvil/live | Verificado local y público |
 | README reproducible | `README.md`, `.env.example`, Compose | Verificado localmente |
 | Arquitectura | `docs/architecture.md` | Listo |
@@ -92,4 +93,5 @@ El flujo se ejecutó con wallets desechables de devnet. El facilitador patrocin�
 5–9. Challenge, firma, pago, settle y respuesta: completados con USDC devnet.
 10–11. Dashboard y Explorer: implementados; la fila sólo aparece tras persistir settlement.
 12–14. Plan mensual, allowance y revocación: instrucciones canónicas y revocación Wallet Standard implementadas; falta transacción devnet real.
-15. MCP cobrado: challenge stdio probado; falta settlement devnet real.
+15. MCP cobrado: liquidado y finalizado por 0,02 USDC devnet; reporte factual
+    de `anza-xyz/kit` con fuentes y fecha.

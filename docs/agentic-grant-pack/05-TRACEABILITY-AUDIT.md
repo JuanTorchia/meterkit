@@ -11,7 +11,7 @@ Audited on **2026-08-03** against repository source and recorded devnet evidence
 | FR-04 idempotency | `packages/database`, gateway idempotency path | PostgreSQL integration test | Verified |
 | FR-05 receipts/dashboard | `apps/web`, payment persistence | Playwright + desktop/mobile captures | Verified locally |
 | FR-06 package integration | `packages/sdk`, example client | tarball installed/imported outside workspace package graph | Verified |
-| FR-07 useful MCP tool | `examples/mcp-scout` | Scout unit test and MCP stdio integration test | Protocol verified; payment devnet pending |
+| FR-07 useful MCP tool | `examples/mcp-scout` | Scout tests + devnet receipt `4ZkuVW…pM5wg` | Paid flow verified |
 | FR-08 capped allowance | `packages/subscriptions` | policy and transaction serialization tests | Builder verified |
 | FR-08 revocation | subscriptions package + Wallet Standard UI path | revocation serialization test | Builder verified; devnet signing pending |
 | Finality | `apps/gateway/src/finality.ts` | finality tests + real receipt finalized | Verified |
@@ -34,7 +34,7 @@ Audited on **2026-08-03** against repository source and recorded devnet evidence
 
 - Say “npm-ready” or “packaged,” not “published on npm.”
 - Say “dashboard verified locally,” not “live dashboard.”
-- Say “paid MCP contract implemented,” not “paid MCP devnet flow completed.”
+- Paid MCP devnet flow completed on 2026-08-04; cite the Explorer receipt.
 - Say “allowance builders and revocation serialization implemented,” not
   “subscription lifecycle completed on-chain.”
 

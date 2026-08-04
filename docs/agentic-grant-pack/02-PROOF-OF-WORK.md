@@ -69,7 +69,8 @@ the repository under `artifacts/`.
 ## Honest limitations
 
 - The dashboard and gateway are verified locally but not yet hosted publicly.
-- The MCP protocol contract is tested, but its paid call has not yet completed
+- The MCP protocol contract and paid devnet call completed on 2026-08-04
+  ([Explorer receipt](https://explorer.solana.com/tx/4ZkuVWNuEZLJkYxvU485YUWqNq6pgyQG54mVcCYpSgyXAHEWtCqKMsfLVKiNbuQuAPnymYzwS732cvPXzU7pM5wg?cluster=devnet))
   a separate real devnet settlement.
 - Subscription and allowance transactions are built and serialized, but their
   complete lifecycle has not yet been submitted and revoked on devnet.

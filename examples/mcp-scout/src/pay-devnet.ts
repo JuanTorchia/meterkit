@@ -44,6 +44,18 @@ async function main() {
         candidate.amount === PRICE_ATOMIC &&
         candidate.payTo === payTo
       );
+      if (!requirement) {
+        process.stderr.write(`${JSON.stringify({
+          error: "Rejected unexpected payment requirements",
+          accepts: paymentRequired.accepts.map((candidate) => ({
+            scheme: candidate.scheme,
+            network: candidate.network,
+            asset: candidate.asset,
+            amount: candidate.amount,
+            payTo: candidate.payTo,
+          })),
+        })}\n`);
+      }
       return Boolean(requirement);
     },
   });
@@ -65,10 +77,15 @@ async function main() {
 
   try {
     await client.connect(transport);
-    const repository = process.argv[2] ?? "solana-foundation/kit";
+    const repository = process.argv[2] ?? "anza-xyz/kit";
     const result = await client.callTool("scout_project", { githubRepository: repository });
     if (result.isError || !result.paymentMade || !result.paymentResponse) {
-      throw new Error("The paid MCP call did not settle");
+      throw new Error(`The paid MCP call did not settle: ${JSON.stringify({
+        isError: result.isError,
+        paymentMade: result.paymentMade,
+        paymentResponse: result.paymentResponse,
+        content: result.content,
+      })}`);
     }
     process.stdout.write(`${JSON.stringify({
       repository,
