@@ -15,7 +15,9 @@ MeterKit nunca custodia USDC, seed phrases ni claves privadas. Los activos son: 
 | Autorización expirada | `maxTimeoutSeconds=300`; facilitador simula y valida bloquehash | test expiración |
 | Doble ejecución concurrente | constraint único en DB y operación transaccional | carrera real PostgreSQL |
 | Repetición de alta HTTP | `Idempotency-Key`, hash del request y respuesta persistida | integración DB |
-| Alta con wallet ajena | challenge Ed25519, nonce de un solo uso y expiración de 5 minutos | `wallet-auth.test.ts` |
+| Alta con wallet ajena o firma reutilizada | challenge Ed25519 ligado a dominio, método, ruta, hash del producto e idempotency key; nonce de un solo uso y expiración de 5 minutos | `wallet-auth.test.ts` |
+| Recibo MCP reutilizado tras reinicio | validación RPC independiente y claim atómico persistente por hash SHA-256 | `receipt-guard.test.ts` |
+| Transacción confirmada caída | reconciliación periódica; error onchain inmediato o ausencia repetida pasan a `failed` | `finality.test.ts` |
 | Logs sensibles | nunca registrar payload, firma completa, header ni variables secretas | revisión |
 | Abuso de endpoint | límite por IP, body 32 KiB, validación Zod | integración |
 | Facilitador comprometido | revalidar transacción, error y balances token por RPC antes del handler | tests SDK |
@@ -34,7 +36,9 @@ El dashboard serializa la revocación localmente y la entrega a Wallet Standard 
 - Devnet y mainnet tienen despliegues, variables y bases separados.
 - Mainnet está deshabilitado hasta una autorización explícita y revisión.
 - Los secretos sólo viven en variables de entorno/secret manager.
-- Confirmación mínima `confirmed`; para marcar `finalized`, consultar RPC con ese commitment.
+- Confirmación mínima `confirmed`; para marcar `finalized`, consultar RPC. Un error
+  onchain se marca `failed`; una firma ausente requiere 20 consultas consecutivas
+  antes de considerarse caída, evitando falsos fallos transitorios.
 - Alertar por errores de settlement, replay y discrepancias del indexador.
 - Rotar credenciales del facilitador sin afectar wallets de usuarios.
 

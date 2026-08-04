@@ -26,7 +26,7 @@ export const paymentRecordSchema = z.object({
   network: z.literal(SOLANA_DEVNET),
   signature: z.string(),
   settledAt: z.string().datetime(),
-  status: z.enum(["confirmed", "finalized"]),
+  status: z.enum(["confirmed", "finalized", "failed"]),
 });
 export type PaymentRecord = z.infer<typeof paymentRecordSchema>;
 

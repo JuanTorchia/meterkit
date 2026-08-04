@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS payments (
   amount_atomic numeric(20, 0) NOT NULL CHECK (amount_atomic > 0),
   network text NOT NULL,
   signature text NOT NULL,
-  status text NOT NULL CHECK (status IN ('confirmed', 'finalized')),
+  status text NOT NULL CHECK (status IN ('confirmed', 'finalized', 'failed')),
   settled_at timestamptz NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (network, signature)
@@ -28,6 +28,10 @@ CREATE TABLE IF NOT EXISTS payments (
 
 CREATE INDEX IF NOT EXISTS payments_product_settled_idx
   ON payments (product_id, settled_at DESC);
+
+ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_status_check;
+ALTER TABLE payments ADD CONSTRAINT payments_status_check
+  CHECK (status IN ('confirmed', 'finalized', 'failed'));
 
 CREATE TABLE IF NOT EXISTS idempotency_keys (
   key text PRIMARY KEY,

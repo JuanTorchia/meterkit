@@ -21,6 +21,7 @@ export interface ProductStore {
 export interface FinalityStore {
   listConfirmedSignatures(limit?: number): Promise<readonly string[]>;
   markFinalized(signature: string): Promise<boolean>;
+  markFailed(signature: string): Promise<boolean>;
 }
 
 export class PostgresStore implements PaymentStore, ProductStore, FinalityStore {
@@ -91,6 +92,15 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
   async markFinalized(signature: string) {
     const result = await this.pool.query(
       `UPDATE payments SET status='finalized'
+       WHERE network=$1 AND signature=$2 AND status='confirmed'`,
+      [SOLANA_DEVNET_NETWORK, signature],
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async markFailed(signature: string) {
+    const result = await this.pool.query(
+      `UPDATE payments SET status='failed'
        WHERE network=$1 AND signature=$2 AND status='confirmed'`,
       [SOLANA_DEVNET_NETWORK, signature],
     );
