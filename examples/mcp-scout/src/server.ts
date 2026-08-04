@@ -4,7 +4,9 @@ import { createPaymentWrapper, x402ResourceServer } from "@x402/mcp";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 import { z } from "zod";
+import { SolanaSettlementValidator } from "@meterkit/sdk";
 import { fetchProject, renderReport } from "./scout.js";
+import { FileReceiptGuard } from "./receipt-guard.js";
 
 const SOLANA_DEVNET = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 const USDC_DEVNET = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
@@ -14,10 +16,28 @@ if (!payTo) throw new Error("MERCHANT_WALLET is required for paid MCP tools");
 const facilitator = new HTTPFacilitatorClient({
   url: process.env.X402_FACILITATOR_URL ?? "https://x402.org/facilitator",
 });
+const rpcUrl = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
+const settlementValidator = new SolanaSettlementValidator(rpcUrl);
+const receiptGuard = new FileReceiptGuard(
+  process.env.MCP_RECEIPT_DIR ?? ".meterkit/mcp-receipts",
+);
 const resourceServer = new x402ResourceServer(facilitator)
   .register(SOLANA_DEVNET, new ExactSvmScheme({
-    rpcUrl: process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
-  }));
+    rpcUrl,
+  }))
+  .onAfterSettle(async ({ result, requirements }) => {
+    if (!result.success || !result.transaction || !result.payer) {
+      throw new Error("PAYMENT_SETTLEMENT_INCOMPLETE");
+    }
+    await settlementValidator.validate({
+      signature: result.transaction,
+      payer: result.payer,
+      payTo: requirements.payTo,
+      mint: requirements.asset,
+      amountAtomic: requirements.amount,
+    });
+    await receiptGuard.claim(result.transaction);
+  });
 await resourceServer.initialize();
 const accepts = await resourceServer.buildPaymentRequirements({
   scheme: "exact",

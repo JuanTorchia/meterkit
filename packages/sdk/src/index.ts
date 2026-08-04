@@ -57,7 +57,7 @@ export class SolanaSettlementValidator {
   constructor(
     private readonly rpcUrl: string,
     private readonly request: typeof fetch = fetch,
-    private readonly attempts = 10,
+    private readonly attempts = 30,
   ) {}
 
   async validate(input: {
@@ -86,7 +86,7 @@ export class SolanaSettlementValidator {
       const parsed = parsedTransactionSchema.parse(await response.json());
       if (!parsed.result) {
         if (attempt + 1 < this.attempts) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 1_000));
           continue;
         }
         throw new Error("SETTLEMENT_TRANSACTION_NOT_FOUND");
@@ -268,7 +268,7 @@ export function createX402Middleware(options: {
         payer: result.payer,
         payTo: requirements.payTo,
         mint: requirements.asset,
-        amountAtomic: result.amount ?? requirements.amount,
+        amountAtomic: requirements.amount,
         network: SOLANA_DEVNET,
         signature: result.transaction,
         settledAt: new Date().toISOString(),
@@ -344,7 +344,7 @@ export function createDynamicX402Middleware(options: {
       await options.store.save(paymentRecordSchema.parse({
         id: crypto.randomUUID(), productId: product.id, payer: result.payer,
         payTo: requirements.payTo, mint: requirements.asset,
-        amountAtomic: result.amount ?? requirements.amount, network: SOLANA_DEVNET,
+        amountAtomic: requirements.amount, network: SOLANA_DEVNET,
           signature: result.transaction, settledAt: new Date().toISOString(), status: "confirmed",
       }));
     });

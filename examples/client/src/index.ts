@@ -40,6 +40,9 @@ export async function createDevnetPaymentFetch(options: {
   maxPerRequestAtomic?: bigint;
   maxSessionAtomic?: bigint;
   rpcUrl?: string;
+  expectedAssetMint: string;
+  expectedPayTo: string;
+  allowedResourcePrefix: string;
 }): Promise<typeof fetch> {
   return (await createDevnetPaymentClient(options)).fetch;
 }
@@ -49,11 +52,15 @@ export async function createDevnetPaymentClient(options: {
   maxPerRequestAtomic?: bigint;
   maxSessionAtomic?: bigint;
   rpcUrl?: string;
+  expectedAssetMint: string;
+  expectedPayTo: string;
+  allowedResourcePrefix: string;
 }): Promise<{ fetch: typeof fetch; getLastPaymentHeader: () => string | undefined }> {
   const signer = await createKeyPairSignerFromBytes(options.privateKeyBytes);
   const maxPerRequest = options.maxPerRequestAtomic ?? 100_000n;
   const maxSession = options.maxSessionAtomic ?? 1_000_000n;
   let authorized = 0n;
+  const allowedResource = new URL(options.allowedResourcePrefix);
   const client = new x402Client()
     .register(
       SOLANA_DEVNET,
@@ -63,9 +70,18 @@ export async function createDevnetPaymentClient(options: {
     )
     .registerPolicy((_version, requirements) => requirements.filter((requirement) => {
       if (requirement.network !== SOLANA_DEVNET) return false;
+      if (requirement.asset !== options.expectedAssetMint) return false;
+      if (requirement.payTo !== options.expectedPayTo) return false;
       const amount = BigInt(requirement.amount);
       return amount <= maxPerRequest && authorized + amount <= maxSession;
     }))
+    .onBeforePaymentCreation(async ({ paymentRequired }) => {
+      const resource = new URL(paymentRequired.resource.url);
+      if (resource.origin !== allowedResource.origin ||
+          !resource.pathname.startsWith(allowedResource.pathname)) {
+        return { abort: true, reason: "RESOURCE_NOT_ALLOWED" };
+      }
+    })
     .onAfterPaymentCreation(async ({ selectedRequirements }) => {
       authorized += BigInt(selectedRequirements.amount);
     });
@@ -76,8 +92,17 @@ export async function createDevnetPaymentClient(options: {
     if (payment) lastPaymentHeader = payment;
     return fetch(input, init);
   };
+  const paidFetch = wrapFetchWithPayment(observedFetch, client);
+  // Serialize payment creation so concurrent agent calls cannot race the
+  // session budget check and authorize more than the configured ceiling.
+  let queue = Promise.resolve();
+  const budgetedFetch: typeof fetch = (input, init) => {
+    const pending = queue.then(() => paidFetch(input, init));
+    queue = pending.then(() => undefined, () => undefined);
+    return pending;
+  };
   return {
-    fetch: wrapFetchWithPayment(observedFetch, client),
+    fetch: budgetedFetch,
     getLastPaymentHeader: () => lastPaymentHeader,
   };
 }
@@ -94,6 +119,11 @@ async function main() {
     privateKeyBytes: Uint8Array.from(parsed as number[]),
     maxPerRequestAtomic: BigInt(process.env.MAX_PAYMENT_ATOMIC ?? "100000"),
     maxSessionAtomic: BigInt(process.env.MAX_SESSION_SPEND_ATOMIC ?? "1000000"),
+    expectedAssetMint: process.env.EXPECTED_ASSET_MINT ??
+      "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+    expectedPayTo: required("MERCHANT_WALLET"),
+    allowedResourcePrefix: process.env.ALLOWED_RESOURCE_PREFIX ??
+      `${process.env.GATEWAY_URL ?? "http://localhost:3402"}/v1/weather/premium`,
     ...(process.env.SOLANA_RPC_URL ? { rpcUrl: process.env.SOLANA_RPC_URL } : {}),
   });
   const result = await callPaidWeather(paidFetch, process.argv[2]);
@@ -105,4 +135,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   });
+}
+
+function required(name: string) {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is required`);
+  return value;
 }

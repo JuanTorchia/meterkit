@@ -13,6 +13,9 @@ const paymentClient = await createDevnetPaymentClient({
   maxPerRequestAtomic: 10_000n,
   maxSessionAtomic: 10_000n,
   rpcUrl,
+  expectedAssetMint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+  expectedPayTo: merchant,
+  allowedResourcePrefix: `${gatewayUrl}/v1/weather/premium`,
 });
 const result = await callPaidWeather(paymentClient.fetch, "Buenos Aires", gatewayUrl);
 const receipt = parseReceipt(result.receipt);
