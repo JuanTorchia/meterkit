@@ -1,59 +1,190 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { isLocale, localeLabels, locales, type Locale } from "../locale";
 
 const gateway = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:3402";
-type Phase = "idle" | "requesting" | "required" | "validating" | "settled" | "unlocked";
+const expectedProduct = "premium-weather";
+const expectedNetwork = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
+type Phase = "idle" | "requesting" | "required" | "validating" | "settled" | "unlocked" | "error";
+type Requirement = { amount: string; payTo: string; network: string; asset: string };
+type Receipt = {
+  productId: string; amountAtomic: string; network: string; status: string;
+  signature: string; explorerUrl: string; settledAt: string;
+};
+
+const copy = {
+  en: {
+    badge: "Guided proof · Solana Devnet", workspace: "Provider workspace →",
+    kicker: "VERIFIABLE PRODUCT WALKTHROUGH", title: "Watch one API request expose its payment terms.",
+    intro: "The HTTP 402 challenge is fetched live. The settlement section shows a clearly identified, previously finalized synthetic devnet receipt—not a new wallet payment.",
+    provider: "PROVIDER", description: "Protected forecast with provenance and retrieval time.",
+    perRequest: "test USDC\nper request", paidTo: "Paid directly to",
+    agent: "AI AGENT / CUSTOMER", console: "Request console", run: "Run live request", sent: "Request sent",
+    calling: "Calling the protected endpoint…", required: "PAYMENT REQUIRED", recipient: "recipient",
+    proof: "Show correlated receipt →", validating: "Loading matching public evidence…",
+    checks: ["Live 402: network, mint, amount and recipient", "Previously signed by a synthetic devnet wallet", "Previously finalized receipt matched to this product"],
+    responseLabel: "PROTECTED RESPONSE ILLUSTRATION", response: "21°C · Buenos Aires",
+    responseDetail: "Example payload · no request was unlocked in this playback",
+    receipt: "Previously finalized receipt", reset: "Start again",
+    error: "The proof could not be completed.", retry: "Retry",
+    steps: ["1 Request", "2 Terms", "3 Evidence", "4 Explain"],
+  },
+  es: {
+    badge: "Prueba guiada · Solana Devnet", workspace: "Panel del proveedor →",
+    kicker: "RECORRIDO VERIFICABLE", title: "Mira cómo una solicitud API expone sus condiciones de pago.",
+    intro: "El desafío HTTP 402 se obtiene en vivo. La liquidación muestra un recibo sintético de devnet previamente finalizado e identificado; no realiza un pago nuevo.",
+    provider: "PROVEEDOR", description: "Pronóstico protegido con procedencia y fecha de consulta.",
+    perRequest: "USDC de prueba\npor solicitud", paidTo: "Pago directo a",
+    agent: "AGENTE IA / CLIENTE", console: "Consola de solicitud", run: "Ejecutar solicitud", sent: "Solicitud enviada",
+    calling: "Consultando el endpoint protegido…", required: "PAGO REQUERIDO", recipient: "destinatario",
+    proof: "Mostrar recibo correlacionado →", validating: "Buscando evidencia pública coincidente…",
+    checks: ["402 en vivo: red, mint, monto y destinatario", "Firmado previamente por una wallet sintética de devnet", "Recibo previamente finalizado y asociado al producto"],
+    responseLabel: "ILUSTRACIÓN DE RESPUESTA PROTEGIDA", response: "21°C · Buenos Aires",
+    responseDetail: "Payload de ejemplo · este playback no desbloqueó una solicitud",
+    receipt: "Recibo previamente finalizado", reset: "Comenzar otra vez",
+    error: "No se pudo completar la prueba.", retry: "Reintentar",
+    steps: ["1 Solicitud", "2 Condiciones", "3 Evidencia", "4 Explicación"],
+  },
+  "pt-BR": {
+    badge: "Prova guiada · Solana Devnet", workspace: "Painel do provedor →",
+    kicker: "DEMONSTRAÇÃO VERIFICÁVEL", title: "Veja uma requisição de API expor suas condições de pagamento.",
+    intro: "O desafio HTTP 402 é obtido ao vivo. A liquidação mostra um recibo sintético de devnet previamente finalizado e identificado; não realiza um novo pagamento.",
+    provider: "PROVEDOR", description: "Previsão protegida com procedência e data da consulta.",
+    perRequest: "USDC de teste\npor requisição", paidTo: "Pagamento direto para",
+    agent: "AGENTE DE IA / CLIENTE", console: "Console da requisição", run: "Executar requisição", sent: "Requisição enviada",
+    calling: "Consultando o endpoint protegido…", required: "PAGAMENTO NECESSÁRIO", recipient: "destinatário",
+    proof: "Mostrar recibo correlacionado →", validating: "Buscando evidência pública correspondente…",
+    checks: ["402 ao vivo: rede, mint, valor e destinatário", "Assinado anteriormente por uma carteira sintética de devnet", "Recibo previamente finalizado e associado ao produto"],
+    responseLabel: "ILUSTRAÇÃO DA RESPOSTA PROTEGIDA", response: "21°C · Buenos Aires",
+    responseDetail: "Payload de exemplo · este playback não desbloqueou uma requisição",
+    receipt: "Recibo previamente finalizado", reset: "Começar novamente",
+    error: "Não foi possível completar a prova.", retry: "Tentar novamente",
+    steps: ["1 Requisição", "2 Condições", "3 Evidência", "4 Explicação"],
+  },
+} as const;
 
 export default function DemoPage() {
+  const [locale, setLocale] = useState<Locale>("en");
   const [phase, setPhase] = useState<Phase>("idle");
-  const [requirement, setRequirement] = useState({ amount: "10000", payTo: "—", network: "Solana Devnet" });
-  const [receipt, setReceipt] = useState<{ signature: string; explorerUrl: string }>();
+  const [requirement, setRequirement] = useState<Requirement>();
+  const [receipt, setReceipt] = useState<Receipt>();
+  const [error, setError] = useState("");
+  const statusRef = useRef<HTMLDivElement>(null);
+  const text = copy[locale];
+
+  useEffect(() => {
+    const saved = localStorage.getItem("meterkit-locale");
+    if (isLocale(saved)) setLocale(saved);
+  }, []);
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    localStorage.setItem("meterkit-locale", locale);
+  }, [locale]);
+
   const run = async () => {
-    setPhase("requesting");
-    const response = await fetch(`${gateway}/v1/weather/premium?city=Buenos%20Aires`);
-    const header = response.headers.get("payment-required");
-    if (response.status !== 402 || !header) throw new Error("Expected a live HTTP 402");
+    setError(""); setReceipt(undefined); setRequirement(undefined); setPhase("requesting");
     try {
-      const decoded = JSON.parse(atob(header)) as { accepts?: Array<{ amount?: string; payTo?: string; network?: string }> };
+      const response = await fetchWithTimeout(`${gateway}/v1/weather/premium?city=Buenos%20Aires`);
+      const header = response.headers.get("payment-required");
+      if (response.status !== 402 || !header) throw new Error("The endpoint did not return a valid HTTP 402 challenge.");
+      const decoded = JSON.parse(atob(header)) as {
+        accepts?: Array<{ amount?: string; payTo?: string; network?: string; asset?: string }>;
+      };
       const next = decoded.accepts?.[0];
-      setRequirement({ amount: next?.amount ?? "10000", payTo: next?.payTo ?? "—", network: next?.network ?? "Solana Devnet" });
-    } catch { /* human-readable fallback remains safe */ }
-    setPhase("required");
+      if (!next?.amount || !next.payTo || !next.network || !next.asset) throw new Error("The payment requirement is incomplete.");
+      if (next.network !== expectedNetwork) throw new Error("The endpoint returned an unexpected network.");
+      setRequirement({ amount: next.amount, payTo: next.payTo, network: next.network, asset: next.asset });
+      setPhase("required");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Gateway unavailable.");
+      setPhase("error");
+    }
   };
-  const replay = async () => {
-    setPhase("validating");
-    await pause(800);
-    const payments = await fetch(`${gateway}/v1/public/payments`).then((value) => value.json()) as Array<{ status: string; signature: string; explorerUrl: string }>;
-    const finalized = payments.find((payment) => payment.status === "finalized") ?? {
-      status: "finalized",
-      signature: "9EQSGTgeXsia5JJ2GAjuh6tjVsUnvBbNWnYhAS74HvBG4u1kewwxgbo3dXmwtPTdwtekuksZkimjivDwwTAwU7X",
-      explorerUrl: "https://explorer.solana.com/tx/9EQSGTgeXsia5JJ2GAjuh6tjVsUnvBbNWnYhAS74HvBG4u1kewwxgbo3dXmwtPTdwtekuksZkimjivDwwTAwU7X?cluster=devnet",
-    };
-    setReceipt(finalized); setPhase("settled"); await pause(900); setPhase("unlocked");
+
+  const showEvidence = async () => {
+    if (!requirement) return;
+    setError(""); setPhase("validating");
+    try {
+      const response = await fetchWithTimeout(`${gateway}/v1/public/payments`);
+      if (!response.ok) throw new Error(`Receipt index returned HTTP ${response.status}.`);
+      const payments = await response.json() as Receipt[];
+      const finalized = payments.find((payment) =>
+        payment.status === "finalized" &&
+        payment.productId === expectedProduct &&
+        payment.amountAtomic === requirement.amount &&
+        payment.network === requirement.network &&
+        typeof payment.signature === "string" &&
+        typeof payment.explorerUrl === "string");
+      if (!finalized) throw new Error("No finalized receipt matches this product, amount and network.");
+      setReceipt(finalized); setPhase("settled");
+      await pause(500); setPhase("unlocked");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Public receipt evidence is unavailable.");
+      setPhase("error");
+    }
   };
+
+  const reset = () => { setPhase("idle"); setError(""); setReceipt(undefined); setRequirement(undefined); };
+  const started = phase !== "idle" && phase !== "requesting";
+
   return <main className="demoPage">
-    <nav><Link className="brand" href="/"><span className="mark">M</span> MeterKit</Link><span className="devnetBadge">● Guided simulation · live devnet evidence</span><Link href="/dashboard">Provider workspace →</Link></nav>
-    <header className="demoIntro"><span className="kicker">LIVE PRODUCT WALKTHROUGH</span><h1>Watch one API request become a payment.</h1><p>The 402 challenge is fetched live. Settlement playback uses an already-finalized devnet transaction and never represents an external user.</p></header>
-    <section className="demoConsole">
-      <article className="persona providerPane"><span className="personaLabel">PROVIDER</span><h2>Premium Weather API</h2><p>Protected forecast with provenance and retrieval time.</p><div className="demoPrice"><strong>0.01</strong><span>test USDC<br />per request</span></div><code>GET /v1/weather/premium</code><small>Paid directly to {requirement.payTo === "—" ? "the provider wallet" : short(requirement.payTo)}</small></article>
-      <article className="persona agentPane"><span className="personaLabel">AI AGENT / CUSTOMER</span><h2>Request console</h2>
-        <div className="requestLine"><code>GET /premium</code><button onClick={() => void run()} disabled={phase !== "idle"}>{phase === "idle" ? "Run request" : "Request sent"} →</button></div>
-        {phase === "requesting" && <p className="demoNotice">Calling protected endpoint…</p>}
-        {phase !== "idle" && phase !== "requesting" && <div className="paymentCard"><span>402 · PAYMENT REQUIRED</span><strong>{formatAmount(requirement.amount)} test USDC</strong><p>Devnet · recipient {short(requirement.payTo)}</p>{phase === "required" && <button onClick={() => void replay()}>Replay verified payment flow →</button>}</div>}
-        {(phase === "validating" || phase === "settled" || phase === "unlocked") && <div className="paymentTimeline">
-          <span className="done">✓ Network, mint, amount and recipient</span>
-          <span className={phase !== "validating" ? "done" : ""}>✓ Wallet signed locally</span>
-          <span className={phase === "unlocked" ? "done" : ""}>✓ Finalized and request retried</span>
+    <nav className="demoNav">
+      <Link className="brand" href="/"><span className="mark" aria-hidden="true">M</span> MeterKit</Link>
+      <span className="devnetBadge">● {text.badge}</span>
+      <div className="navActions">
+        <Link className="demoWorkspaceLink" href="/dashboard">{text.workspace}</Link>
+        <div className="localeSwitch" role="group" aria-label="Language">{locales.map((option) =>
+          <button key={option} className={locale === option ? "active" : ""} aria-label={localeLabels[option]}
+            aria-pressed={locale === option} onClick={() => setLocale(option)}>
+            {option === "pt-BR" ? "PT" : option.toUpperCase()}
+          </button>)}</div>
+      </div>
+    </nav>
+    <header className="demoIntro"><span className="kicker">{text.kicker}</span><h1>{text.title}</h1><p>{text.intro}</p></header>
+    <section className="demoConsole" aria-label="x402 payment walkthrough">
+      <article className="persona providerPane"><span className="personaLabel">{text.provider}</span><h2>Premium Weather API</h2><p>{text.description}</p><div className="demoPrice"><strong>0.01</strong><span>{text.perRequest.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</span></div><code>GET /v1/weather/premium</code><small>{text.paidTo} {requirement ? short(requirement.payTo) : "the provider wallet"}</small></article>
+      <article className="persona agentPane"><span className="personaLabel">{text.agent}</span><h2>{text.console}</h2>
+        <div className="requestLine"><code>GET /premium</code><button onClick={() => void run()} disabled={phase === "requesting" || phase === "validating"}>{phase === "requesting" ? text.sent : text.run} →</button></div>
+        <div className="srStatus" role={phase === "error" ? "alert" : "status"} aria-live="polite" ref={statusRef}>
+          {phase === "requesting" ? text.calling : phase === "validating" ? text.validating : error}
+        </div>
+        {phase === "requesting" && <p className="demoNotice">{text.calling}</p>}
+        {started && requirement && <div className="paymentCard">
+          <span>402 · {text.required}</span><strong>{formatAmount(requirement.amount)} test USDC</strong>
+          <p>Devnet · {text.recipient} {short(requirement.payTo)}</p>
+          <code>{short(requirement.asset)}</code>
+          {phase === "required" && <button onClick={() => void showEvidence()}>{text.proof}</button>}
         </div>}
-        {phase === "unlocked" && <div className="weatherResult"><span>200 · PROTECTED RESPONSE</span><strong>21°C · Buenos Aires</strong><p>Clear · source timestamp included</p>{receipt && <a href={receipt.explorerUrl} target="_blank" rel="noreferrer">Finalized receipt {short(receipt.signature)} ↗</a>}</div>}
+        {phase === "error" && <div className="demoError" role="alert"><strong>{text.error}</strong><p>{error}</p><button onClick={() => void run()}>{text.retry} →</button></div>}
+        {(phase === "validating" || phase === "settled" || phase === "unlocked") && <ol className="paymentTimeline">
+          {text.checks.map((check, index) => <li key={check} className={index === 0 || phase !== "validating" ? "done" : ""}>{index === 0 || phase !== "validating" ? "✓" : "…"} {check}</li>)}
+        </ol>}
+        {phase === "unlocked" && receipt && <div className="weatherResult">
+          <span>200 · {text.responseLabel}</span><strong>{text.response}</strong><p>{text.responseDetail}</p>
+          <a href={receipt.explorerUrl} target="_blank" rel="noreferrer">{text.receipt} {short(receipt.signature)} ↗</a>
+          <small>{new Date(receipt.settledAt).toLocaleString(locale)}</small>
+          <button className="textButton" onClick={reset}>{text.reset} ↻</button>
+        </div>}
       </article>
     </section>
-    <div className="demoSteps"><span className={phase !== "idle" ? "active" : ""}>1 Request</span><span className={["required","validating","settled","unlocked"].includes(phase) ? "active" : ""}>2 Price</span><span className={["validating","settled","unlocked"].includes(phase) ? "active" : ""}>3 Validate</span><span className={phase === "unlocked" ? "active" : ""}>4 Unlock</span></div>
+    <div className="demoSteps" aria-label="Progress">
+      {text.steps.map((step, index) => <span key={step} className={stepActive(index, phase) ? "active" : ""}>{step}</span>)}
+    </div>
   </main>;
 }
 
+async function fetchWithTimeout(url: string) {
+  return fetch(url, { signal: AbortSignal.timeout(10_000), cache: "no-store" });
+}
+function stepActive(index: number, phase: Phase) {
+  if (phase === "idle" || phase === "error") return false;
+  if (index === 0) return true;
+  if (index === 1) return !["requesting"].includes(phase);
+  if (index === 2) return ["validating", "settled", "unlocked"].includes(phase);
+  return phase === "unlocked";
+}
 function pause(ms: number) { return new Promise((resolve) => globalThis.setTimeout(resolve, ms)); }
-function short(value: string) { return value.length > 16 ? `${value.slice(0, 7)}…${value.slice(-5)}` : value; }
+function short(value: string) { return value.length > 18 ? `${value.slice(0, 8)}…${value.slice(-6)}` : value; }
 function formatAmount(value: string) { return (Number(value) / 1_000_000).toFixed(2); }

@@ -29,7 +29,7 @@ const devnet = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 const walletDevnet = "solana:devnet";
 const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
 
-type ConnectedWallet = { wallet: Wallet; account: WalletAccount };
+export type ConnectedWallet = { wallet: Wallet; account: WalletAccount };
 
 export function WalletButton({ onConnect, locale }: {
   onConnect: (connection: ConnectedWallet) => void;
@@ -71,7 +71,7 @@ function WalletOption({ wallet, onAccount }: { wallet: UiWallet; onAccount: (acc
 const dashboardCopy = {
   en: {
     connect: "Connect your wallet.", newProduct: "＋ New product",
-    overview: "OVERVIEW · LIVE DATA", volume: "Settled volume", requests: "Paid requests",
+    overview: "OVERVIEW · PUBLIC DEVNET DATA", volume: "Settled volume", requests: "Paid requests",
     products: "Active products", receipts: "Unique receipts", persisted: "From PostgreSQL",
     config: "Persistent configuration", network: "Network", perRequest: "per request",
     createAnother: "Create another product", apiTool: "API, endpoint, or MCP tool",
@@ -81,7 +81,7 @@ const dashboardCopy = {
   },
   es: {
     connect: "Conecta tu wallet.", newProduct: "＋ Nuevo producto",
-    overview: "OVERVIEW · DATOS REALES", volume: "Volumen liquidado", requests: "Solicitudes pagadas",
+    overview: "OVERVIEW · DATOS PÚBLICOS DE DEVNET", volume: "Volumen liquidado", requests: "Solicitudes pagadas",
     products: "Productos activos", receipts: "Recibos únicos", persisted: "Desde PostgreSQL",
     config: "Configuración persistente", network: "Red", perRequest: "por solicitud",
     createAnother: "Crea otro producto", apiTool: "API, endpoint o herramienta MCP",
@@ -91,7 +91,7 @@ const dashboardCopy = {
   },
   "pt-BR": {
     connect: "Conecte sua carteira.", newProduct: "＋ Novo produto",
-    overview: "VISÃO GERAL · DADOS REAIS", volume: "Volume liquidado", requests: "Requisições pagas",
+    overview: "VISÃO GERAL · DADOS PÚBLICOS DA DEVNET", volume: "Volume liquidado", requests: "Requisições pagas",
     products: "Produtos ativos", receipts: "Recibos únicos", persisted: "Do PostgreSQL",
     config: "Configuração persistente", network: "Rede", perRequest: "por requisição",
     createAnother: "Crie outro produto", apiTool: "API, endpoint ou ferramenta MCP",
@@ -160,7 +160,7 @@ export function DashboardClient({ locale }: { locale: Locale }) {
               : product.description}</p>
             <div className="price"><strong>{formatUsdc(BigInt(product.priceAtomic), locale)}</strong><span> USDC<br />{text.perRequest}</span></div>
             <code>GET {new URL(product.resource).pathname}</code>
-            <div className="productFoot"><span>{short(product.payTo)}</span><a href={product.resource}>{locale === "en" ? "Try 402 →" : locale === "es" ? "Probar 402 →" : "Testar 402 →"}</a></div>
+            <div className="productFoot"><span>{short(product.payTo)}</span><a href={product.resource} target="_blank" rel="noreferrer">{locale === "en" ? "Try 402 ↗" : locale === "es" ? "Probar 402 ↗" : "Testar 402 ↗"}</a></div>
           </article>)}
           {connection && <button className="add" onClick={() => setCreating(true)}><span>＋</span><h3>{text.createAnother}</h3><p>{text.apiTool}</p></button>}
         </div>
@@ -176,12 +176,11 @@ export function DashboardClient({ locale }: { locale: Locale }) {
           </div>)}
         </div>
       </section>
-      <AllowancePanel connection={connection} locale={locale} />
     </>
   );
 }
 
-function AllowancePanel({ connection, locale }: { connection?: ConnectedWallet; locale: Locale }) {
+export function AllowancePanel({ connection, locale }: { connection?: ConnectedWallet; locale: Locale }) {
   const text = dashboardCopy[locale];
   const [delegationAccount, setDelegationAccount] = useState("");
   const [status, setStatus] = useState(locale === "en" ? "Revoke allowance" : locale === "es" ? "Revocar allowance" : "Revogar allowance");

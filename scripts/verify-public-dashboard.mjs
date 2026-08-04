@@ -15,7 +15,7 @@ try {
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
   });
-  await page.goto(target, { waitUntil: "networkidle", timeout: 30_000 });
+  await page.goto(`${target}/dashboard`, { waitUntil: "networkidle", timeout: 30_000 });
   await page.waitForFunction(
     (minimum) => globalThis.document.querySelectorAll(".transactions .row").length >= minimum,
     minimumReceipts,

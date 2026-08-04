@@ -24,11 +24,26 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   await page.getByRole("button", { name: "English", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await page.goto("/demo");
-  await page.getByRole("button", { name: /Run request/ }).click();
+  await page.getByRole("button", { name: /Run live request/ }).click();
   await expect(page.getByText("402 · PAYMENT REQUIRED")).toBeVisible();
-  await page.getByRole("button", { name: /Replay verified/ }).click();
-  await expect(page.getByText("200 · PROTECTED RESPONSE")).toBeVisible();
+  await expect(page.getByText("0.01 test USDC")).toBeVisible();
+  await expect(page.getByText(/recipient 7NXuBz/)).toBeVisible();
+  await page.route("**/v1/public/payments", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
+  await page.getByRole("button", { name: /Show correlated receipt/ }).click();
+  await expect(page.locator(".demoError")).toContainText("No finalized receipt matches");
+  await expect(page.getByRole("button", { name: /^Retry/ })).toBeEnabled();
+  await expect(page.getByText("Wallet signed locally")).toHaveCount(0);
   await page.screenshot({ path: "artifacts/demo-v2-desktop.png", fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  expect(await page.evaluate(() =>
+    document.documentElement.scrollWidth === document.documentElement.clientWidth)).toBe(true);
+  await page.screenshot({ path: "artifacts/demo-v2-mobile.png", fullPage: true });
+
+  await page.goto("/");
+  await page.screenshot({ path: "artifacts/landing-v2-mobile.png", fullPage: true });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Premium Weather API" })).toBeVisible();
   await expect(page.getByText("0.01", { exact: true }).first()).toBeVisible();
@@ -43,6 +58,9 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   expect(await page.evaluate(() =>
     document.documentElement.scrollWidth === document.documentElement.clientWidth)).toBe(true);
   await page.screenshot({ path: "artifacts/dashboard-mobile.png", fullPage: true });
+  await page.goto("/agent/allowances");
+  await expect(page.getByRole("heading", { name: "Your authorization stays yours." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Revoke an authorization." })).toBeVisible();
   expect(consoleErrors).toEqual([]);
   expect(failedResponses).toEqual([]);
 });

@@ -65,14 +65,14 @@ try {
     `payTo    ${short(requirement?.payTo ?? "provider wallet", 42)}`,
   ], "Live challenge fetched while recording");
 
-  await terminal(page, 11, [
-    "$ agent validates network · mint · amount · recipient",
-    "$ wallet signs locally",
-    "$ request retries with PAYMENT-SIGNATURE",
-    "200 OK  { protected: true, weather: … }",
-    "",
-    "USDC settles client → provider. MeterKit never holds funds.",
-  ], "Bounded agent payment");
+  await page.goto(`${webUrl}/demo`, { waitUntil: "networkidle", timeout: 30_000 });
+  await page.getByRole("button", { name: /Run live request/ }).click();
+  await page.getByText("402 · PAYMENT REQUIRED").waitFor();
+  await scene(page, 8, "Live HTTP 402", "The browser just fetched network, mint, amount and recipient from the protected endpoint.");
+
+  await page.getByRole("button", { name: /Show correlated receipt/ }).click();
+  await page.getByText("200 · PROTECTED RESPONSE ILLUSTRATION").waitFor();
+  await scene(page, 10, "Previously finalized evidence", "This synthetic devnet receipt matches the product, network and amount. No new payment is claimed.");
 
   await terminal(page, 7, [
     "$ retry --same-payment-proof",
@@ -82,14 +82,14 @@ try {
     "PostgreSQL also enforces one claim per network/signature.",
   ], "Replay protection — recorded synthetic campaign result");
 
-  await clearOverlay(page);
+  await page.goto(`${webUrl}/dashboard`, { waitUntil: "networkidle", timeout: 30_000 });
   await page.locator("#payments").scrollIntoViewIfNeeded();
   await scene(page, 10, "Public, verifiable receipts", `${finalized.length} finalized payments indexed with Explorer links.`);
 
   await page.goto(latest.explorerUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await scene(page, 11, "Finalized on Solana devnet", `Transaction ${short(latest.signature, 28)} — independently verifiable.`);
 
-  await page.goto(webUrl, { waitUntil: "networkidle", timeout: 30_000 });
+  await page.goto(`${webUrl}/dashboard`, { waitUntil: "networkidle", timeout: 30_000 });
   await page.locator("#allowances").scrollIntoViewIfNeeded();
   await scene(page, 7, "Agents stay bounded", "Spending caps, expiration and wallet-controlled revocation.");
 
