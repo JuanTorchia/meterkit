@@ -9,7 +9,10 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   page.on("response", (response) => {
     if (response.status() >= 400 && response.status() !== 402) failedResponses.push(`${response.status()} ${response.url()}`);
   });
-  await page.goto("/");
+  const landingResponse = await page.goto("/");
+  expect(landingResponse?.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
+  expect(landingResponse?.headers()["x-content-type-options"]).toBe("nosniff");
+  expect(landingResponse?.headers()["x-powered-by"]).toBeUndefined();
   await expect(page.getByRole("heading", { name: /Turn an API call/ })).toBeVisible();
   await expect(page.getByText("MeterKit never holds the funds", { exact: false })).toBeVisible();
   await page.screenshot({ path: "artifacts/landing-v2-desktop.png", fullPage: true });
@@ -42,6 +45,8 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   await page.screenshot({ path: "artifacts/demo-v2-mobile.png", fullPage: true });
 
   await page.goto("/");
+  await expect(page.getByRole("navigation", { name: "Product areas" }).getByRole("link", { name: "Payer" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Product areas" }).getByRole("link", { name: /MCP Scout/ })).toBeVisible();
   await page.screenshot({ path: "artifacts/landing-v2-mobile.png", fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/dashboard");

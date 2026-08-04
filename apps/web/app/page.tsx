@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PaymentFlowVisual } from "./payment-flow-visual";
 import { isLocale, localeLabels, locales, type Locale } from "./locale";
+import { MobileProductLinks } from "./product-links";
 
 const copy = {
   en: {
@@ -113,7 +114,7 @@ function MarketingNav({ locale, setLocale, text }: {
   setLocale: (locale: Locale) => void;
   text: (typeof copy)[Locale];
 }) {
-  return <nav>
+  return <nav className="marketingNav">
     <Link className="brand" href="/"><span className="mark">M</span> MeterKit</Link>
     <div className="navlinks"><a href="#product">{text.products}</a><Link href="/demo">{text.demo}</Link><a href="#docs">{text.docs}</a></div>
     <div className="navActions">
@@ -122,5 +123,6 @@ function MarketingNav({ locale, setLocale, text }: {
       </div>
       <Link className="wallet navWorkspace" href="/dashboard"><span className="dot" /> {text.dashboard}</Link>
     </div>
+    <MobileProductLinks locale={locale} />
   </nav>;
 }

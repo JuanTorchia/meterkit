@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { isLocale, localeLabels, locales, type Locale } from "../locale";
+import { MobileProductLinks } from "../product-links";
 
 const gateway = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:3402";
 const expectedProduct = "premium-weather";
@@ -141,6 +142,7 @@ export default function DemoPage() {
             {option === "pt-BR" ? "PT" : option.toUpperCase()}
           </button>)}</div>
       </div>
+      <MobileProductLinks locale={locale} />
     </nav>
     <header className="demoIntro"><span className="kicker">{text.kicker}</span><h1>{text.title}</h1><p>{text.intro}</p></header>
     <section className="demoConsole" aria-label="x402 payment walkthrough">

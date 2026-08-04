@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AllowancePanel, type ConnectedWallet, WalletButton } from "../../dashboard-client";
 import { isLocale, localeLabels, locales, type Locale } from "../../locale";
+import { MobileProductLinks } from "../../product-links";
 
 const copy = {
   en: { badge: "Payer control · Solana Devnet", dashboard: "Provider workspace →", kicker: "AGENT / PAYER CONTROL", title: "Your authorization stays yours.", intro: "Connect the payer wallet to revoke a bounded allowance. MeterKit never receives your seed phrase or private key." },
@@ -36,6 +37,7 @@ export default function AgentAllowancesPage() {
             {option === "pt-BR" ? "PT" : option.toUpperCase()}
           </button>)}</div>
       </div>
+      <MobileProductLinks locale={locale} />
     </nav>
     <header className="workspaceIntro">
       <span className="kicker">{text.kicker}</span><h1>{text.title}</h1><p>{text.intro}</p>
