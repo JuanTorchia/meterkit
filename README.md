@@ -75,6 +75,17 @@ pnpm test:e2e
 3. Configure la wallet pública del proveedor y reinicie gateway.
 4. Use un signer local con `@x402/svm`; llame al endpoint.
 5. Conserve la firma, abra `https://explorer.solana.com/tx/<firma>?cluster=devnet`.
+
+Para probar el cobro MCP real con una keypair desechable:
+
+```bash
+SOLANA_KEYPAIR_PATH=/ruta/segura/comprador.json \
+MERCHANT_WALLET=<wallet-proveedor> \
+pnpm --filter @meterkit/mcp-scout pay:devnet solana-foundation/kit
+```
+
+El cliente sólo aprueba 0,02 USDC devnet, valida red, mint y receptor, y no
+comparte la clave con el proceso MCP.
 6. Repita el mismo comprobante: debe rechazarse y no volver a ejecutar el handler.
 
 El cliente requiere `SOLANA_PRIVATE_KEY` como arreglo JSON de 64 bytes, sólo en el proceso local. El repositorio ignora `.local-wallets/` y nunca debe recibir keypairs en Git. No se cambia a mainnet sin revisión y autorización explícita.
