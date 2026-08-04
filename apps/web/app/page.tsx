@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DashboardClient } from "./dashboard-client";
+import { isLocale, localeLabels, locales, type Locale } from "./locale";
 
 const copy = {
   en: {
@@ -22,10 +23,27 @@ const copy = {
     kicker: "TRES LÍNEAS", codeTitle: <>Protege tu endpoint.<br />Sigue construyendo.</>,
     codeBody: "MeterKit responde 402, valida el pago y entrega el contenido. Tú conservas el control y recibes USDC directamente.",
   },
+  "pt-BR": {
+    products: "Produtos", payments: "Pagamentos", open: "Abrir painel",
+    title: <>Sua API deveria<br /><em>cobrar sozinha.</em></>,
+    intro: "Conecte uma carteira, defina um preço e aceite USDC por requisição ou assinatura. Sem contas, cartões ou custódia.",
+    create: "Criar um produto →", integration: "Ver integração",
+    proof: ["✓ Liquidação direta", "✓ Recibos verificáveis", "✓ x402 nativo"],
+    kicker: "TRÊS LINHAS", codeTitle: <>Proteja seu endpoint.<br />Continue construindo.</>,
+    codeBody: "MeterKit responde com 402, valida o pagamento e entrega o conteúdo. Você mantém o controle e recebe USDC diretamente.",
+  },
 } as const;
 
 export default function Home() {
-  const [locale, setLocale] = useState<"en" | "es">("en");
+  const [locale, setLocale] = useState<Locale>("en");
+  useEffect(() => {
+    const saved = localStorage.getItem("meterkit-locale");
+    if (isLocale(saved)) setLocale(saved);
+  }, []);
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    localStorage.setItem("meterkit-locale", locale);
+  }, [locale]);
   const text = copy[locale];
   return (
     <main>
@@ -34,8 +52,14 @@ export default function Home() {
         <div className="navlinks"><a href="#products">{text.products}</a><a href="#payments">{text.payments}</a><a href="#docs">Docs</a></div>
         <div className="navActions">
           <div className="localeSwitch" aria-label="Language">
-            <button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button>
-            <button className={locale === "es" ? "active" : ""} onClick={() => setLocale("es")}>ES</button>
+            {locales.map((option) => <button
+              key={option}
+              className={locale === option ? "active" : ""}
+              aria-pressed={locale === option}
+              aria-label={localeLabels[option]}
+              title={localeLabels[option]}
+              onClick={() => setLocale(option)}
+            >{option === "pt-BR" ? "PT" : option.toUpperCase()}</button>)}
           </div>
           <a className="wallet" href="#products"><span className="dot" /> {text.open}</a>
         </div>
@@ -55,7 +79,7 @@ export default function Home() {
         <div><span className="kicker">{text.kicker}</span><h2>{text.codeTitle}</h2><p>{text.codeBody}</p></div>
         <pre><span>import</span> {"{ createX402Middleware }"} <span>from</span> <b>&quot;@meterkit/sdk&quot;</b>;{"\n\n"}app.get(<b>&quot;/premium&quot;</b>, createX402Middleware({"{\n  "}product, store,{"\n  "}facilitatorUrl: <b>&quot;https://x402.org/facilitator&quot;</b>{"\n}"}), handler);</pre>
       </section>
-      <footer><a className="brand" href="#"><span className="mark">M</span> MeterKit</a><span>USDC payments for the agentic web.</span><span>Apache-2.0 · No custody · No token</span></footer>
+      <footer><a className="brand" href="#"><span className="mark">M</span> MeterKit</a><span>{locale === "en" ? "USDC payments for the agentic web." : locale === "es" ? "Pagos USDC para la web agéntica." : "Pagamentos em USDC para a web agêntica."}</span><span>Apache-2.0 · {locale === "en" ? "No custody · No token" : locale === "es" ? "Sin custodia · Sin token" : "Sem custódia · Sem token"}</span></footer>
     </main>
   );
 }

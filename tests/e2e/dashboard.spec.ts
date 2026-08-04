@@ -12,11 +12,18 @@ test("landing and dashboard communicate the non-custodial product", async ({ pag
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Your API should/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Premium Weather API" })).toBeVisible();
-  await expect(page.getByText("0,01", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("0.01", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("No custody", { exact: false })).toBeVisible();
-  await page.getByRole("button", { name: "ES", exact: true }).click();
+  await page.getByRole("button", { name: "Español", exact: true }).click();
   await expect(page.getByRole("heading", { name: /Tu API merece/ })).toBeVisible();
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "es");
+  await page.getByRole("button", { name: "Português (Brasil)", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /Sua API deveria/ })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: /Sua API deveria/ })).toBeVisible();
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("[data-nextjs-dialog]")).toHaveCount(0);
   expect(await page.evaluate(() =>
     document.documentElement.scrollWidth === document.documentElement.clientWidth)).toBe(true);
