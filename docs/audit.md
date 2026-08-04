@@ -21,6 +21,7 @@ Fecha: **2026-08-04**. Este documento distingue implementación, prueba determin
 | Idempotencia HTTP | Implementada y probada | key+hash+respuesta en PostgreSQL |
 | SDK publicable | Empaquetado y probado | tarball limpio instalado/importado fuera del monorepo |
 | Pago real USDC devnet | Completado 2026-08-03 | [`61NPoR…Hsqsf`](https://explorer.solana.com/tx/61NPoRT92dwGZby6q4qAoFP9CG9UAUKBM3PZtW1BbwHTWvB3udMKgmcEfUPMCqvjjUjKEpakgmFomVwWVpjHsqsf?cluster=devnet) |
+| Pago público alojado | Completado 2026-08-04 | [`4tijLr…Tk2hnV`](https://explorer.solana.com/tx/4tijLrtrdHXHSitFPH99zR2kFFhaLwrcPo1zKzDmNdUu2T7rmis1Lddjg5YftrTUvZsVzUFngFXwQfdHNsTk2hnV?cluster=devnet), respuesta protegida, replay 402 y dashboard `finalized` |
 | Pago MCP real devnet | Completado 2026-08-04 | [`4ZkuVW…pM5wg`](https://explorer.solana.com/tx/4ZkuVWNuEZLJkYxvU485YUWqNq6pgyQG54mVcCYpSgyXAHEWtCqKMsfLVKiNbuQuAPnymYzwS732cvPXzU7pM5wg?cluster=devnet) |
 | Allowance real devnet | Completada 2026-08-04 | [`53Y9wj…9h4mi`](https://explorer.solana.com/tx/53Y9wj86BDMKB2Xs1LUBX1VDm6xejNpb5P1JUDi5Nr8wBYKXtZ21kq21VGKFCdtTLq8DZAmmLBVgJLHYSNy9h4mi?cluster=devnet), revocada en [`2Ccw1b…XqzoU`](https://explorer.solana.com/tx/2Ccw1bA19qKkHdoRHJ1vBa9tG32Dm8eDE9hHc8fH1RsWaoo3iehkWauYkHrfZaGKYLsg8RntJi95AAfFr9rXqzoU?cluster=devnet) |
 | Verificador devnet | Ejecutado | saldo proveedor `0 → 10000`, replay HTTP 402, registro PostgreSQL `finalized` |
@@ -35,11 +36,15 @@ pnpm build
 pnpm test:e2e
 ```
 
-Resultado actual: la batería incluye 27 tests unitarios/de integración, PostgreSQL concurrente, contrato MCP stdio, transacciones onchain serializadas y un E2E. La inspección visual no mostró overflow, errores de consola, respuestas HTTP fallidas ni overlays en 1440×1000 y 390×844.
+Resultado actual: la batería completa pasa con PostgreSQL, carrera concurrente,
+contrato MCP stdio, transacciones onchain serializadas y Playwright E2E. La
+inspección visual no mostró overflow, errores de consola, respuestas HTTP fallidas
+ni overlays en 1440×1000 y 390×844.
 
 ## Preparación de despliegue — 2026-08-04
 
-- La batería ampliada pasa **30/30 tests**.
+- La batería ampliada pasa completa; el conteo exacto queda registrado por CI para
+  cada commit, evitando mantener una cifra obsoleta en documentación.
 - `Dockerfile.gateway` y `Dockerfile.web` construyen imágenes reproducibles sin
   incluir `.env`, wallets ni artefactos locales.
 - El dashboard respondió HTTP 200 desde su imagen de producción.
@@ -53,6 +58,9 @@ Resultado actual: la batería incluye 27 tests unitarios/de integración, Postgr
   con `custody:false`, persistencia PostgreSQL y Solana devnet.
 - `/v1/weather/premium` responde 402 con x402 v2, esquema `exact`, monto
   `10000`, mint USDC devnet y pago directo a `9a4x…aiR5`.
+- El flujo alojado completo liquidó e indexó `4tijLr…Tk2hnV`; el dashboard
+  público muestra la venta y omite payer, receptor y mint para no publicar un
+  índice de relaciones entre wallets.
 - CORS permite exclusivamente el origen público del dashboard.
 - Web y gateway están `running:healthy` en Coolify detrás de Cloudflare Tunnel;
   PostgreSQL no expone un puerto público.

@@ -24,6 +24,8 @@ async function privateKeyFromEnvironment(): Promise<Uint8Array> {
 async function main() {
   const payTo = process.env.MERCHANT_WALLET;
   if (!payTo) throw new Error("MERCHANT_WALLET is required");
+  const maxSessionAtomic = BigInt(process.env.MAX_SESSION_SPEND_ATOMIC ?? PRICE_ATOMIC);
+  let authorizedAtomic = 0n;
 
   const signer = await createKeyPairSignerFromBytes(await privateKeyFromEnvironment());
   const client = createx402MCPClient({
@@ -42,7 +44,9 @@ async function main() {
         candidate.network === SOLANA_DEVNET &&
         candidate.asset === USDC_DEVNET &&
         candidate.amount === PRICE_ATOMIC &&
-        candidate.payTo === payTo
+        candidate.payTo === payTo &&
+        paymentRequired.resource.url === "mcp://tool/scout_project" &&
+        authorizedAtomic + BigInt(candidate.amount) <= maxSessionAtomic
       );
       if (!requirement) {
         process.stderr.write(`${JSON.stringify({
@@ -56,6 +60,7 @@ async function main() {
           })),
         })}\n`);
       }
+      if (requirement) authorizedAtomic += BigInt(requirement.amount);
       return Boolean(requirement);
     },
   });
