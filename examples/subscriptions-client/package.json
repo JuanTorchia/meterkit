@@ -1,0 +1,17 @@
+{
+  "name": "@meterkit/subscriptions-client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify:devnet": "tsx src/verify-devnet.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@meterkit/subscriptions": "workspace:*",
+    "@solana/kit": "6.10.0",
+    "@solana/subscriptions": "0.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.4"
+  }
+}

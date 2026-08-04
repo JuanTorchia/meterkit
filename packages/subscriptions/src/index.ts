@@ -15,6 +15,7 @@ import {
 } from "@solana/kit";
 import {
   getCreateFixedDelegationOverlayInstructionAsync,
+  getInitSubscriptionAuthorityOverlayInstructionAsync,
   getCreateRecurringDelegationOverlayInstructionAsync,
   getCreatePlanOverlayInstructionAsync,
   getSubscribeOverlayInstructionAsync,
@@ -51,6 +52,22 @@ export const subscriptionsIntegration = {
     "getRevokeSubscriptionAuthorityOverlayInstructionAsync",
   ] as const,
 };
+
+export async function buildInitSubscriptionAuthority(input: {
+  owner: TransactionSigner;
+  payer?: TransactionSigner;
+  mint: Address;
+  tokenProgram: Address;
+  userAta: Address;
+}) {
+  return getInitSubscriptionAuthorityOverlayInstructionAsync({
+    owner: input.owner,
+    ...(input.payer ? { payer: input.payer } : {}),
+    tokenMint: input.mint,
+    tokenProgram: input.tokenProgram,
+    userAta: input.userAta,
+  });
+}
 
 export async function buildFixedAllowance(input: {
   owner: TransactionSigner;

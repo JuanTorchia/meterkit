@@ -4,6 +4,7 @@ import {
   buildFixedAllowance,
   buildFixedAllowanceTransaction,
   buildMonthlyPlan,
+  buildInitSubscriptionAuthority,
   buildMonthlyPlanTransaction,
   buildRecurringAllowance,
   buildRecurringAllowanceTransaction,
@@ -42,6 +43,17 @@ describe("allowance policy", () => {
       planId: 1n, metadataUri: "https://meterkit.dev/plans/pro.json",
     });
     expect(plan.programAddress).toBe(subscriptionsIntegration.programId);
+  });
+
+  it("builds the canonical subscription authority initialization", async () => {
+    const signer = await generateKeyPairSigner();
+    const instruction = await buildInitSubscriptionAuthority({
+      owner: signer,
+      mint: address("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"),
+      tokenProgram: address("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+      userAta: address("7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE"),
+    });
+    expect(instruction.programAddress).toBe(subscriptionsIntegration.programId);
   });
 
   it("builds recurring, subscribe, and every explicit revocation instruction", async () => {
