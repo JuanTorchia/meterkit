@@ -89,12 +89,13 @@ try {
   await page.goto(latest.explorerUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
   await scene(page, 11, "Finalized on Solana devnet", `Transaction ${short(latest.signature, 28)} — independently verifiable.`);
 
-  await page.goto(`${webUrl}/dashboard`, { waitUntil: "networkidle", timeout: 30_000 });
+  await page.goto(`${webUrl}/agent/allowances`, { waitUntil: "networkidle", timeout: 30_000 });
   await page.locator("#allowances").scrollIntoViewIfNeeded();
   await scene(page, 7, "Agents stay bounded", "Spending caps, expiration and wallet-controlled revocation.");
 
   await page.locator("body").evaluate(() => globalThis.scrollTo({ top: 0, behavior: "instant" }));
-  await scene(page, 12, "MeterKit", "Open source · x402 · subscriptions · MCP · no custody · no token");
+  await scene(page, 5, "Solana Project Scout", "A useful MCP tool: public-source project reports, free preview, then 0.02 test USDC.");
+  await scene(page, 7, "MeterKit", "Open source · x402 · subscriptions · MCP · no custody · no token");
   await clearOverlay(page);
   await wait(1);
 
