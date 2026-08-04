@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-08-04T14:20:39.365Z",
+  "network": "solana-devnet",
+  "owner": "HjZRrfm6G9C7RdzbzQ7u98jp6iQuE4SYgfqkuRHUiQdb",
+  "delegate": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
+  "mint": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+  "subscriptionAuthority": "HtrYQCrpwNWdrL27zTEjpbfzWYnMDEyH2SfjAh1GwFWL",
+  "delegationAccount": "Dm9hAwx4oCMscHgMwzWjvYAnfKdCrWYJNDyy7FSxqpok",
+  "policy": {
+    "maxAtomic": "1000000",
+    "expiresAt": "2026-08-11T14:20:32.892Z",
+    "authorityInitId": "481169428"
+  },
+  "transactions": {
+    "initAuthority": "5eDEhbimMXHv3zr6c8tSAAngonX1fB5mu1AMf5AsCFJpKj7eHWo1ox1LiPJC4g93XqDW2PudVtTba5pLtbzjQ169",
+    "createAllowance": "53Y9wj86BDMKB2Xs1LUBX1VDm6xejNpb5P1JUDi5Nr8wBYKXtZ21kq21VGKFCdtTLq8DZAmmLBVgJLHYSNy9h4mi",
+    "revokeAllowance": "2Ccw1bA19qKkHdoRHJ1vBa9tG32Dm8eDE9hHc8fH1RsWaoo3iehkWauYkHrfZaGKYLsg8RntJi95AAfFr9rXqzoU",
+    "closeAuthority": "2bG1gFYVUYuPByQUYtvgG6Y5vTjeHjEWnHLamVDABmzLW2jSVQPcQS5cGAgB93XtrfgovVVyi9J2on7n3D1HLz5e"
+  },
+  "verification": {
+    "allTransactionsFinalized": true,
+    "delegationAccountClosed": true,
+    "subscriptionAuthorityClosed": true,
+    "rentRecovered": true,
+    "solBalanceBefore": "5",
+    "solBalanceAfter": "4.99998"
+  }
+}

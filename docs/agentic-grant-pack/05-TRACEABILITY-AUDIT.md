@@ -12,8 +12,8 @@ Audited on **2026-08-03** against repository source and recorded devnet evidence
 | FR-05 receipts/dashboard | `apps/web`, payment persistence | Playwright + desktop/mobile captures | Verified locally |
 | FR-06 package integration | `packages/sdk`, example client | tarball installed/imported outside workspace package graph | Verified |
 | FR-07 useful MCP tool | `examples/mcp-scout` | Scout tests + devnet receipt `4ZkuVW…pM5wg` | Paid flow verified |
-| FR-08 capped allowance | `packages/subscriptions` | policy and transaction serialization tests | Builder verified |
-| FR-08 revocation | subscriptions package + Wallet Standard UI path | revocation serialization test | Builder verified; devnet signing pending |
+| FR-08 capped allowance | subscriptions package + devnet verifier | policy tests + `53Y9wj…9h4mi` | Onchain verified |
+| FR-08 revocation | subscriptions package + Wallet Standard UI path | closed PDA + `2Ccw1b…XqzoU` | Onchain verified |
 | Finality | `apps/gateway/src/finality.ts` | finality tests + real receipt finalized | Verified |
 | Wallet authentication | `apps/gateway/src/wallet-auth.ts` | signature, replay, expiration and mutation tests | Verified |
 | Public hosted demo | Not deployed | No public URL | Pending |
@@ -35,8 +35,8 @@ Audited on **2026-08-03** against repository source and recorded devnet evidence
 - Say “npm-ready” or “packaged,” not “published on npm.”
 - Say “dashboard verified locally,” not “live dashboard.”
 - Paid MCP devnet flow completed on 2026-08-04; cite the Explorer receipt.
-- Say “allowance builders and revocation serialization implemented,” not
-  “subscription lifecycle completed on-chain.”
+- Say “allowance lifecycle completed onchain”; the monthly plan/subscription
+  lifecycle remains pending.
 
 ### Do not claim yet
 

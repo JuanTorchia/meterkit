@@ -13,7 +13,8 @@ Fecha: **2026-08-04**. Este documento distingue implementación, prueba determin
 | Dashboard y Explorer | Implementado y E2E | Playwright escritorio/móvil |
 | Cliente con límites de agente | Implementado | máximo por solicitud y sesión |
 | Subscriptions & Allowances | Builders y transacciones firmables probados | fixed, recurring, monthly, subscribe, tres revocaciones y wire v0 |
-| Ciclo subscription onchain | Pendiente | requiere cuentas devnet y envío de instrucciones |
+| Allowance onchain | Verificada en devnet | límite 1 USDC, vencimiento, revocación y cierre con rent recuperado |
+| Plan mensual onchain | Pendiente | builders firmables probados; falta crear plan y suscripción |
 | Botón de revocación | Implementado | prepara blockhash devnet y usa `solana:signAndSendTransaction`; falta firma con wallet real |
 | MCP Scout cobrado | Verificado en devnet | reporte `anza-xyz/kit`, 0,02 USDC directos y firma `4ZkuVW…pM5wg` |
 | Finalidad RPC | Verificada en devnet | el reconciliador promovió la operación real a `finalized` |
@@ -21,6 +22,7 @@ Fecha: **2026-08-04**. Este documento distingue implementación, prueba determin
 | SDK publicable | Empaquetado y probado | tarball limpio instalado/importado fuera del monorepo |
 | Pago real USDC devnet | Completado 2026-08-03 | [`61NPoR…Hsqsf`](https://explorer.solana.com/tx/61NPoRT92dwGZby6q4qAoFP9CG9UAUKBM3PZtW1BbwHTWvB3udMKgmcEfUPMCqvjjUjKEpakgmFomVwWVpjHsqsf?cluster=devnet) |
 | Pago MCP real devnet | Completado 2026-08-04 | [`4ZkuVW…pM5wg`](https://explorer.solana.com/tx/4ZkuVWNuEZLJkYxvU485YUWqNq6pgyQG54mVcCYpSgyXAHEWtCqKMsfLVKiNbuQuAPnymYzwS732cvPXzU7pM5wg?cluster=devnet) |
+| Allowance real devnet | Completada 2026-08-04 | [`53Y9wj…9h4mi`](https://explorer.solana.com/tx/53Y9wj86BDMKB2Xs1LUBX1VDm6xejNpb5P1JUDi5Nr8wBYKXtZ21kq21VGKFCdtTLq8DZAmmLBVgJLHYSNy9h4mi?cluster=devnet), revocada en [`2Ccw1b…XqzoU`](https://explorer.solana.com/tx/2Ccw1bA19qKkHdoRHJ1vBa9tG32Dm8eDE9hHc8fH1RsWaoo3iehkWauYkHrfZaGKYLsg8RntJi95AAfFr9rXqzoU?cluster=devnet) |
 | Verificador devnet | Ejecutado | saldo proveedor `0 → 10000`, replay HTTP 402, registro PostgreSQL `finalized` |
 
 ## Comandos ejecutados
@@ -92,6 +94,8 @@ El flujo se ejecutó con wallets desechables de devnet. El facilitador patrocin�
 4. Endpoint protegido: `/v1/weather/premium` y proxy dinámico por producto.
 5–9. Challenge, firma, pago, settle y respuesta: completados con USDC devnet.
 10–11. Dashboard y Explorer: implementados; la fila sólo aparece tras persistir settlement.
-12–14. Plan mensual, allowance y revocación: instrucciones canónicas y revocación Wallet Standard implementadas; falta transacción devnet real.
+12–14. Allowance y revocación: ciclo devnet completo con límite de 1 USDC,
+vencimiento de siete días, cuatro transacciones finalizadas, PDA eliminada y
+rent recuperado. El plan mensual permanece pendiente.
 15. MCP cobrado: liquidado y finalizado por 0,02 USDC devnet; reporte factual
     de `anza-xyz/kit` con fuentes y fecha.

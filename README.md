@@ -5,8 +5,8 @@ Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 [![CI](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml)
 
 > Estado: **MVP funcional, sólo devnet**. Los flujos x402 HTTP y MCP fueron
-> liquidados y finalizados en devnet; suscripciones continúan como módulo
-> experimental.
+> liquidados y finalizados en devnet. Una allowance limitada fue creada,
+> verificada, revocada y cerrada onchain; el plan mensual continúa experimental.
 
 Demo pública devnet: [meterkit.juanchi.dev](https://meterkit.juanchi.dev) ·
 [health del gateway](https://meterkit-api.juanchi.dev/health). No envíe fondos
@@ -91,6 +91,10 @@ comparte la clave con el proceso MCP.
 
 Liquidación MCP verificable de 0,02 USDC:
 [`4ZkuVW…pM5wg`](https://explorer.solana.com/tx/4ZkuVWNuEZLJkYxvU485YUWqNq6pgyQG54mVcCYpSgyXAHEWtCqKMsfLVKiNbuQuAPnymYzwS732cvPXzU7pM5wg?cluster=devnet).
+
+Allowance verificable de 1 USDC con vencimiento:
+[creación](https://explorer.solana.com/tx/53Y9wj86BDMKB2Xs1LUBX1VDm6xejNpb5P1JUDi5Nr8wBYKXtZ21kq21VGKFCdtTLq8DZAmmLBVgJLHYSNy9h4mi?cluster=devnet) ·
+[revocación](https://explorer.solana.com/tx/2Ccw1bA19qKkHdoRHJ1vBa9tG32Dm8eDE9hHc8fH1RsWaoo3iehkWauYkHrfZaGKYLsg8RntJi95AAfFr9rXqzoU?cluster=devnet).
 6. Repita el mismo comprobante: debe rechazarse y no volver a ejecutar el handler.
 
 El cliente requiere `SOLANA_PRIVATE_KEY` como arreglo JSON de 64 bytes, sólo en el proceso local. El repositorio ignora `.local-wallets/` y nunca debe recibir keypairs en Git. No se cambia a mainnet sin revisión y autorización explícita.

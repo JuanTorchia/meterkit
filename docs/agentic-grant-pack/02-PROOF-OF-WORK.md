@@ -72,6 +72,7 @@ the repository under `artifacts/`.
 - The MCP protocol contract and paid devnet call completed on 2026-08-04
   ([Explorer receipt](https://explorer.solana.com/tx/4ZkuVWNuEZLJkYxvU485YUWqNq6pgyQG54mVcCYpSgyXAHEWtCqKMsfLVKiNbuQuAPnymYzwS732cvPXzU7pM5wg?cluster=devnet))
   a separate real devnet settlement.
-- Subscription and allowance transactions are built and serialized, but their
-  complete lifecycle has not yet been submitted and revoked on devnet.
+- A 1 USDC allowance with seven-day expiry was created, read back, revoked and
+  closed on devnet. All four transactions finalized and rent was recovered.
+  Evidence: `docs/evidence/allowance-devnet-2026-08-04.json`.
 - There are no claimed production users or revenue.
