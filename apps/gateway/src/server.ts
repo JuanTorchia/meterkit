@@ -9,14 +9,15 @@ import {
   explorerUrl,
   productSchema,
   type PaymentStore,
-  type Product,
 } from "@meterkit/core";
 import { PostgresStore, type ProductStore } from "@meterkit/database";
 import { createDynamicX402Middleware, createX402Middleware } from "@meterkit/sdk";
 import { WalletChallenges } from "./wallet-auth.js";
 import { SolanaFinalityReconciler } from "./finality.js";
+import { loadGatewayConfig, requirePersistentMerchant } from "./config.js";
 
 const app: Express = express();
+const config = loadGatewayConfig();
 let store: PaymentStore = new MemoryPaymentStore();
 let productStore: ProductStore | undefined;
 let reconciler: SolanaFinalityReconciler | undefined;
@@ -34,16 +35,7 @@ app.use(cors({
 app.use(express.json({ limit: "32kb" }));
 app.use(rateLimit({ windowMs: 60_000, limit: Number(process.env.RATE_LIMIT_PER_MINUTE ?? 60) }));
 
-const product: Product = productSchema.parse({
-  id: "premium-weather",
-  name: "Premium Weather API",
-  description: "Pronóstico compacto con procedencia y hora de consulta",
-  resource: "http://localhost:3402/v1/weather/premium",
-  priceAtomic: "10000",
-  assetMint: process.env.USDC_MINT ?? "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-  payTo: process.env.MERCHANT_WALLET ?? "11111111111111111111111111111111",
-  network: SOLANA_DEVNET,
-});
+const product = config.product;
 
 app.get("/health", (_request, response) => response.json({
   status: "ok", network: SOLANA_DEVNET, custody: false,
@@ -154,12 +146,9 @@ app.get(
   },
 );
 
-const port = Number(process.env.GATEWAY_PORT ?? 3402);
 async function start() {
   if (process.env.DATABASE_URL) {
-    if (!process.env.MERCHANT_WALLET || process.env.MERCHANT_WALLET === "11111111111111111111111111111111") {
-      throw new Error("MERCHANT_WALLET is required when PostgreSQL persistence is enabled");
-    }
+    requirePersistentMerchant();
     const postgres = PostgresStore.connect(process.env.DATABASE_URL);
     await postgres.migrate();
     await postgres.create(product);
@@ -177,9 +166,10 @@ async function start() {
     }, pollMs);
     timer.unref();
   }
-  return app.listen(port, () => console.log(JSON.stringify({
+  return app.listen(config.port, () => console.log(JSON.stringify({
     event: "gateway_started",
-    port,
+    port: config.port,
+    publicUrl: config.publicGatewayUrl,
     network: "devnet",
     persistence: productStore ? "postgres" : "memory",
   })));
