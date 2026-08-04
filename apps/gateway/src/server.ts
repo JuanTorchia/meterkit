@@ -42,6 +42,7 @@ app.disable("x-powered-by");
 app.use(cors({
   origin: (process.env.CORS_ORIGINS ?? "http://localhost:3000,http://127.0.0.1:3100")
     .split(",").map((origin) => origin.trim()),
+  exposedHeaders: ["PAYMENT-REQUIRED", "PAYMENT-RESPONSE"],
 }));
 app.use(express.json({ limit: "32kb" }));
 app.use(rateLimit({ windowMs: 60_000, limit: Number(process.env.RATE_LIMIT_PER_MINUTE ?? 60) }));
