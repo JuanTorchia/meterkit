@@ -17,6 +17,10 @@ application evidence submitted on 2026-08-03.
   response-size defenses.
 - English-default interface with Latin American Spanish and Brazilian Portuguese.
 - Automated public readiness check and structured external pilot report.
+- Three independently funded internal agent personas completed real x402 devnet
+  payments; each finalized, increased the provider balance exactly, appeared in
+  the public dashboard and rejected replay. These are explicitly synthetic
+  protocol validations, not external users or traction.
 
 ## Current verification
 

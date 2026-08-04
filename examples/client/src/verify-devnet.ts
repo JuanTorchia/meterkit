@@ -1,10 +1,13 @@
 import { createKeyPairSignerFromBytes } from "@solana/kit";
+import { readFile } from "node:fs/promises";
 import { createDevnetPaymentClient, callPaidWeather } from "./index.js";
 
 const rpcUrl = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
 const gatewayUrl = process.env.GATEWAY_URL ?? "http://localhost:3402";
 const merchant = required("MERCHANT_WALLET");
-const privateKeyBytes = readPrivateKey();
+const persona = process.env.SYNTHETIC_PERSONA ?? "internal-agent";
+const city = process.env.SYNTHETIC_CITY ?? "Buenos Aires";
+const privateKeyBytes = await readPrivateKey();
 const payer = await createKeyPairSignerFromBytes(privateKeyBytes);
 
 const before = await usdcBalance(merchant);
@@ -17,12 +20,12 @@ const paymentClient = await createDevnetPaymentClient({
   expectedPayTo: merchant,
   allowedResourcePrefix: `${gatewayUrl}/v1/weather/premium`,
 });
-const result = await callPaidWeather(paymentClient.fetch, "Buenos Aires", gatewayUrl);
+const result = await callPaidWeather(paymentClient.fetch, city, gatewayUrl);
 const receipt = parseReceipt(result.receipt);
 const paymentHeader = paymentClient.getLastPaymentHeader();
 if (!paymentHeader) throw new Error("No se capturó PAYMENT-SIGNATURE");
 
-const replay = await fetch(`${gatewayUrl}/v1/weather/premium?city=Buenos%20Aires`, {
+const replay = await fetch(`${gatewayUrl}/v1/weather/premium?city=${encodeURIComponent(city)}`, {
   headers: { "PAYMENT-SIGNATURE": paymentHeader },
 });
 if (replay.ok) throw new Error("REPLAY_ACCEPTED: el comprobante volvió a ejecutar el recurso");
@@ -31,6 +34,9 @@ const after = await waitForBalance(merchant, before + 10_000n);
 const indexed = await waitForFinalizedReceipt(receipt.transaction);
 process.stdout.write(`${JSON.stringify({
   checkedAt: new Date().toISOString(),
+  kind: "meterkit-internal-synthetic-validation",
+  persona,
+  externalUser: false,
   network: "solana-devnet",
   payer: payer.address,
   merchant,
@@ -96,8 +102,11 @@ function parseReceipt(value: unknown): { transaction: string } {
   return { transaction: value.transaction };
 }
 
-function readPrivateKey() {
-  const encoded = required("SOLANA_PRIVATE_KEY");
+async function readPrivateKey() {
+  const keypairPath = process.env.SOLANA_KEYPAIR_PATH;
+  const encoded = keypairPath
+    ? await readFile(keypairPath, "utf8")
+    : required("SOLANA_PRIVATE_KEY");
   const parsed: unknown = JSON.parse(encoded);
   if (!Array.isArray(parsed) || parsed.length !== 64 ||
       !parsed.every((item) => Number.isInteger(item) && item >= 0 && item <= 255)) {

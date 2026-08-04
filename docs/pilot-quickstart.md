@@ -54,3 +54,7 @@ friction and citation consent.
 
 A pilot is counted only after the devnet settlement and replay check are
 complete. Running `pnpm pilot:check` alone is readiness evidence, not traction.
+
+Automated runs made by MeterKit wallets are labeled `internal synthetic
+validation`. They demonstrate reproducibility but are never counted as external
+pilots, users, customers or traction.
