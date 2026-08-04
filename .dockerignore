@@ -1,0 +1,17 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+.local-wallets
+node_modules
+**/node_modules
+**/.next
+**/dist
+artifacts
+playwright-report
+test-results
+coverage
+*.log
+*.key
+*keypair*.json

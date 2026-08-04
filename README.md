@@ -98,5 +98,7 @@ Arquitectura, dependencias verificadas, seguridad, auditoría, negocio, competen
 La candidatura al Agentic Engineering Grant dispone de un
 [`evidence pack auditable`](docs/agentic-grant-pack/00-READ-ME-FIRST.md) con
 especificación, prueba de trabajo, trazabilidad y resultados de verificación.
+El runbook de [`despliegue público devnet`](docs/deployment-devnet.md) mantiene
+gateway y dashboard sin claves privadas y bloquea configuraciones mainnet.
 
 Apache-2.0.

@@ -7,6 +7,7 @@ const SYSTEM_PROGRAM = "11111111111111111111111111111111";
 export type GatewayConfig = {
   port: number;
   publicGatewayUrl: string;
+  trustProxyHops: number;
   product: Product;
 };
 
@@ -39,6 +40,10 @@ export function loadGatewayConfig(
   }
 
   const port = parsePort(env.PORT ?? env.GATEWAY_PORT ?? "3402");
+  const trustProxyHops = Number(env.TRUST_PROXY_HOPS ?? "0");
+  if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0 || trustProxyHops > 3) {
+    throw new Error("TRUST_PROXY_HOPS must be an integer between 0 and 3");
+  }
   const publicGatewayUrl = parsePublicUrl(
     env.PUBLIC_GATEWAY_URL ?? DEFAULT_LOCAL_GATEWAY,
   );
@@ -47,6 +52,7 @@ export function loadGatewayConfig(
   return {
     port,
     publicGatewayUrl,
+    trustProxyHops,
     product: productSchema.parse({
       id: "premium-weather",
       name: "Premium Weather API",

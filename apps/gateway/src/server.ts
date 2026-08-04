@@ -18,6 +18,9 @@ import { loadGatewayConfig, requirePersistentMerchant } from "./config.js";
 
 const app: Express = express();
 const config = loadGatewayConfig();
+if (config.trustProxyHops > 0) {
+  app.set("trust proxy", config.trustProxyHops);
+}
 let store: PaymentStore = new MemoryPaymentStore();
 let productStore: ProductStore | undefined;
 let reconciler: SolanaFinalityReconciler | undefined;

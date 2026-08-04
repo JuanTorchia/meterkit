@@ -34,6 +34,19 @@ pnpm test:e2e
 
 Resultado actual: la batería incluye 27 tests unitarios/de integración, PostgreSQL concurrente, contrato MCP stdio, transacciones onchain serializadas y un E2E. La inspección visual no mostró overflow, errores de consola, respuestas HTTP fallidas ni overlays en 1440×1000 y 390×844.
 
+## Preparación de despliegue — 2026-08-04
+
+- La batería ampliada pasa **30/30 tests**.
+- `Dockerfile.gateway` y `Dockerfile.web` construyen imágenes reproducibles sin
+  incluir `.env`, wallets ni artefactos locales.
+- El dashboard respondió HTTP 200 desde su imagen de producción.
+- El gateway respondió health y HTTP 402 desde su imagen de producción.
+- Simulando un reverse proxy de un salto, el challenge publicó
+  `https://gateway.example.invalid/v1/weather/premium`, red devnet, monto
+  `10000` y el destinatario esperado.
+- El despliegue externo continúa pendiente; no se creó servicio público ni se
+  habilitó mainnet durante esta validación.
+
 ## Condición para cerrar el MVP
 
 El flujo se ejecutó con wallets desechables de devnet. El facilitador patrocinó la transacción, el proveedor recibió 10 000 unidades atómicas de USDC, el mismo payload fue rechazado al repetirse y PostgreSQL mostró el recibo finalizado. La creación previa del ATA del proveedor quedó identificada como requisito operativo.

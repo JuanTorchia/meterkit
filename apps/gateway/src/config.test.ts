@@ -8,11 +8,13 @@ describe("hosted gateway configuration", () => {
     const config = loadGatewayConfig({
       METERKIT_NETWORK: "solana-devnet",
       PORT: "8080",
+      TRUST_PROXY_HOPS: "1",
       PUBLIC_GATEWAY_URL: "https://api.demo.meterkit.dev/",
       MERCHANT_WALLET: merchant,
     });
 
     expect(config.port).toBe(8080);
+    expect(config.trustProxyHops).toBe(1);
     expect(config.product.resource).toBe(
       "https://api.demo.meterkit.dev/v1/weather/premium",
     );
@@ -26,6 +28,8 @@ describe("hosted gateway configuration", () => {
       PUBLIC_GATEWAY_URL: "http://api.demo.meterkit.dev",
     })).toThrow(/must use HTTPS/);
     expect(() => loadGatewayConfig({ PORT: "70000" })).toThrow(/PORT/);
+    expect(() => loadGatewayConfig({ TRUST_PROXY_HOPS: "many" }))
+      .toThrow(/TRUST_PROXY_HOPS/);
   });
 
   it("requires an explicit provider wallet when persistence is enabled", () => {
