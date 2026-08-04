@@ -21,6 +21,16 @@ application evidence submitted on 2026-08-03.
   payments; each finalized, increased the provider balance exactly, appeared in
   the public dashboard and rejected replay. These are explicitly synthetic
   protocol validations, not external users or traction.
+- An automated 86-second captioned demo was generated from the public deployment
+  and a live HTTP 402 challenge. It shows integration, payment policy, replay
+  rejection evidence, finalized dashboard receipts, Solana Explorer and
+  wallet-controlled revocation.
+
+Synthetic campaign transactions:
+
+- [`3GqzMp…Li3bq`](https://explorer.solana.com/tx/3GqzMpPZb4LmAutC2fUv7cEUkZfQPCqB1jzRbp2GszNc7vaLX66yRohf8KStdPwm2JVpogMDA5wZDKM6HBwLi3bq?cluster=devnet)
+- [`xhQuJn…cuTifq`](https://explorer.solana.com/tx/xhQuJn5sLF2e5qqkrTofY72iMyk1EbBTh68tq8KYrq1jcAfAvAHaBSkmApwPLhsBwCF3NVmSWSvJJA7R6cuTifq?cluster=devnet)
+- [`9EQSGT…AwU7X`](https://explorer.solana.com/tx/9EQSGTgeXsia5JJ2GAjuh6tjVsUnvBbNWnYhAS74HvBG4u1kewwxgbo3dXmwtPTdwtekuksZkimjivDwwTAwU7X?cluster=devnet)
 
 ## Current verification
 
@@ -28,6 +38,10 @@ application evidence submitted on 2026-08-03.
 - 42 unit/integration tests exist, including the PostgreSQL test.
 - Playwright desktop/mobile and EN/ES/PT-BR flow passes.
 - Production dependency audit reports no known vulnerabilities.
+- Final verification CI:
+  <https://github.com/JuanTorchia/meterkit/actions/runs/30930846111>
+- Synthetic validation evidence:
+  <https://github.com/JuanTorchia/meterkit/blob/main/docs/evidence/internal-synthetic-validation.md>
 
 ## Remaining evidence
 

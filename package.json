@@ -20,6 +20,7 @@
     "wallet:devnet": "tsx scripts/create-devnet-wallet.ts",
     "pilot:check": "node scripts/pilot-check.mjs",
     "demo:verify": "node scripts/verify-public-dashboard.mjs",
+    "demo:record": "node scripts/record-demo.mjs",
     "format": "prettier --write ."
   },
   "devDependencies": {

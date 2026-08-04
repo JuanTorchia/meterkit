@@ -1,23 +1,35 @@
-# Guion de demo — 90 segundos
+# Automated demo — under 90 seconds
 
-**0–10 s.** “Monetizar una API suele empezar con cuentas, tarjetas y facturación. MeterKit lo reduce a una wallet y un precio.”
+Generate the captioned video from the public devnet deployment:
 
-**10–22 s.** Conectar wallet en devnet. Mostrar “Premium Weather API”, precio 0,01 USDC y endpoint generado.
+```bash
+pnpm demo:record
+```
 
-**22–35 s.** Ejecutar el cliente sin recibo. Mostrar `402 Payment Required` y el header `PAYMENT-REQUIRED`: red devnet, mint USDC, monto y destinatario.
+Output: `artifacts/meterkit-demo-90s.mp4`. The current verified render is 86.28
+seconds, H.264, 1280×720, without audio.
 
-**35–50 s.** Aprobar en la wallet local. El cliente reintenta automáticamente con `PAYMENT-SIGNATURE`. Mostrar respuesta meteorológica protegida.
+## Storyboard
 
-**50–62 s.** Abrir el recibo y la transacción en Solana Explorer. Señalar que USDC fue directamente de cliente a proveedor y MeterKit nunca tomó custodia.
+- MeterKit value proposition and non-custodial positioning.
+- Three-line Node.js middleware integration.
+- Live unpaid request returning HTTP 402.
+- Exact devnet, USDC mint, amount and recipient policy.
+- Agent validates and pays locally; protected JSON is returned.
+- Recorded replay result: HTTP 402 and no second protected execution.
+- Public dashboard with finalized receipts and Explorer links.
+- Real transaction opened in Solana Explorer with `Finalized` confirmation.
+- Spending caps, expiration and wallet-controlled revocation.
+- Closing: open source, x402, subscriptions, MCP, no custody and no token.
 
-**62–70 s.** Repetir exactamente el recibo: mostrar que vuelve rechazado. Según
-qué capa detecte primero el replay, la respuesta real es `402` del facilitador o
-`409 payment_replayed` del almacenamiento de MeterKit.
+## Evidence policy
 
-**70–80 s.** Dashboard: nueva venta, monto, estado finalized y enlace Explorer.
+The recorder fetches a fresh unpaid challenge and the current finalized public
+receipt index. It does not hold a wallet key or make a new payment. Replay status
+comes from the documented synthetic campaign because reproducing it in every
+recording would require another paid request and temporarily retaining a payment
+proof.
 
-**80–87 s.** Abrir Solana Project Scout: primera consulta gratis; segunda devuelve 402; pagar y mostrar reporte con fuentes/fecha.
-
-**87–90 s.** “MeterKit: tres líneas para empezar a cobrar software en USDC.”
-
-Plan de contingencia: video/capturas de una transacción devnet ya finalizada y recibo redactado; nunca cambiar a mainnet durante la demo.
+Captions state what is live and what is recorded. Synthetic agents are never
+presented as external users. Never switch the recorder or demo deployment to
+mainnet.
