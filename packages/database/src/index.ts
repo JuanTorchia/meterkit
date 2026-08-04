@@ -16,6 +16,11 @@ export interface ProductStore {
   createIdempotent(product: Product, key: string, requestHash: string): Promise<Product>;
   get(id: string): Promise<Product | null>;
   listProducts(): Promise<readonly Product[]>;
+  listProductsForOwner(ownerWallet: string): Promise<readonly Product[]>;
+  listPaymentsForOwner(ownerWallet: string): Promise<readonly PaymentRecord[]>;
+  listPaymentsForProduct(productId: string): Promise<readonly PaymentRecord[]>;
+  createSession(tokenHash: string, ownerWallet: string, expiresAt: Date): Promise<void>;
+  getSessionOwner(tokenHash: string): Promise<string | null>;
 }
 
 export interface FinalityStore {
@@ -110,17 +115,19 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
   async create(product: Product) {
     const value = productSchema.parse(product);
     const result = await this.pool.query(
-      `INSERT INTO products
-        (id, owner_wallet, name, description, resource_url, network, asset_mint, pay_to, price_atomic)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-       ON CONFLICT (id) DO UPDATE SET
-         name=EXCLUDED.name, description=EXCLUDED.description,
-         resource_url=EXCLUDED.resource_url, price_atomic=EXCLUDED.price_atomic
-       WHERE products.owner_wallet=EXCLUDED.owner_wallet
-       RETURNING *`,
+        `INSERT INTO products
+          (id, owner_wallet, name, description, resource_url, upstream_url, network, asset_mint, pay_to, price_atomic)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         ON CONFLICT (id) DO UPDATE SET
+           name=EXCLUDED.name, description=EXCLUDED.description,
+           resource_url=EXCLUDED.resource_url, upstream_url=EXCLUDED.upstream_url,
+           price_atomic=EXCLUDED.price_atomic
+         WHERE products.owner_wallet=EXCLUDED.owner_wallet
+         RETURNING *`,
       [
         value.id, value.payTo, value.name, value.description, value.resource,
-        value.network, value.assetMint, value.payTo, value.priceAtomic,
+        value.upstreamUrl ?? null, value.network, value.assetMint, value.payTo,
+        value.priceAtomic,
       ],
     );
     if (!result.rows[0]) throw new Error("PRODUCT_OWNER_CONFLICT");
@@ -155,16 +162,18 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
       }
       const result = await client.query(
         `INSERT INTO products
-          (id, owner_wallet, name, description, resource_url, network, asset_mint, pay_to, price_atomic)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+          (id, owner_wallet, name, description, resource_url, upstream_url, network, asset_mint, pay_to, price_atomic)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
          ON CONFLICT (id) DO UPDATE SET
            name=EXCLUDED.name, description=EXCLUDED.description,
-           resource_url=EXCLUDED.resource_url, price_atomic=EXCLUDED.price_atomic
+           resource_url=EXCLUDED.resource_url, upstream_url=EXCLUDED.upstream_url,
+           price_atomic=EXCLUDED.price_atomic
          WHERE products.owner_wallet=EXCLUDED.owner_wallet
          RETURNING *`,
         [
           value.id, value.payTo, value.name, value.description, value.resource,
-          value.network, value.assetMint, value.payTo, value.priceAtomic,
+          value.upstreamUrl ?? null, value.network, value.assetMint, value.payTo,
+          value.priceAtomic,
         ],
       );
       if (!result.rows[0]) throw new Error("PRODUCT_OWNER_CONFLICT");
@@ -193,6 +202,53 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
     return result.rows.map(mapProduct);
   }
 
+  async listProductsForOwner(ownerWallet: string) {
+    const result = await this.pool.query(
+      "SELECT * FROM products WHERE owner_wallet=$1 ORDER BY created_at DESC",
+      [ownerWallet],
+    );
+    return result.rows.map(mapProduct);
+  }
+
+  async listPaymentsForOwner(ownerWallet: string) {
+    const result = await this.pool.query(
+      `SELECT p.id, p.product_id, p.payer, p.pay_to, p.mint,
+              p.amount_atomic::text, p.network, p.signature, p.settled_at, p.status
+       FROM payments p JOIN products product ON product.id=p.product_id
+       WHERE product.owner_wallet=$1 ORDER BY p.settled_at DESC LIMIT 200`,
+      [ownerWallet],
+    );
+    return result.rows.map(mapPayment);
+  }
+
+  async listPaymentsForProduct(productId: string) {
+    const result = await this.pool.query(
+      `SELECT id, product_id, payer, pay_to, mint, amount_atomic::text, network,
+              signature, settled_at, status
+       FROM payments WHERE product_id=$1 ORDER BY settled_at DESC LIMIT 200`,
+      [productId],
+    );
+    return result.rows.map(mapPayment);
+  }
+
+  async createSession(tokenHash: string, ownerWallet: string, expiresAt: Date) {
+    await this.pool.query(
+      `INSERT INTO wallet_sessions (token_hash, owner_wallet, expires_at)
+       VALUES ($1,$2,$3)
+       ON CONFLICT (token_hash) DO NOTHING`,
+      [tokenHash, ownerWallet, expiresAt],
+    );
+  }
+
+  async getSessionOwner(tokenHash: string) {
+    const result = await this.pool.query<{ owner_wallet: string }>(
+      `SELECT owner_wallet FROM wallet_sessions
+       WHERE token_hash=$1 AND expires_at > now()`,
+      [tokenHash],
+    );
+    return result.rows[0]?.owner_wallet ?? null;
+  }
+
   async close() { await this.pool.end(); }
 }
 
@@ -219,6 +275,7 @@ function mapProduct(row: Record<string, unknown>): Product {
     name: row.name,
     description: row.description,
     resource: row.resource_url,
+    ...(row.upstream_url ? { upstreamUrl: row.upstream_url } : {}),
     priceAtomic: String(row.price_atomic),
     assetMint: row.asset_mint,
     payTo: row.pay_to,

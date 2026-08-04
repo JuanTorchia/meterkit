@@ -16,6 +16,7 @@ import {
   buildSubscribeTransaction,
   buildTransferSubscription,
   buildCancelSubscription,
+  buildRevokeAbandonedSubscription,
   THIRTY_DAY_PERIOD_HOURS,
   subscriptionsIntegration,
 } from "./index.js";
@@ -140,8 +141,14 @@ describe("allowance policy", () => {
       plan,
       subscription,
     });
+    const abandoned = buildRevokeAbandonedSubscription({
+      payer: signer,
+      plan,
+      subscription,
+      subscriptionAuthority: signer.address,
+    });
     expect(THIRTY_DAY_PERIOD_HOURS).toBe(720n);
-    expect([transfer, cancel].every(
+    expect([transfer, cancel, abandoned].every(
       (instruction) => instruction.programAddress === subscriptionsIntegration.programId,
     )).toBe(true);
   });

@@ -4,12 +4,15 @@ CREATE TABLE IF NOT EXISTS products (
   name text NOT NULL,
   description text NOT NULL,
   resource_url text NOT NULL,
+  upstream_url text,
   network text NOT NULL CHECK (network = 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1'),
   asset_mint text NOT NULL,
   pay_to text NOT NULL,
   price_atomic numeric(20, 0) NOT NULL CHECK (price_atomic > 0),
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE products ADD COLUMN IF NOT EXISTS upstream_url text;
 
 CREATE TABLE IF NOT EXISTS payments (
   id uuid PRIMARY KEY,
@@ -50,3 +53,13 @@ CREATE TABLE IF NOT EXISTS agent_allowances (
   expires_at timestamptz NOT NULL,
   revoked_at timestamptz
 );
+
+CREATE TABLE IF NOT EXISTS wallet_sessions (
+  token_hash text PRIMARY KEY,
+  owner_wallet text NOT NULL,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS wallet_sessions_owner_expires_idx
+  ON wallet_sessions (owner_wallet, expires_at DESC);

@@ -1,5 +1,5 @@
 import express from "express";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import type { Express } from "express";
 import cors from "cors";
 import { rateLimit } from "express-rate-limit";
@@ -15,6 +15,11 @@ import { createDynamicX402Middleware, createX402Middleware } from "@meterkit/sdk
 import { WalletChallenges } from "./wallet-auth.js";
 import { SolanaFinalityReconciler } from "./finality.js";
 import { loadGatewayConfig, requirePersistentMerchant } from "./config.js";
+import {
+  assertAllowedUpstream,
+  fetchAllowedUpstream,
+  parseUpstreamAllowlist,
+} from "./upstream.js";
 
 const app: Express = express();
 const config = loadGatewayConfig();
@@ -25,6 +30,9 @@ let store: PaymentStore = new MemoryPaymentStore();
 let productStore: ProductStore | undefined;
 let reconciler: SolanaFinalityReconciler | undefined;
 const walletChallenges = new WalletChallenges();
+const upstreamHosts = parseUpstreamAllowlist(
+  process.env.UPSTREAM_HOST_ALLOWLIST ?? "api.open-meteo.com,api.github.com",
+);
 const paymentStore: PaymentStore = {
   has: (signature) => store.has(signature),
   save: (record) => store.save(record),
@@ -44,8 +52,66 @@ app.get("/health", (_request, response) => response.json({
   status: "ok", network: SOLANA_DEVNET, custody: false,
   persistence: productStore ? "postgres" : "memory",
 }));
-app.get("/v1/products", async (_request, response) => {
-  response.json(productStore ? await productStore.listProducts() : [product]);
+app.get("/v1/public/products", async (_request, response) => {
+  response.json([product]);
+});
+app.get("/v1/products", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  response.json(productStore ? await productStore.listProductsForOwner(owner) : []);
+});
+app.post("/v1/auth/session/challenge", (request, response) => {
+  const wallet = typeof request.body?.wallet === "string" ? request.body.wallet : "";
+  if (wallet.length < 32 || wallet.length > 44) {
+    response.status(422).json({ error: "invalid_wallet" });
+    return;
+  }
+  const requestHash = createHash("sha256")
+    .update(JSON.stringify({ wallet }))
+    .digest("hex");
+  const idempotencyKey = `session:${wallet}`;
+  response.json(walletChallenges.issue({
+    wallet,
+    requestHash,
+    idempotencyKey,
+    audience: config.publicGatewayUrl,
+    method: "POST",
+    path: "/v1/auth/session",
+  }));
+});
+app.post("/v1/auth/session", async (request, response) => {
+  if (!productStore) {
+    response.status(503).json({ error: "postgres_required" });
+    return;
+  }
+  const wallet = typeof request.body?.wallet === "string" ? request.body.wallet : "";
+  const auth = request.body?.auth as Record<string, unknown> | undefined;
+  const requestHash = createHash("sha256")
+    .update(JSON.stringify({ wallet }))
+    .digest("hex");
+  const idempotencyKey = `session:${wallet}`;
+  const authorized = auth && walletChallenges.verify({
+    wallet,
+    nonce: typeof auth.nonce === "string" ? auth.nonce : "",
+    signedMessage: typeof auth.signedMessage === "string" ? auth.signedMessage : "",
+    signature: typeof auth.signature === "string" ? auth.signature : "",
+    requestHash,
+    idempotencyKey,
+  });
+  if (!authorized) {
+    response.status(401).json({ error: "wallet_signature_required" });
+    return;
+  }
+  const token = randomBytes(32).toString("base64url");
+  const expiresAt = new Date(Date.now() + 60 * 60_000);
+  await productStore.createSession(hashToken(token), wallet, expiresAt);
+  response.set("Cache-Control", "no-store").json({
+    token,
+    expiresAt: expiresAt.toISOString(),
+  });
 });
 app.post("/v1/auth/challenge", (request, response) => {
   const wallet = typeof request.body?.wallet === "string" ? request.body.wallet : "";
@@ -57,12 +123,24 @@ app.post("/v1/auth/challenge", (request, response) => {
     response.status(422).json({ error: "invalid_authorization_request" });
     return;
   }
+  if (!parsed.data.upstreamUrl) {
+    response.status(422).json({ error: "upstream_required" });
+    return;
+  }
+  try {
+    assertAllowedUpstream(parsed.data.upstreamUrl, upstreamHosts);
+  } catch {
+    response.status(422).json({ error: "upstream_not_allowed" });
+    return;
+  }
   const requestHash = createHash("sha256").update(JSON.stringify(parsed.data)).digest("hex");
   response.json(walletChallenges.issue({
     wallet,
     requestHash,
     idempotencyKey,
     audience: config.publicGatewayUrl,
+    method: "POST",
+    path: "/v1/products",
   }));
 });
 app.post("/v1/products", async (request, response) => {
@@ -73,6 +151,16 @@ app.post("/v1/products", async (request, response) => {
   const parsed = productSchema.safeParse(request.body?.product);
   if (!parsed.success) {
     response.status(422).json({ error: "invalid_product", issues: parsed.error.issues });
+    return;
+  }
+  if (!parsed.data.upstreamUrl) {
+    response.status(422).json({ error: "upstream_required" });
+    return;
+  }
+  try {
+    assertAllowedUpstream(parsed.data.upstreamUrl, upstreamHosts);
+  } catch {
+    response.status(422).json({ error: "upstream_not_allowed" });
     return;
   }
   const idempotencyKey = request.header("Idempotency-Key") ?? "";
@@ -107,19 +195,24 @@ app.post("/v1/products", async (request, response) => {
     throw error;
   }
 });
-app.get("/v1/payments", async (_request, response) => {
-  const payments = await paymentStore.list();
+app.get("/v1/public/payments", async (_request, response) => {
+  const payments = productStore
+    ? await productStore.listPaymentsForProduct(product.id)
+    : await paymentStore.list();
   response.set("Cache-Control", "no-store");
-  response.json(payments.map((payment) => ({
-    id: payment.id,
-    productId: payment.productId,
-    amountAtomic: payment.amountAtomic,
-    network: payment.network,
-    signature: payment.signature,
-    settledAt: payment.settledAt,
-    status: payment.status,
-    explorerUrl: explorerUrl(payment.signature),
-  })));
+  response.json(publicPayments(payments));
+});
+app.get("/v1/payments", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  const payments = productStore
+    ? await productStore.listPaymentsForOwner(owner)
+    : [];
+  response.set("Cache-Control", "no-store");
+  response.json(publicPayments(payments));
 });
 app.get(
   "/v1/weather/premium",
@@ -159,12 +252,29 @@ app.get(
       response.status(404).json({ error: "product_not_found" });
       return;
     }
-    response.json({
-      product: configured.name,
-      protected: true,
-      message: "Pago x402 liquidado; conecta aquí el handler o upstream de tu API.",
-      servedAt: new Date().toISOString(),
-    });
+    if (!configured.upstreamUrl) {
+      response.status(502).json({ error: "upstream_not_configured" });
+      return;
+    }
+    try {
+      const upstream = await fetchAllowedUpstream({
+        upstreamUrl: configured.upstreamUrl,
+        clientQuery: new URL(request.originalUrl, config.publicGatewayUrl).searchParams,
+        allowedHosts: upstreamHosts,
+      });
+      response
+        .status(upstream.status)
+        .set("Content-Type", upstream.contentType)
+        .set("X-MeterKit-Upstream", new URL(upstream.sourceUrl).hostname)
+        .send(Buffer.from(upstream.body));
+    } catch (error) {
+      console.error(JSON.stringify({
+        event: "upstream_request_failed",
+        productId: configured.id,
+        error: error instanceof Error ? error.message : "unknown",
+      }));
+      response.status(502).json({ error: "upstream_unavailable" });
+    }
   },
 );
 
@@ -203,3 +313,27 @@ if (process.env.NODE_ENV !== "test") {
   });
 }
 export { app, product, start };
+
+function hashToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+async function sessionOwner(authorization: string | undefined) {
+  if (!productStore || !authorization?.startsWith("Bearer ")) return null;
+  const token = authorization.slice("Bearer ".length);
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
+  return productStore.getSessionOwner(hashToken(token));
+}
+
+function publicPayments(payments: Awaited<ReturnType<PaymentStore["list"]>>) {
+  return payments.map((payment) => ({
+    id: payment.id,
+    productId: payment.productId,
+    amountAtomic: payment.amountAtomic,
+    network: payment.network,
+    signature: payment.signature,
+    settledAt: payment.settledAt,
+    status: payment.status,
+    explorerUrl: explorerUrl(payment.signature),
+  }));
+}

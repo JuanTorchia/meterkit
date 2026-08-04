@@ -53,7 +53,7 @@ El proceso usa el `PORT` inyectado por el hosting.
 
 1. Crear PostgreSQL sin exposición pública innecesaria.
 2. Desplegar el gateway con una URL temporal.
-3. Verificar `/health`, `/v1/products` y el challenge 402.
+3. Verificar `/health`, `/v1/public/products`, `/v1/public/payments` y el challenge 402.
 4. Desplegar el dashboard apuntando al gateway.
 5. Restringir `CORS_ORIGINS` a la URL final del dashboard.
 6. Revalidar health, CORS, challenge, pago, recibo y replay.

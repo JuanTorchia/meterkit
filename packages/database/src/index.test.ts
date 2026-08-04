@@ -10,10 +10,10 @@ suite("PostgresStore integration", () => {
   beforeAll(async () => {
     store = PostgresStore.connect(url!);
     await store.migrate();
-    await store.pool.query("TRUNCATE payments, products CASCADE");
+    await store.pool.query("TRUNCATE payments, products, wallet_sessions CASCADE");
   });
   afterAll(async () => {
-    await store.pool.query("TRUNCATE payments, products CASCADE");
+    await store.pool.query("TRUNCATE payments, products, wallet_sessions CASCADE");
     await store.close();
   });
 
@@ -30,6 +30,8 @@ suite("PostgresStore integration", () => {
     });
     await store.create(product);
     expect(await store.get(product.id)).toEqual(product);
+    expect(await store.listProductsForOwner(product.payTo)).toEqual([product]);
+    expect(await store.listProductsForOwner("11111111111111111111111111111111")).toEqual([]);
 
     const payment = paymentRecordSchema.parse({
       id: crypto.randomUUID(),
@@ -52,9 +54,17 @@ suite("PostgresStore integration", () => {
     expect(await store.has(payment.signature)).toBe(true);
     await expect(store.save({ ...payment, id: crypto.randomUUID() })).rejects.toThrow("PAYMENT_REPLAYED");
     expect(await store.list()).toHaveLength(1);
+    expect(await store.listPaymentsForOwner(product.payTo)).toHaveLength(1);
+    expect(await store.listPaymentsForOwner("11111111111111111111111111111111")).toEqual([]);
+    expect(await store.listPaymentsForProduct(product.id)).toHaveLength(1);
     expect(await store.listConfirmedSignatures()).toEqual([payment.signature]);
     expect(await store.markFinalized(payment.signature)).toBe(true);
     expect((await store.list())[0]?.status).toBe("finalized");
+
+    await store.createSession("session-token-hash", product.payTo, new Date(Date.now() + 60_000));
+    expect(await store.getSessionOwner("session-token-hash")).toBe(product.payTo);
+    await store.createSession("expired-token-hash", product.payTo, new Date(Date.now() - 1));
+    expect(await store.getSessionOwner("expired-token-hash")).toBeNull();
 
     const idempotencyKey = "product-request-0001";
     const first = await store.createIdempotent(product, idempotencyKey, "same-hash");

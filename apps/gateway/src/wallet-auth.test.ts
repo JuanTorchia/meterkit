@@ -11,7 +11,7 @@ describe("WalletChallenges", () => {
     const challenges = new WalletChallenges();
     const context = {
       wallet, requestHash: "abc123", idempotencyKey: "request-123",
-      audience: "https://meterkit.example",
+      audience: "https://meterkit.example", method: "POST" as const, path: "/v1/products",
     };
     const challenge = challenges.issue(context);
     const signedMessage = Buffer.from(challenge.message);
@@ -33,7 +33,7 @@ describe("WalletChallenges", () => {
     const challenges = new WalletChallenges();
     const context = {
       wallet, requestHash: "abc123", idempotencyKey: "request-123",
-      audience: "https://meterkit.example",
+      audience: "https://meterkit.example", method: "POST" as const, path: "/v1/products",
     };
     const challenge = challenges.issue(context, 1_000);
     const message = Buffer.from(`${challenge.message}!`);

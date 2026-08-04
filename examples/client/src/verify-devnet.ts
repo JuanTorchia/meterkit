@@ -78,7 +78,7 @@ async function waitForBalance(owner: string, minimum: bigint) {
 
 async function waitForFinalizedReceipt(transaction: string) {
   for (let attempt = 0; attempt < 45; attempt += 1) {
-    const response = await fetch(`${gatewayUrl}/v1/payments`);
+    const response = await fetch(`${gatewayUrl}/v1/public/payments`);
     if (!response.ok) throw new Error(`Dashboard payments failed: ${response.status}`);
     const payments = await response.json() as Array<{ signature?: string; status?: string }>;
     const payment = payments.find((candidate) => candidate.signature === transaction);

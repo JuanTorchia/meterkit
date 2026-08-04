@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "verify:devnet": "tsx src/verify-devnet.ts",
+    "verify:plan:devnet": "tsx src/verify-plan-devnet.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

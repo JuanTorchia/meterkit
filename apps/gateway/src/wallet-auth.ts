@@ -17,14 +17,16 @@ export class WalletChallenges {
     requestHash: string;
     idempotencyKey: string;
     audience: string;
+    method: "POST";
+    path: string;
   }, now = Date.now()) {
     const nonce = randomBytes(24).toString("base64url");
     const expiresAt = now + 5 * 60_000;
     const message = [
       "MeterKit product authorization",
       `Audience: ${input.audience}`,
-      "Method: POST",
-      "Path: /v1/products",
+      `Method: ${input.method}`,
+      `Path: ${input.path}`,
       `Wallet: ${input.wallet}`,
       `Request-SHA256: ${input.requestHash}`,
       `Idempotency-Key: ${input.idempotencyKey}`,

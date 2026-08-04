@@ -35,6 +35,15 @@ Proveedor <──────────────── liquidación directa
 6. PostgreSQL es el almacén alojado. El `MemoryPaymentStore` permite tests deterministas y desarrollo sin infraestructura.
 7. Comisión alojada: no se inserta silenciosamente. Sólo puede aplicarse como transferencia adicional visible y firmada por el pagador; el modo open source usa 0%.
 8. El alta de producto exige challenge Ed25519 de Wallet Standard, válido cinco minutos y consumido una sola vez. `Idempotency-Key` evita duplicados seguros.
+9. El dashboard emite una sesión bearer aleatoria de una hora después de una
+   firma ligada a dominio y request. PostgreSQL almacena sólo SHA-256 del token;
+   productos y pagos privados se filtran por `owner_wallet`. La demo pública usa
+   rutas `/v1/public/*` separadas.
+10. El proxy alojado sólo acepta HTTPS hacia una allowlist explícita, sin IP,
+    credenciales, puerto alternativo ni redirects. Limita la respuesta a 1 MB y
+    exige JSON. El middleware self-hosted sigue siendo la integración preferida.
+11. La interfaz se publica en inglés por defecto para grants y pilotos globales,
+    con cambio inmediato a español para Latinoamérica.
 
 ## Consistencia y finalización
 

@@ -14,7 +14,7 @@ Fecha: **2026-08-04**. Este documento distingue implementación, prueba determin
 | Cliente con límites de agente | Implementado | máximo por solicitud y sesión |
 | Subscriptions & Allowances | Builders y transacciones firmables probados | fixed, recurring, monthly, subscribe, tres revocaciones y wire v0 |
 | Allowance onchain | Verificada en devnet | límite 1 USDC, vencimiento, revocación y cierre con rent recuperado |
-| Plan mensual onchain | Pendiente | builders firmables probados; falta crear plan y suscripción |
+| Plan de 30 días onchain | Verificado en devnet | create plan, subscribe, pull de 0,01 USDC, cancel, cierre de autoridad y recuperación de la suscripción |
 | Botón de revocación | Implementado | prepara blockhash devnet y usa `solana:signAndSendTransaction`; falta firma con wallet real |
 | MCP Scout cobrado | Verificado en devnet | reporte `anza-xyz/kit`, 0,02 USDC directos y firma `4ZkuVW…pM5wg` |
 | Finalidad RPC | Verificada en devnet | el reconciliador promovió la operación real a `finalized` |
@@ -24,6 +24,7 @@ Fecha: **2026-08-04**. Este documento distingue implementación, prueba determin
 | Pago público alojado | Completado 2026-08-04 | [`4tijLr…Tk2hnV`](https://explorer.solana.com/tx/4tijLrtrdHXHSitFPH99zR2kFFhaLwrcPo1zKzDmNdUu2T7rmis1Lddjg5YftrTUvZsVzUFngFXwQfdHNsTk2hnV?cluster=devnet), respuesta protegida, replay 402 y dashboard `finalized` |
 | Pago MCP real devnet | Completado 2026-08-04 | [`4ZkuVW…pM5wg`](https://explorer.solana.com/tx/4ZkuVWNuEZLJkYxvU485YUWqNq6pgyQG54mVcCYpSgyXAHEWtCqKMsfLVKiNbuQuAPnymYzwS732cvPXzU7pM5wg?cluster=devnet) |
 | Allowance real devnet | Completada 2026-08-04 | [`53Y9wj…9h4mi`](https://explorer.solana.com/tx/53Y9wj86BDMKB2Xs1LUBX1VDm6xejNpb5P1JUDi5Nr8wBYKXtZ21kq21VGKFCdtTLq8DZAmmLBVgJLHYSNy9h4mi?cluster=devnet), revocada en [`2Ccw1b…XqzoU`](https://explorer.solana.com/tx/2Ccw1bA19qKkHdoRHJ1vBa9tG32Dm8eDE9hHc8fH1RsWaoo3iehkWauYkHrfZaGKYLsg8RntJi95AAfFr9rXqzoU?cluster=devnet) |
+| Suscripción real devnet | Completada 2026-08-04 | [plan](https://explorer.solana.com/tx/43Pahib7rdLYov3V28iRfbsWVbm56RkeQfPbjPVtzTNBM5Yi8yHDKCAxp8GYxVHDh7p93uxZ3Jzxut2W7SSYszA?cluster=devnet), [subscribe](https://explorer.solana.com/tx/3PJXJQyCmhQTPNbokEWw4EK2GBefJBsic1HwsvuXg78KvmH1JHTh8CiHTS3r2rpzB414caroHjiGMKm2yNybFdBe?cluster=devnet), [pull](https://explorer.solana.com/tx/2pbvy5PC9BmRodop2AfcL1tv6mgssb5fAQr6fR2NdQQCSA4bs7xGSCVAP3QZq4b2u44iydkUXEwwzN3DUyQA32KG?cluster=devnet) y [cancel](https://explorer.solana.com/tx/2nHxkGEM5bJoFDDBXqcfXH2cBEAgieQdnNjTgi6mauvEmMZ749UPP3NJabVuQspBdjNgmq1rUgAbU7QQ1ktcuidf?cluster=devnet), todos finalizados |
 | Verificador devnet | Ejecutado | saldo proveedor `0 → 10000`, replay HTTP 402, registro PostgreSQL `finalized` |
 
 ## Comandos ejecutados
@@ -104,6 +105,7 @@ El flujo se ejecutó con wallets desechables de devnet. El facilitador patrocin�
 10–11. Dashboard y Explorer: implementados; la fila sólo aparece tras persistir settlement.
 12–14. Allowance y revocación: ciclo devnet completo con límite de 1 USDC,
 vencimiento de siete días, cuatro transacciones finalizadas, PDA eliminada y
-rent recuperado. El plan mensual permanece pendiente.
+rent recuperado. El plan nativo usa 720 horas: es un período fijo de 30 días,
+no un mes calendario.
 15. MCP cobrado: liquidado y finalizado por 0,02 USDC devnet; reporte factual
     de `anza-xyz/kit` con fuentes y fecha.

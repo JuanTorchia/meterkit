@@ -3,9 +3,9 @@ import "./styles.css";
 
 export const metadata: Metadata = {
   title: "MeterKit — USDC payments for APIs",
-  description: "Monetiza APIs y herramientas MCP con USDC sobre Solana.",
+  description: "Monetize APIs and MCP tools with USDC on Solana.",
 };
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es"><body>{children}</body></html>;
+  return <html lang="en"><body>{children}</body></html>;
 }

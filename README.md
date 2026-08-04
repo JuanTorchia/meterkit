@@ -6,7 +6,8 @@ Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 
 > Estado: **MVP funcional, sólo devnet**. Los flujos x402 HTTP y MCP fueron
 > liquidados y finalizados en devnet. Una allowance limitada fue creada,
-> verificada, revocada y cerrada onchain; el plan mensual continúa experimental.
+> verificada, revocada y cerrada onchain. Un plan nativo de 30 días completó
+> alta, suscripción, cobro, cancelación y revocación en devnet.
 
 Demo pública devnet: [meterkit.juanchi.dev](https://meterkit.juanchi.dev) ·
 [health del gateway](https://meterkit-api.juanchi.dev/health). No envíe fondos
@@ -19,6 +20,10 @@ mainnet: este entorno acepta únicamente activos de prueba.
 - replay protection atómico en PostgreSQL, idempotencia, rate limit, challenge reciente y recibos.
 - Premium Weather API a 0,01 USDC.
 - dashboard Next.js con Wallet Standard, alta autorizada por firma y enlaces Explorer.
+- inglés por defecto con selector español, sesiones firmadas y aislamiento de
+  productos/pagos por wallet.
+- proxy alojado real con allowlist HTTPS y defensas SSRF; el middleware directo
+  continúa siendo la integración recomendada.
 - builders y transacciones Wallet Standard de `@solana/subscriptions` para fixed/recurring/plans, alta y revocación; el dashboard puede firmar y enviar una revocación en devnet.
 - MCP “Solana Project Scout” con preview gratuito, fuentes GitHub públicas y cobro oficial x402/MCP.
 
@@ -95,6 +100,12 @@ Liquidación MCP verificable de 0,02 USDC:
 Allowance verificable de 1 USDC con vencimiento:
 [creación](https://explorer.solana.com/tx/53Y9wj86BDMKB2Xs1LUBX1VDm6xejNpb5P1JUDi5Nr8wBYKXtZ21kq21VGKFCdtTLq8DZAmmLBVgJLHYSNy9h4mi?cluster=devnet) ·
 [revocación](https://explorer.solana.com/tx/2Ccw1bA19qKkHdoRHJ1vBa9tG32Dm8eDE9hHc8fH1RsWaoo3iehkWauYkHrfZaGKYLsg8RntJi95AAfFr9rXqzoU?cluster=devnet).
+
+Plan de 30 días: [crear](https://explorer.solana.com/tx/43Pahib7rdLYov3V28iRfbsWVbm56RkeQfPbjPVtzTNBM5Yi8yHDKCAxp8GYxVHDh7p93uxZ3Jzxut2W7SSYszA?cluster=devnet) ·
+[suscribir](https://explorer.solana.com/tx/3PJXJQyCmhQTPNbokEWw4EK2GBefJBsic1HwsvuXg78KvmH1JHTh8CiHTS3r2rpzB414caroHjiGMKm2yNybFdBe?cluster=devnet) ·
+[cobrar 0,01 USDC](https://explorer.solana.com/tx/2pbvy5PC9BmRodop2AfcL1tv6mgssb5fAQr6fR2NdQQCSA4bs7xGSCVAP3QZq4b2u44iydkUXEwwzN3DUyQA32KG?cluster=devnet) ·
+[cancelar](https://explorer.solana.com/tx/2nHxkGEM5bJoFDDBXqcfXH2cBEAgieQdnNjTgi6mauvEmMZ749UPP3NJabVuQspBdjNgmq1rUgAbU7QQ1ktcuidf?cluster=devnet).
+El protocolo expresa el período como 720 horas: 30 días fijos, no mes calendario.
 6. Repita el mismo comprobante: debe rechazarse y no volver a ejecutar el handler.
 
 El cliente requiere `SOLANA_PRIVATE_KEY` como arreglo JSON de 64 bytes, sólo en el proceso local. El repositorio ignora `.local-wallets/` y nunca debe recibir keypairs en Git. No se cambia a mainnet sin revisión y autorización explícita.

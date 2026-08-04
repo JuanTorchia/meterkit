@@ -21,6 +21,7 @@ import {
   getSubscribeOverlayInstructionAsync,
   getTransferSubscriptionOverlayInstructionAsync,
   getCancelSubscriptionOverlayInstructionAsync,
+  getRevokeAbandonedSubscriptionInstruction,
   getRevokeDelegationOverlayInstruction,
   getRevokeSubscriptionOverlayInstruction,
   getRevokeSubscriptionAuthorityOverlayInstructionAsync,
@@ -375,6 +376,20 @@ export async function buildCancelSubscription(input: {
     subscriber: input.subscriber,
     planPda: input.plan,
     ...(input.subscription ? { subscriptionPda: input.subscription } : {}),
+  });
+}
+
+export function buildRevokeAbandonedSubscription(input: {
+  payer: TransactionSigner;
+  subscription: Address;
+  subscriptionAuthority: Address;
+  plan: Address;
+}) {
+  return getRevokeAbandonedSubscriptionInstruction({
+    payer: input.payer,
+    subscriptionAccount: input.subscription,
+    subscriptionAuthority: input.subscriptionAuthority,
+    planPda: input.plan,
   });
 }
 

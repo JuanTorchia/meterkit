@@ -9,6 +9,7 @@ export const productSchema = z.object({
   name: z.string().min(3).max(100),
   description: z.string().max(500),
   resource: z.string().url(),
+  upstreamUrl: z.string().url().optional(),
   priceAtomic: z.string().regex(/^[1-9]\d*$/),
   assetMint: z.string().min(32).max(44),
   payTo: z.string().min(32).max(44),

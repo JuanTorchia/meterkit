@@ -24,6 +24,8 @@ MeterKit nunca custodia USDC, seed phrases ni claves privadas. Los activos son: 
 | Allowance excesiva | monto máximo, vencimiento obligatorio, copy de riesgo y revocación | unitario |
 | Revocación en red equivocada | UI exige `solana:devnet`, blockhash RPC devnet y no acepta fallback mainnet | builder/UI |
 | Autorización retenida | bloquehash reciente; no usar durable nonce por defecto; cancelar propuestas | procedimiento |
+| Lectura entre tenants | sesión firmada, token hasheado, expiración y consultas SQL por `owner_wallet` | integración PostgreSQL |
+| SSRF desde un producto | HTTPS, allowlist exacta, sin IP/puerto/credenciales/redirects, JSON y límite 1 MB | `upstream.test.ts` |
 
 ## Particularidades de Subscriptions
 
