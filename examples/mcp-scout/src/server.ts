@@ -22,9 +22,7 @@ const receiptGuard = new FileReceiptGuard(
   process.env.MCP_RECEIPT_DIR ?? ".meterkit/mcp-receipts",
 );
 const resourceServer = new x402ResourceServer(facilitator)
-  .register(SOLANA_DEVNET, new ExactSvmScheme({
-    rpcUrl,
-  }))
+  .register(SOLANA_DEVNET, new ExactSvmScheme({}))
   .onAfterSettle(async ({ result, requirements }) => {
     if (!result.success || !result.transaction || !result.payer) {
       throw new Error("PAYMENT_SETTLEMENT_INCOMPLETE");

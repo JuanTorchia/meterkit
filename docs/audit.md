@@ -80,7 +80,7 @@ El flujo se ejecut√≥ con wallets desechables de devnet. El facilitador patrocin√
 | Modelo de amenazas | `docs/security.md` | Listo |
 | One-pager | `docs/one-pager.md` | Listo |
 | Deck de 10 diapositivas | `docs/pitch-deck.md` | Listo |
-| Demo de 90 segundos | `docs/demo-90s.md` | Guion listo; falta firma real |
+| Demo de 90 segundos | `docs/demo-90s.md` | Guion listo con pagos devnet verificados |
 | Grant Agentic | `docs/grant-agentic-draft.md` | Borrador listo |
 | Grant Argentina | `docs/grant-argentina-draft.md` | Borrador listo |
 | Colosseum Eternal | `docs/colosseum-eternal-draft.md` | Borrador listo |

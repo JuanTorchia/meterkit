@@ -5,22 +5,39 @@ type Challenge = {
   wallet: string;
   message: string;
   expiresAt: number;
+  requestHash: string;
+  idempotencyKey: string;
 };
 
 export class WalletChallenges {
   readonly #challenges = new Map<string, Challenge>();
 
-  issue(wallet: string, now = Date.now()) {
+  issue(input: {
+    wallet: string;
+    requestHash: string;
+    idempotencyKey: string;
+    audience: string;
+  }, now = Date.now()) {
     const nonce = randomBytes(24).toString("base64url");
     const expiresAt = now + 5 * 60_000;
     const message = [
       "MeterKit product authorization",
-      `Wallet: ${wallet}`,
+      `Audience: ${input.audience}`,
+      "Method: POST",
+      "Path: /v1/products",
+      `Wallet: ${input.wallet}`,
+      `Request-SHA256: ${input.requestHash}`,
+      `Idempotency-Key: ${input.idempotencyKey}`,
       `Nonce: ${nonce}`,
       `Expires: ${new Date(expiresAt).toISOString()}`,
-      "Action: create or update a product that receives USDC directly",
     ].join("\n");
-    this.#challenges.set(nonce, { wallet, message, expiresAt });
+    this.#challenges.set(nonce, {
+      wallet: input.wallet,
+      message,
+      expiresAt,
+      requestHash: input.requestHash,
+      idempotencyKey: input.idempotencyKey,
+    });
     return { nonce, message, expiresAt: new Date(expiresAt).toISOString() };
   }
 
@@ -29,11 +46,16 @@ export class WalletChallenges {
     nonce: string;
     signedMessage: string;
     signature: string;
+    requestHash: string;
+    idempotencyKey: string;
   }, now = Date.now()) {
     const challenge = this.#challenges.get(input.nonce);
     // Consume before cryptographic verification so every challenge is single-use.
     this.#challenges.delete(input.nonce);
-    if (!challenge || challenge.wallet !== input.wallet || challenge.expiresAt < now) return false;
+    if (!challenge || challenge.wallet !== input.wallet ||
+        challenge.requestHash !== input.requestHash ||
+        challenge.idempotencyKey !== input.idempotencyKey ||
+        challenge.expiresAt < now) return false;
 
     try {
       const signedMessage = Buffer.from(input.signedMessage, "base64");

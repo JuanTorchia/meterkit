@@ -216,9 +216,20 @@ function ProductForm({ connection, onClose, onCreated }: { connection: Connected
     const feature = connection.wallet.features[SolanaSignMessage] as
       SolanaSignMessageFeature[typeof SolanaSignMessage] | undefined;
     if (!feature) { setStatus("Wallet sin firma de mensajes"); return; }
+    const product = {
+      id, name: data.get("name"), description: data.get("description"),
+      resource: `${gateway}/v1/products/${encodeURIComponent(id)}/proxy`,
+      priceAtomic: String(Math.round(Number(data.get("price")) * 1_000_000)),
+      assetMint: usdcMint, payTo: connection.account.address, network: devnet,
+    };
+    const idempotencyKey = crypto.randomUUID();
     const challengeResponse = await fetch(`${gateway}/v1/auth/challenge`, {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ wallet: connection.account.address }),
+      body: JSON.stringify({
+        wallet: connection.account.address,
+        product,
+        idempotencyKey,
+      }),
     });
     if (!challengeResponse.ok) { setStatus("No se pudo autorizar"); return; }
     const challenge = await challengeResponse.json() as { nonce: string; message: string };
@@ -227,16 +238,10 @@ function ProductForm({ connection, onClose, onCreated }: { connection: Connected
       message: new TextEncoder().encode(challenge.message),
     });
     if (!signed) { setStatus("Firma cancelada"); return; }
-    const product = {
-      id, name: data.get("name"), description: data.get("description"),
-      resource: `${gateway}/v1/products/${encodeURIComponent(id)}/proxy`,
-      priceAtomic: String(Math.round(Number(data.get("price")) * 1_000_000)),
-      assetMint: usdcMint, payTo: connection.account.address, network: devnet,
-    };
     const response = await fetch(`${gateway}/v1/products`, {
       method: "POST", headers: {
         "content-type": "application/json",
-        "Idempotency-Key": crypto.randomUUID(),
+        "Idempotency-Key": idempotencyKey,
       },
       body: JSON.stringify({
         product,

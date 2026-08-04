@@ -14,6 +14,9 @@ import {
   buildRevokeSubscription,
   buildSubscribe,
   buildSubscribeTransaction,
+  buildTransferSubscription,
+  buildCancelSubscription,
+  THIRTY_DAY_PERIOD_HOURS,
   subscriptionsIntegration,
 } from "./index.js";
 import { address, generateKeyPairSigner } from "@solana/kit";
@@ -94,6 +97,33 @@ describe("allowance policy", () => {
       tokenProgram: address("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
     });
     expect([delegation, subscription, all].every(
+      (instruction) => instruction.programAddress === subscriptionsIntegration.programId,
+    )).toBe(true);
+  });
+
+  it("builds the native 30-day pull and cancellation instructions", async () => {
+    const signer = await generateKeyPairSigner();
+    const subscriber = address("7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE");
+    const plan = address("8NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUF");
+    const subscription = address("9NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUG");
+    const mint = address("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU");
+    const transfer = await buildTransferSubscription({
+      caller: signer,
+      subscriber,
+      plan,
+      subscription,
+      receiverAta: signer.address,
+      mint,
+      tokenProgram: address("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+      amountAtomic: 10_000_000n,
+    });
+    const cancel = await buildCancelSubscription({
+      subscriber: signer,
+      plan,
+      subscription,
+    });
+    expect(THIRTY_DAY_PERIOD_HOURS).toBe(720n);
+    expect([transfer, cancel].every(
       (instruction) => instruction.programAddress === subscriptionsIntegration.programId,
     )).toBe(true);
   });

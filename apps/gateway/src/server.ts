@@ -49,11 +49,21 @@ app.get("/v1/products", async (_request, response) => {
 });
 app.post("/v1/auth/challenge", (request, response) => {
   const wallet = typeof request.body?.wallet === "string" ? request.body.wallet : "";
-  if (wallet.length < 32 || wallet.length > 44) {
-    response.status(422).json({ error: "invalid_wallet" });
+  const parsed = productSchema.safeParse(request.body?.product);
+  const idempotencyKey = typeof request.body?.idempotencyKey === "string"
+    ? request.body.idempotencyKey : "";
+  if (wallet.length < 32 || wallet.length > 44 || !parsed.success ||
+      parsed.data.payTo !== wallet || !/^[A-Za-z0-9._:-]{8,200}$/.test(idempotencyKey)) {
+    response.status(422).json({ error: "invalid_authorization_request" });
     return;
   }
-  response.json(walletChallenges.issue(wallet));
+  const requestHash = createHash("sha256").update(JSON.stringify(parsed.data)).digest("hex");
+  response.json(walletChallenges.issue({
+    wallet,
+    requestHash,
+    idempotencyKey,
+    audience: config.publicGatewayUrl,
+  }));
 });
 app.post("/v1/products", async (request, response) => {
   if (!productStore) {
@@ -65,17 +75,6 @@ app.post("/v1/products", async (request, response) => {
     response.status(422).json({ error: "invalid_product", issues: parsed.error.issues });
     return;
   }
-  const auth = request.body?.auth as Record<string, unknown> | undefined;
-  const authorized = auth && walletChallenges.verify({
-    wallet: parsed.data.payTo,
-    nonce: typeof auth.nonce === "string" ? auth.nonce : "",
-    signedMessage: typeof auth.signedMessage === "string" ? auth.signedMessage : "",
-    signature: typeof auth.signature === "string" ? auth.signature : "",
-  });
-  if (!authorized) {
-    response.status(401).json({ error: "wallet_signature_required" });
-    return;
-  }
   const idempotencyKey = request.header("Idempotency-Key") ?? "";
   if (!/^[A-Za-z0-9._:-]{8,200}$/.test(idempotencyKey)) {
     response.status(422).json({ error: "idempotency_key_required" });
@@ -84,6 +83,19 @@ app.post("/v1/products", async (request, response) => {
   const requestHash = createHash("sha256")
     .update(JSON.stringify(parsed.data))
     .digest("hex");
+  const auth = request.body?.auth as Record<string, unknown> | undefined;
+  const authorized = auth && walletChallenges.verify({
+    wallet: parsed.data.payTo,
+    nonce: typeof auth.nonce === "string" ? auth.nonce : "",
+    signedMessage: typeof auth.signedMessage === "string" ? auth.signedMessage : "",
+    signature: typeof auth.signature === "string" ? auth.signature : "",
+    requestHash,
+    idempotencyKey,
+  });
+  if (!authorized) {
+    response.status(401).json({ error: "wallet_signature_required" });
+    return;
+  }
   try {
     const created = await productStore.createIdempotent(parsed.data, idempotencyKey, requestHash);
     response.status(201).location(`/v1/products/${created.id}`).json(created);
@@ -97,8 +109,15 @@ app.post("/v1/products", async (request, response) => {
 });
 app.get("/v1/payments", async (_request, response) => {
   const payments = await paymentStore.list();
+  response.set("Cache-Control", "no-store");
   response.json(payments.map((payment) => ({
-    ...payment,
+    id: payment.id,
+    productId: payment.productId,
+    amountAtomic: payment.amountAtomic,
+    network: payment.network,
+    signature: payment.signature,
+    settledAt: payment.settledAt,
+    status: payment.status,
     explorerUrl: explorerUrl(payment.signature),
   })));
 });

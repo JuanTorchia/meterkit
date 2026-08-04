@@ -9,13 +9,19 @@ describe("WalletChallenges", () => {
     const rawPublicKey = pair.publicKey.export({ format: "der", type: "spki" }).subarray(-32);
     const wallet = bs58.encode(rawPublicKey);
     const challenges = new WalletChallenges();
-    const challenge = challenges.issue(wallet);
+    const context = {
+      wallet, requestHash: "abc123", idempotencyKey: "request-123",
+      audience: "https://meterkit.example",
+    };
+    const challenge = challenges.issue(context);
     const signedMessage = Buffer.from(challenge.message);
     const auth = {
       wallet,
       nonce: challenge.nonce,
       signedMessage: signedMessage.toString("base64"),
       signature: sign(null, signedMessage, pair.privateKey).toString("base64"),
+      requestHash: context.requestHash,
+      idempotencyKey: context.idempotencyKey,
     };
     expect(challenges.verify(auth)).toBe(true);
     expect(challenges.verify(auth)).toBe(false);
@@ -25,22 +31,30 @@ describe("WalletChallenges", () => {
     const pair = generateKeyPairSync("ed25519");
     const wallet = bs58.encode(pair.publicKey.export({ format: "der", type: "spki" }).subarray(-32));
     const challenges = new WalletChallenges();
-    const challenge = challenges.issue(wallet, 1_000);
+    const context = {
+      wallet, requestHash: "abc123", idempotencyKey: "request-123",
+      audience: "https://meterkit.example",
+    };
+    const challenge = challenges.issue(context, 1_000);
     const message = Buffer.from(`${challenge.message}!`);
     expect(challenges.verify({
       wallet,
       nonce: challenge.nonce,
       signedMessage: message.toString("base64"),
       signature: sign(null, message, pair.privateKey).toString("base64"),
+      requestHash: context.requestHash,
+      idempotencyKey: context.idempotencyKey,
     }, 1_001)).toBe(false);
 
-    const expired = challenges.issue(wallet, 1_000);
+    const expired = challenges.issue(context, 1_000);
     const exact = Buffer.from(expired.message);
     expect(challenges.verify({
       wallet,
       nonce: expired.nonce,
       signedMessage: exact.toString("base64"),
       signature: sign(null, exact, pair.privateKey).toString("base64"),
+      requestHash: context.requestHash,
+      idempotencyKey: context.idempotencyKey,
     }, 1_000 + 5 * 60_000 + 1)).toBe(false);
   });
 });

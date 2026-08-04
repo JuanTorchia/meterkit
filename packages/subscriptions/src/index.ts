@@ -19,10 +19,15 @@ import {
   getCreateRecurringDelegationOverlayInstructionAsync,
   getCreatePlanOverlayInstructionAsync,
   getSubscribeOverlayInstructionAsync,
+  getTransferSubscriptionOverlayInstructionAsync,
+  getCancelSubscriptionOverlayInstructionAsync,
   getRevokeDelegationOverlayInstruction,
   getRevokeSubscriptionOverlayInstruction,
   getRevokeSubscriptionAuthorityOverlayInstructionAsync,
 } from "@solana/subscriptions";
+
+/** Native plans use fixed hours; 720 hours is a 30-day billing period, not a calendar month. */
+export const THIRTY_DAY_PERIOD_HOURS = 720n;
 
 export type AllowancePolicy = {
   maxAtomic: bigint;
@@ -141,7 +146,7 @@ export async function buildMonthlyPlan(input: {
     amount: input.amountAtomic,
     destinations: [input.destination],
     pullers: input.pullers ?? [],
-    periodHours: 720n,
+    periodHours: THIRTY_DAY_PERIOD_HOURS,
     endTs: input.endsAt ? toUnixSeconds(input.endsAt) : 0n,
     planId: input.planId,
     metadataUri: input.metadataUri,
@@ -166,7 +171,7 @@ export async function buildSubscribe(input: {
     tokenMint: input.mint,
     planId: input.planId,
     expectedAmount: input.expectedAmountAtomic,
-    expectedPeriodHours: input.expectedPeriodHours ?? 720n,
+    expectedPeriodHours: input.expectedPeriodHours ?? THIRTY_DAY_PERIOD_HOURS,
     expectedCreatedAt: input.expectedCreatedAt,
     expectedSubscriptionAuthorityInitId: input.authorityInitId,
   });
@@ -311,6 +316,41 @@ export function buildRevokeSubscription(input: {
     planPda: input.plan,
     subscriptionPda: input.subscription,
     ...(input.rentReceiver ? { receiver: input.rentReceiver } : {}),
+  });
+}
+
+export async function buildTransferSubscription(input: {
+  caller: TransactionSigner;
+  subscriber: Address;
+  plan: Address;
+  subscription: Address;
+  receiverAta: Address;
+  mint: Address;
+  tokenProgram: Address;
+  amountAtomic: bigint;
+}) {
+  if (input.amountAtomic <= 0n) throw new Error("SUBSCRIPTION_TRANSFER_AMOUNT_INVALID");
+  return getTransferSubscriptionOverlayInstructionAsync({
+    caller: input.caller,
+    delegator: input.subscriber,
+    planPda: input.plan,
+    subscriptionPda: input.subscription,
+    receiverAta: input.receiverAta,
+    tokenMint: input.mint,
+    tokenProgram: input.tokenProgram,
+    amount: input.amountAtomic,
+  });
+}
+
+export async function buildCancelSubscription(input: {
+  subscriber: TransactionSigner;
+  plan: Address;
+  subscription?: Address;
+}) {
+  return getCancelSubscriptionOverlayInstructionAsync({
+    subscriber: input.subscriber,
+    planPda: input.plan,
+    ...(input.subscription ? { subscriptionPda: input.subscription } : {}),
   });
 }
 

@@ -10,7 +10,9 @@
 
 **50–62 s.** Abrir el recibo y la transacción en Solana Explorer. Señalar que USDC fue directamente de cliente a proveedor y MeterKit nunca tomó custodia.
 
-**62–70 s.** Repetir exactamente el recibo: `409 payment_replayed`.
+**62–70 s.** Repetir exactamente el recibo: mostrar que vuelve rechazado. Según
+qué capa detecte primero el replay, la respuesta real es `402` del facilitador o
+`409 payment_replayed` del almacenamiento de MeterKit.
 
 **70–80 s.** Dashboard: nueva venta, monto, estado finalized y enlace Explorer.
 
@@ -19,4 +21,3 @@
 **87–90 s.** “MeterKit: tres líneas para empezar a cobrar software en USDC.”
 
 Plan de contingencia: video/capturas de una transacción devnet ya finalizada y recibo redactado; nunca cambiar a mainnet durante la demo.
-

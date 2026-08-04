@@ -5,3 +5,9 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+minimumReleaseAgeExclude:
+  - hono@4.13.0
+overrides:
+  hono: 4.13.0
+  postcss: 8.5.25
+  sharp: 0.35.3

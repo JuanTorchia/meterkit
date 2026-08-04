@@ -250,9 +250,11 @@ export function createX402Middleware(options: {
     url: options.facilitatorUrl ?? "https://x402.org/facilitator",
   });
   const server = new x402ResourceServer(facilitator)
-    .register(SOLANA_DEVNET, new ExactSvmScheme(rpcUrl === false
-      ? {}
-      : { rpcUrl }))
+    // Do not embed a volatile recentBlockhash in route requirements. The
+    // middleware rebuilds requirements on the paid retry; a new blockhash would
+    // make an otherwise identical payload fail requirement matching. The SVM
+    // client obtains its own blockhash and we still validate settlement via RPC.
+    .register(SOLANA_DEVNET, new ExactSvmScheme({}))
     .onAfterSettle(async ({ result, requirements }) => {
       if (!result.success || !result.payer || !result.transaction) return;
       await settlementValidator?.validate({
@@ -326,9 +328,7 @@ export function createDynamicX402Middleware(options: {
     ? undefined
     : options.settlementValidator ?? new SolanaSettlementValidator(rpcUrl);
   const server = new x402ResourceServer(facilitator)
-    .register(SOLANA_DEVNET, new ExactSvmScheme(rpcUrl === false
-      ? {}
-      : { rpcUrl }))
+    .register(SOLANA_DEVNET, new ExactSvmScheme({}))
     .onAfterSettle(async ({ result, requirements, transportContext }) => {
       if (!result.success || !result.payer || !result.transaction) return;
       const path = (transportContext as { request?: { path?: string } } | undefined)?.request?.path;

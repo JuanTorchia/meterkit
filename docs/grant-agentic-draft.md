@@ -6,7 +6,7 @@ Application status: **submitted by the applicant on 2026-08-04; review pending**
 Submission does not imply approval.
 
 This document separates completed proof from grant-funded work. Do not claim users,
-revenue, a public deployment, or an approved grant until those facts are true.
+revenue or an approved grant until those facts are true.
 
 ## Suggested project title
 
@@ -45,7 +45,7 @@ subscription and allowance primitives for bounded agent authorization.
 
 ## What already works?
 
-A local MVP already proves feasibility. It completed a 0.01 USDC x402 payment on
+A public devnet MVP proves feasibility. It completed a 0.01 USDC x402 payment on
 Solana devnet directly to the provider:
 
 <https://explorer.solana.com/tx/61NPoRT92dwGZby6q4qAoFP9CG9UAUKBM3PZtW1BbwHTWvB3udMKgmcEfUPMCqvjjUjKEpakgmFomVwWVpjHsqsf?cluster=devnet>
@@ -89,7 +89,8 @@ totaling USD 200 for the second-tranche form.
 - Country: Argentina, if accurate
 - Public Solana wallet: `[required — public address only]`
 - GitHub repository URL: <https://github.com/JuanTorchia/meterkit>
-- Live devnet URL: `[add after deployment; do not call it production]`
+- Live devnet dashboard: <https://meterkit.juanchi.dev>
+- Live devnet gateway: <https://meterkit-api.juanchi.dev>
 - AI coding tool and plan: `[confirm it is eligible before purchase]`
 
 ## Submission checklist
@@ -108,7 +109,7 @@ totaling USD 200 for the second-tranche form.
 ## Short version
 
 MeterKit is open-source, non-custodial infrastructure for charging USDC per API or
-MCP tool call on Solana. A working local MVP has already settled a real 0.01 USDC
+MCP tool call on Solana. A public devnet MVP has already settled a real 0.01 USDC
 x402 payment on devnet directly to the provider. With the Agentic Engineering
 Grant I will ship a public devnet release: npm-ready middleware, protected API,
 dashboard, example client, paid Solana Project Scout MCP tool, critical security
