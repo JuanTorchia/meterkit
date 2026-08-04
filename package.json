@@ -18,6 +18,7 @@
     "pretest:e2e": "pnpm build:packages",
     "test:e2e": "playwright test",
     "wallet:devnet": "tsx scripts/create-devnet-wallet.ts",
+    "pilot:check": "node scripts/pilot-check.mjs",
     "format": "prettier --write ."
   },
   "devDependencies": {

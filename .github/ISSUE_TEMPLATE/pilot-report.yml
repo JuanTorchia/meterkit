@@ -1,0 +1,91 @@
+name: MeterKit devnet pilot report
+description: Record a completed external middleware test without sharing keys or personal data.
+title: "[Pilot] "
+labels: ["pilot"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing MeterKit. Never paste a seed phrase, private key, session token, `.env`, or mainnet transaction here.
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project category
+      options:
+        - HTTP API
+        - MCP server
+        - AI agent or automation
+        - Data service
+        - Other developer tool
+    validations:
+      required: true
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Readiness check
+      options:
+        - label: I ran `pnpm pilot:check` successfully.
+          required: true
+        - label: I used only Solana devnet and test assets.
+          required: true
+        - label: I did not share a private key or seed phrase with MeterKit.
+          required: true
+  - type: input
+    id: first402
+    attributes:
+      label: Minutes to first HTTP 402
+      placeholder: "5"
+    validations:
+      required: true
+  - type: input
+    id: settlement
+    attributes:
+      label: Minutes to first devnet settlement
+      placeholder: "20"
+    validations:
+      required: true
+  - type: input
+    id: explorer
+    attributes:
+      label: Devnet Explorer transaction
+      description: Public devnet transaction only; never submit a mainnet transaction for this pilot.
+      placeholder: https://explorer.solana.com/tx/...?cluster=devnet
+    validations:
+      required: true
+  - type: checkboxes
+    id: replay
+    attributes:
+      label: Security behavior
+      options:
+        - label: Reusing the same payment proof was rejected.
+          required: true
+        - label: The provider received test USDC directly.
+          required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Where did you get stuck?
+      description: Include commands or public error messages, but redact paths, tokens and wallet secrets.
+    validations:
+      required: true
+  - type: dropdown
+    id: model
+    attributes:
+      label: Preferred product model
+      options:
+        - Self-hosted open source
+        - Hosted analytics
+        - Paid integration support
+        - Not useful for my project
+    validations:
+      required: true
+  - type: dropdown
+    id: consent
+    attributes:
+      label: Evidence consent
+      options:
+        - Anonymous aggregate only
+        - Public GitHub handle and result
+        - Do not cite outside this issue
+    validations:
+      required: true

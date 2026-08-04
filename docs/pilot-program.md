@@ -20,13 +20,17 @@ short anonymized result may be used in the grant evidence.
 
 ## 30-minute acceptance checklist
 
-1. Install the packed SDK or workspace example.
-2. Configure devnet, USDC mint, recipient wallet, price, and facilitator.
-3. Receive an HTTP 402 from the protected endpoint.
-4. Complete one devnet payment and receive the protected JSON response.
-5. Confirm direct settlement and Explorer receipt.
-6. Replay the proof and confirm rejection.
-7. Remove the integration or keep it for further testing.
+1. Run `pnpm pilot:check` and confirm the public demo is ready.
+2. Install the packed SDK or workspace example.
+3. Configure devnet, USDC mint, recipient wallet, price, and facilitator.
+4. Receive an HTTP 402 from the protected endpoint.
+5. Complete one devnet payment and receive the protected JSON response.
+6. Confirm direct settlement and Explorer receipt.
+7. Replay the proof and confirm rejection.
+8. Submit the structured GitHub pilot report.
+9. Remove the integration or keep it for further testing.
+
+Self-service instructions: [`docs/pilot-quickstart.md`](pilot-quickstart.md).
 
 ## Success metrics
 

@@ -3,6 +3,9 @@
 Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 
 [![CI](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml)
+[![Public devnet smoke](https://github.com/JuanTorchia/meterkit/actions/workflows/public-demo-smoke.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/public-demo-smoke.yml)
+
+[![CI](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml)
 
 > Estado: **MVP funcional, sólo devnet**. Los flujos x402 HTTP y MCP fueron
 > liquidados y finalizados en devnet. Una allowance limitada fue creada,
@@ -28,6 +31,18 @@ mainnet: este entorno acepta únicamente activos de prueba.
 - MCP “Solana Project Scout” con preview gratuito, fuentes GitHub públicas y cobro oficial x402/MCP.
 
 MeterKit no recibe fondos, no conoce seed phrases y no firma por usuarios.
+
+## Prueba pública sin wallet
+
+Compruebe salud, descubrimiento de productos, desafío x402 y aislamiento privado:
+
+```bash
+pnpm pilot:check
+```
+
+El chequeo no usa claves ni fondos y no se presenta como un piloto completado.
+Para integrar un endpoint y aportar evidencia externa, siga
+[`docs/pilot-quickstart.md`](docs/pilot-quickstart.md).
 
 ## Requisitos
 

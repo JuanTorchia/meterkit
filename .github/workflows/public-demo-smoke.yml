@@ -1,0 +1,28 @@
+name: Public devnet smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  public-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify public non-custodial demo
+        run: node scripts/pilot-check.mjs | tee meterkit-public-smoke.json
+      - name: Preserve machine-readable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meterkit-public-smoke-${{ github.run_id }}
+          path: meterkit-public-smoke.json
+          retention-days: 30
