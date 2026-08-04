@@ -23,9 +23,27 @@ import { address, generateKeyPairSigner } from "@solana/kit";
 
 describe("allowance policy", () => {
   it("requires a positive cap and future expiry", () => {
-    expect(assertAllowancePolicy({ maxAtomic: 1_000_000n, expiresAt: new Date("2030-01-01") }).maxAtomic).toBe(1_000_000n);
-    expect(() => assertAllowancePolicy({ maxAtomic: 0n, expiresAt: new Date("2030-01-01") })).toThrow("ALLOWANCE_AMOUNT_INVALID");
+    const future = new Date(Date.now() + 86_400_000);
+    expect(assertAllowancePolicy({ maxAtomic: 1_000_000n, expiresAt: future }).maxAtomic).toBe(1_000_000n);
+    expect(() => assertAllowancePolicy({ maxAtomic: 0n, expiresAt: future })).toThrow("ALLOWANCE_AMOUNT_INVALID");
     expect(() => assertAllowancePolicy({ maxAtomic: 1n, expiresAt: new Date("2020-01-01") })).toThrow("ALLOWANCE_EXPIRED");
+  });
+
+  it("rejects overly broad agent allowances by default", () => {
+    const now = new Date("2030-01-01T00:00:00Z");
+    expect(() => assertAllowancePolicy({
+      maxAtomic: 100_000_001n,
+      expiresAt: new Date("2030-01-02T00:00:00Z"),
+    }, now)).toThrow("ALLOWANCE_AMOUNT_EXCEEDS_POLICY");
+    expect(() => assertAllowancePolicy({
+      maxAtomic: 1_000_000n,
+      expiresAt: new Date("2030-04-02T00:00:00Z"),
+    }, now)).toThrow("ALLOWANCE_DURATION_EXCEEDS_POLICY");
+    expect(() => assertAllowancePolicy({
+      maxAtomic: 1_000_000n,
+      expiresAt: new Date("2030-01-02T00:00:00Z"),
+      periodSeconds: 30n,
+    }, now)).toThrow("ALLOWANCE_PERIOD_INVALID");
   });
 
   it("exposes explicit upstream revoke instructions", () => {
@@ -70,7 +88,7 @@ describe("allowance policy", () => {
       maxPerPeriodAtomic: 10_000_000n,
       periodSeconds: 2_592_000n,
       startsAt: new Date(Date.now() - 1_000),
-      expiresAt: new Date(Date.now() + 31_536_000_000),
+      expiresAt: new Date(Date.now() + 30 * 86_400_000),
       nonce: 2n,
       authorityInitId: 1n,
     });

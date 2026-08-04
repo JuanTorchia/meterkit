@@ -35,11 +35,35 @@ export type AllowancePolicy = {
   periodSeconds?: bigint;
 };
 
-export function assertAllowancePolicy(policy: AllowancePolicy, now = new Date()) {
+export type AllowanceConstraints = {
+  maxAtomic: bigint;
+  maxDurationSeconds: bigint;
+  minPeriodSeconds: bigint;
+};
+
+export const DEFAULT_AGENT_ALLOWANCE_CONSTRAINTS: AllowanceConstraints = {
+  maxAtomic: 100_000_000n, // 100 USDC at six decimals.
+  maxDurationSeconds: 90n * 24n * 60n * 60n,
+  minPeriodSeconds: 60n,
+};
+
+export function assertAllowancePolicy(
+  policy: AllowancePolicy,
+  now = new Date(),
+  constraints = DEFAULT_AGENT_ALLOWANCE_CONSTRAINTS,
+) {
   if (policy.maxAtomic <= 0n) throw new Error("ALLOWANCE_AMOUNT_INVALID");
+  if (policy.maxAtomic > constraints.maxAtomic) throw new Error("ALLOWANCE_AMOUNT_EXCEEDS_POLICY");
   if (policy.expiresAt <= now) throw new Error("ALLOWANCE_EXPIRED");
-  if (policy.periodSeconds !== undefined && policy.periodSeconds <= 0n) {
-    throw new Error("ALLOWANCE_PERIOD_INVALID");
+  const durationSeconds = BigInt(Math.ceil((policy.expiresAt.getTime() - now.getTime()) / 1_000));
+  if (durationSeconds > constraints.maxDurationSeconds) {
+    throw new Error("ALLOWANCE_DURATION_EXCEEDS_POLICY");
+  }
+  if (policy.periodSeconds !== undefined) {
+    if (policy.periodSeconds < constraints.minPeriodSeconds ||
+        policy.periodSeconds > durationSeconds) {
+      throw new Error("ALLOWANCE_PERIOD_INVALID");
+    }
   }
   return policy;
 }
