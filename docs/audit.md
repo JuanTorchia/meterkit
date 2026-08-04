@@ -1,6 +1,6 @@
 # Auditoría de estado del MVP
 
-Fecha: **2026-08-03**. Este documento distingue implementación, prueba determinista y evidencia onchain.
+Fecha: **2026-08-04**. Este documento distingue implementación, prueba determinista y evidencia onchain.
 
 | Criterio | Estado | Evidencia |
 |---|---|---|
@@ -44,8 +44,18 @@ Resultado actual: la batería incluye 27 tests unitarios/de integración, Postgr
 - Simulando un reverse proxy de un salto, el challenge publicó
   `https://gateway.example.invalid/v1/weather/premium`, red devnet, monto
   `10000` y el destinatario esperado.
-- El despliegue externo continúa pendiente; no se creó servicio público ni se
-  habilitó mainnet durante esta validación.
+- Web pública: `https://meterkit.juanchi.dev`, inspeccionada visualmente en
+  navegador real.
+- Gateway público: `https://meterkit-api.juanchi.dev`; `/health` responde 200
+  con `custody:false`, persistencia PostgreSQL y Solana devnet.
+- `/v1/weather/premium` responde 402 con x402 v2, esquema `exact`, monto
+  `10000`, mint USDC devnet y pago directo a `9a4x…aiR5`.
+- CORS permite exclusivamente el origen público del dashboard.
+- Web y gateway están `running:healthy` en Coolify detrás de Cloudflare Tunnel;
+  PostgreSQL no expone un puerto público.
+- La base está incluida en monitoreo, backup cifrado y restauración aislada:
+  el ensayo restauró sus **4 tablas** y los 10 dumps del host.
+- No se habilitó mainnet ni se usaron fondos reales.
 
 ## Condición para cerrar el MVP
 
@@ -55,10 +65,10 @@ El flujo se ejecutó con wallets desechables de devnet. El facilitador patrocin�
 
 | Entregable solicitado | Evidencia | Estado |
 |---|---|---|
-| Aplicación funcional | `apps/web`, `apps/gateway`, PostgreSQL Compose | Local verificado |
+| Aplicación funcional | `apps/web`, `apps/gateway`, PostgreSQL | Público en devnet |
 | SDK/middleware publicable | `packages/sdk`, tarball instalado externamente | Verificado |
 | Servidor MCP útil | `examples/mcp-scout`, test stdio y fuentes GitHub | Verificado salvo pago real |
-| Landing y dashboard | Next.js + capturas desktop/móvil | Verificado |
+| Landing y dashboard | Next.js + capturas desktop/móvil/live | Verificado local y público |
 | README reproducible | `README.md`, `.env.example`, Compose | Verificado localmente |
 | Arquitectura | `docs/architecture.md` | Listo |
 | Modelo de negocio | `docs/business-model.md` | Listo |

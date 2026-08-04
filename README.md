@@ -6,6 +6,10 @@ Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 
 > Estado: **MVP funcional, sólo devnet**. El flujo x402 completo fue liquidado y finalizado en devnet el 2026-08-03; suscripciones y MCP continúan como módulos experimentales.
 
+Demo pública devnet: [meterkit.juanchi.dev](https://meterkit.juanchi.dev) ·
+[health del gateway](https://meterkit-api.juanchi.dev/health). No envíe fondos
+mainnet: este entorno acepta únicamente activos de prueba.
+
 ## Qué incluye
 
 - x402 v2 `exact` para Solana devnet.
