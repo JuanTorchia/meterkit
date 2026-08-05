@@ -1,0 +1,71 @@
+name: Bug report
+description: Report a reproducible MeterKit defect using local validator or devnet.
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include private keys, seed phrases, `.env` contents, bearer tokens, complete payment proofs, private endpoints or personal data. Security vulnerabilities belong in a [private report](https://github.com/JuanTorchia/meterkit/security/advisories/new).
+  - type: input
+    id: version
+    attributes:
+      label: MeterKit version or commit
+      placeholder: v0.1.0 or full commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - SDK or middleware
+        - Gateway
+        - Dashboard
+        - Database or reconciliation
+        - MCP Scout
+        - Allowances or subscriptions
+        - Documentation or tooling
+    validations:
+      required: true
+  - type: dropdown
+    id: network
+    attributes:
+      label: Test environment
+      options:
+        - Local validator
+        - Solana devnet
+        - Unit or integration test
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Commands and sanitized inputs needed to reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include sanitized error codes or logs, not secrets or full signatures.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I used only systems and wallets I control.
+          required: true
+        - label: I used no mainnet funds.
+          required: true
+        - label: I removed secrets and sensitive payment data.
+          required: true

@@ -1,0 +1,43 @@
+name: Feature proposal
+description: Propose a user-backed capability or public API change.
+title: "[Proposal] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the observed user problem, not only the desired implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Who needs this?
+      description: Provide non-sensitive evidence from an integration, pilot or repeated workflow.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed outcome
+      description: Explain the smallest useful behavior and how success would be measured.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Project boundaries
+      options:
+        - label: The proposal preserves non-custodial settlement.
+          required: true
+        - label: It does not require storing user private keys or seed phrases.
+          required: true
+        - label: It can be developed and tested without mainnet funds.
+          required: true
