@@ -8,4 +8,5 @@ GitHub endpoint because this public repository is cloned without credentials.
 The gateway has an independent deployment with its own watch paths, so web-only
 changes do not rebuild the API.
 
-The signed push-to-deploy path was verified on 2026-08-05.
+The signed push-to-deploy path and watch-path isolation were verified on
+2026-08-05.
