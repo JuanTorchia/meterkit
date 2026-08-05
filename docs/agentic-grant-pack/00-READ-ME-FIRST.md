@@ -1,6 +1,8 @@
 # MeterKit — Agentic Engineering Grant evidence pack
 
-Prepared on **2026-08-03** for the Superteam Agentic Engineering Grant.
+Originally prepared on **2026-08-03** for the Superteam Agentic Engineering
+Grant. Files `01`–`06` preserve that application snapshot. Files `07`–`10`
+contain the separately dated post-submission closeout.
 
 ## Recommended reading order
 
@@ -10,13 +12,16 @@ Prepared on **2026-08-03** for the Superteam Agentic Engineering Grant.
 4. `04-IMPLEMENTATION-PLAN.md` — grant-funded milestone and four-week plan.
 5. `05-TRACEABILITY-AUDIT.md` — requirement-to-code-to-test mapping.
 6. `06-APPLICANT-CHECKLIST.md` — items the applicant must complete manually.
+7. `07-VERIFICATION-RESULTS.md` — final automated and public verification.
+8. `08-POST-SUBMISSION-ADDENDUM.md` — facts completed after submission.
+9. `09-CLOSEOUT-CHECKLIST.md` — technical and applicant-controlled closeout.
+10. `10-FINAL-HANDOFF.md` — concise sponsor handoff for the final tranche.
 
 ## Important scope statement
 
-This pack documents a working local and devnet MVP. It does **not** claim that
-MeterKit has production users, revenue, a mainnet release, a public hosted demo
-or an approved grant. The grant-funded milestone is a polished public devnet
-release.
+The submitted snapshot documented a working local and devnet MVP. The dated
+closeout now documents a public devnet release. It does **not** claim production
+users, revenue, mainnet operation, external pilots or an approved grant.
 
 ## Primary links
 
@@ -28,7 +33,11 @@ release.
 
 ## Suggested Drive folder name
 
-`MeterKit — Agentic Engineering Grant — 2026-08-03`
+Keep the original folder unchanged as
+`MeterKit — Agentic Engineering Grant — Submitted 2026-08-03`.
+
+Use a separate folder for the closeout:
+`MeterKit — Agentic Engineering Grant — Closeout 2026-08-05`.
 
 Share the folder as **Viewer — anyone with the link** and verify the link in an
 incognito window before submitting it.

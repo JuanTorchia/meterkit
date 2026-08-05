@@ -44,11 +44,19 @@ Synthetic campaign transactions:
 ## Current verification
 
 - Strict TypeScript, lint and production build pass.
-- 62 unit/integration tests pass across 12 files, including PostgreSQL.
+- 92 unit/integration tests pass across 14 files, including PostgreSQL.
 - Playwright desktop/mobile and EN/ES/PT-BR flow passes.
 - Production dependency audit reports no known vulnerabilities.
+- Gateway and web container scans report no fixable HIGH/CRITICAL findings.
+- Web, gateway and private PostgreSQL are healthy on devnet; both application
+  runtimes use the exact commit
+  `935b3121306afed7521e92e7f3deba068f1547f4`.
 - Final verification CI:
-  <https://github.com/JuanTorchia/meterkit/actions/runs/30930846111>
+  <https://github.com/JuanTorchia/meterkit/actions/runs/30975434095>
+- Final CodeQL:
+  <https://github.com/JuanTorchia/meterkit/actions/runs/30975434109>
+- Final closeout settlement:
+  <https://explorer.solana.com/tx/5bxnnwYwf49x4Bw54KUjD4NTiCLkPc999wDWGW1X69iUjimnh3bdah6hUksjja6xHeN2QTiwWLexrZ6eAnkaXsfB?cluster=devnet>
 - Synthetic validation evidence:
   <https://github.com/JuanTorchia/meterkit/blob/main/docs/evidence/internal-synthetic-validation.md>
 

@@ -17,6 +17,12 @@ Prepared after submission. Do not replace the original Drive snapshot silently.
   challenge and newest finalized receipt, then visually inspected at multiple frames.
 - [x] Fresh 2026-08-05 x402 settlement increased the provider balance exactly,
   rejected replay and appeared finalized in the public dashboard.
+- [x] Exact commit `935b3121306afed7521e92e7f3deba068f1547f4`
+  passed CI and CodeQL and is running on both public application containers.
+- [x] `pnpm evidence:grant` passed with 92/92 tests, 1/1 E2E, dependency audit,
+  container scans, public health, live x402 and live paid MCP checks.
+- [x] Branch protection requires updated `verify` and `analyze` checks, a PR,
+  one approval and prevents force-push and branch deletion.
 
 ## Applicant-controlled items
 

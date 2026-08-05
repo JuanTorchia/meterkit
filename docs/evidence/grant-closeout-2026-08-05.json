@@ -1,20 +1,21 @@
 {
   "schemaVersion": 1,
   "kind": "meterkit-grant-closeout-evidence",
-  "checkedAt": "2026-08-05T02:59:47.730Z",
+  "checkedAt": "2026-08-05T04:37:38.667Z",
+  "commit": "935b3121306afed7521e92e7f3deba068f1547f4",
   "network": "solana-devnet",
   "externalUsersRepresented": 0,
   "x402": {
     "payer": "8SJE3aVLPpPgh5qsYJppsgdXdWusYUmJy3gfGKDEPsqS",
     "provider": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
     "amountAtomic": "10000",
-    "providerBalanceBeforeAtomic": "90000",
-    "providerBalanceAfterAtomic": "100000",
+    "providerBalanceBeforeAtomic": "120000",
+    "providerBalanceAfterAtomic": "130000",
     "replayStatus": 402,
     "receiptStatus": "finalized",
-    "transaction": "3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v",
-    "slot": 481292762,
-    "explorerUrl": "https://explorer.solana.com/tx/3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v?cluster=devnet"
+    "transaction": "5bxnnwYwf49x4Bw54KUjD4NTiCLkPc999wDWGW1X69iUjimnh3bdah6hUksjja6xHeN2QTiwWLexrZ6eAnkaXsfB",
+    "slot": 481309637,
+    "explorerUrl": "https://explorer.solana.com/tx/5bxnnwYwf49x4Bw54KUjD4NTiCLkPc999wDWGW1X69iUjimnh3bdah6hUksjja6xHeN2QTiwWLexrZ6eAnkaXsfB?cluster=devnet"
   },
   "browser": {
     "target": "https://meterkit.juanchi.dev/dashboard",
@@ -31,9 +32,9 @@
     "lint": "passed",
     "typecheck": "passed",
     "unitAndIntegrationTests": {
-      "passed": 62,
+      "passed": 92,
       "failed": 0,
-      "testFiles": 12
+      "testFiles": 14
     },
     "build": "passed",
     "playwright": {
@@ -49,7 +50,7 @@
     "height": 720,
     "audio": false,
     "liveChallengeStatus": 402,
-    "receiptTransaction": "3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v"
+    "receiptTransaction": "5bxnnwYwf49x4Bw54KUjD4NTiCLkPc999wDWGW1X69iUjimnh3bdah6hUksjja6xHeN2QTiwWLexrZ6eAnkaXsfB"
   },
   "nativePrimitives": {
     "allowanceLifecycleFinalized": true,
