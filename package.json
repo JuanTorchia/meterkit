@@ -24,6 +24,7 @@
     "demo:verify": "node scripts/verify-public-dashboard.mjs",
     "demo:record": "node scripts/record-demo.mjs",
     "demo:institutional": "node scripts/record-institutional-demo.mjs",
+    "evidence:grant": "node scripts/grant-evidence.mjs",
     "format": "prettier --write ."
   },
   "devDependencies": {

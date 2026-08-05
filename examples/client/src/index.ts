@@ -43,6 +43,7 @@ export async function createDevnetPaymentFetch(options: {
   expectedAssetMint: string;
   expectedPayTo: string;
   allowedResourcePrefix: string;
+  allowResourceSubpaths?: boolean;
 }): Promise<typeof fetch> {
   return (await createDevnetPaymentClient(options)).fetch;
 }
@@ -55,12 +56,13 @@ export async function createDevnetPaymentClient(options: {
   expectedAssetMint: string;
   expectedPayTo: string;
   allowedResourcePrefix: string;
+  allowResourceSubpaths?: boolean;
 }): Promise<{ fetch: typeof fetch; getLastPaymentHeader: () => string | undefined }> {
   const signer = await createKeyPairSignerFromBytes(options.privateKeyBytes);
   const maxPerRequest = options.maxPerRequestAtomic ?? 100_000n;
   const maxSession = options.maxSessionAtomic ?? 1_000_000n;
   let authorized = 0n;
-  const allowedResource = new URL(options.allowedResourcePrefix);
+  const allowedResource = parseAllowedResource(options.allowedResourcePrefix);
   const client = new x402Client()
     .register(
       SOLANA_DEVNET,
@@ -77,8 +79,7 @@ export async function createDevnetPaymentClient(options: {
     }))
     .onBeforePaymentCreation(async ({ paymentRequired }) => {
       const resource = new URL(paymentRequired.resource.url);
-      if (resource.origin !== allowedResource.origin ||
-          !resource.pathname.startsWith(allowedResource.pathname)) {
+      if (!isResourceAllowed(resource, allowedResource, options.allowResourceSubpaths ?? false)) {
         return { abort: true, reason: "RESOURCE_NOT_ALLOWED" };
       }
     })
@@ -105,6 +106,39 @@ export async function createDevnetPaymentClient(options: {
     fetch: budgetedFetch,
     getLastPaymentHeader: () => lastPaymentHeader,
   };
+}
+
+export function parseAllowedResource(value: string) {
+  const resource = new URL(value);
+  if (!["https:", "http:"].includes(resource.protocol) ||
+      resource.username || resource.password ||
+      (resource.protocol === "http:" &&
+        !["localhost", "127.0.0.1", "[::1]"].includes(resource.hostname))) {
+    throw new Error("allowed resource must use HTTPS, except explicit localhost development");
+  }
+  resource.hash = "";
+  resource.search = "";
+  resource.pathname = normalizePathname(resource.pathname);
+  return resource;
+}
+
+export function isResourceAllowed(
+  candidate: URL,
+  allowed: URL,
+  allowSubpaths = false,
+) {
+  if (!["https:", "http:"].includes(candidate.protocol) ||
+      candidate.username || candidate.password ||
+      candidate.origin !== allowed.origin) return false;
+  const candidatePath = normalizePathname(candidate.pathname);
+  const allowedPath = normalizePathname(allowed.pathname);
+  return candidatePath === allowedPath ||
+    (allowSubpaths && allowedPath !== "/" && candidatePath.startsWith(`${allowedPath}/`));
+}
+
+function normalizePathname(pathname: string) {
+  const normalized = pathname.replace(/\/+$/, "");
+  return normalized || "/";
 }
 
 async function main() {

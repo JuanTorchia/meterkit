@@ -10,16 +10,24 @@ export class FileReceiptGuard {
   constructor(private readonly directory: string) {}
 
   async claim(signature: string) {
-    const digest = createHash("sha256").update(signature).digest("hex");
+    return this.claimOnce("receipt", signature, "PAYMENT_REPLAYED");
+  }
+
+  async claimPreview(scope: string) {
+    return this.claimOnce("preview", scope, "PREVIEW_ALREADY_USED");
+  }
+
+  private async claimOnce(namespace: string, value: string, duplicateError: string) {
+    const digest = createHash("sha256").update(`${namespace}:${value}`).digest("hex");
     const directory = resolve(this.directory);
     await mkdir(directory, { recursive: true, mode: 0o700 });
     try {
-      const handle = await open(resolve(directory, `${digest}.receipt`), "wx", 0o600);
+      const handle = await open(resolve(directory, `${digest}.${namespace}`), "wx", 0o600);
       await handle.writeFile(`${new Date().toISOString()}\n`);
       await handle.close();
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "EEXIST") {
-        throw new Error("PAYMENT_REPLAYED");
+        throw new Error(duplicateError);
       }
       throw error;
     }

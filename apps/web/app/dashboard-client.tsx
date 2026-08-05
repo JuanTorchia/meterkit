@@ -10,7 +10,10 @@ import {
   type SolanaSignAndSendTransactionFeature,
   type SolanaSignMessageFeature,
 } from "@solana/wallet-standard-features";
-import { buildRevokeDelegationTransaction } from "@meterkit/subscriptions";
+import {
+  buildRevokeDelegationTransaction,
+  prepareFixedAllowanceTransaction,
+} from "@meterkit/subscriptions";
 import bs58 from "bs58";
 import { dateLocales, type Locale } from "./locale";
 import { waitForFinalizedSignature } from "./solana-finality";
@@ -216,23 +219,52 @@ export function DashboardClient({ locale }: { locale: Locale }) {
   );
 }
 
-export function AllowancePanel({ connection, locale }: { connection?: ConnectedWallet; locale: Locale }) {
+type Allowance = {
+  address: string; ownerWallet: string; delegateWallet: string; mint: string;
+  maxAtomic: string; expiresAt: string; revokedAt: string | null; signature: string | null;
+};
+
+export function AllowancePanel({ connection, sessionToken, locale }: {
+  connection?: ConnectedWallet;
+  sessionToken?: string;
+  locale: Locale;
+}) {
   const text = dashboardCopy[locale];
-  const [delegationAccount, setDelegationAccount] = useState("");
-  const [status, setStatus] = useState(locale === "en" ? "Revoke allowance" : locale === "es" ? "Revocar allowance" : "Revogar allowance");
-  useEffect(() => setStatus(locale === "en" ? "Revoke allowance" : locale === "es" ? "Revocar allowance" : "Revogar allowance"), [locale]);
-  const [signature, setSignature] = useState<string>();
+  const [allowances, setAllowances] = useState<Allowance[]>([]);
+  const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
+  const refreshAllowances = useCallback(async () => {
+    if (!sessionToken) { setAllowances([]); return; }
+    const response = await fetch(`${gateway}/v1/allowances`, {
+      headers: { authorization: `Bearer ${sessionToken}` },
+      signal: AbortSignal.timeout(15_000),
+    });
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    setAllowances(await response.json() as Allowance[]);
+  }, [sessionToken]);
+  useEffect(() => { void refreshAllowances().catch(() => setAllowances([])); }, [refreshAllowances]);
+
   return <section className="allowances" id="allowances">
     <div>
       <span className="kicker">{text.payerControl}</span>
-      <h2>{text.revokeTitle}</h2>
+      <h2>{locale === "en" ? "Create, inspect and revoke allowances." : locale === "es" ? "Crea, consulta y revoca allowances." : "Crie, consulte e revogue allowances."}</h2>
       <p>{text.revokeBody}</p>
+      <div className="allowanceList">
+        {!allowances.length && <p>{locale === "en" ? "No recorded allowances for this wallet." : locale === "es" ? "No hay allowances registradas para esta wallet." : "Não há allowances registradas para esta carteira."}</p>}
+        {allowances.map((allowance) => <article key={allowance.address}>
+          <strong>{short(allowance.delegateWallet)}</strong>
+          <span>{formatUsdc(BigInt(allowance.maxAtomic), locale)} USDC · {new Date(allowance.expiresAt).toLocaleDateString(dateLocales[locale])}</span>
+          <code>{short(allowance.address)}</code>
+          <span>{allowance.revokedAt ? "Revoked" : new Date(allowance.expiresAt) <= new Date() ? "Expired" : "Active"}</span>
+          {allowance.signature && <a href={`https://explorer.solana.com/tx/${encodeURIComponent(allowance.signature)}?cluster=devnet`} target="_blank" rel="noreferrer">Explorer ↗</a>}
+          {!allowance.revokedAt && <button disabled={pending} onClick={() => void revokeAllowance(allowance.address)}>{locale === "en" ? "Revoke" : locale === "es" ? "Revocar" : "Revogar"}</button>}
+        </article>)}
+      </div>
     </div>
     <form onSubmit={async (event) => {
       event.preventDefault();
       if (pending) return;
-      if (!connection) { setStatus(locale === "en" ? "Connect your wallet" : locale === "es" ? "Conecta tu wallet" : "Conecte sua carteira"); return; }
+      if (!connection || !sessionToken) { setStatus(locale === "en" ? "Connect and authenticate your wallet" : locale === "es" ? "Conecta y autentica tu wallet" : "Conecte e autentique sua carteira"); return; }
       if (!connection.account.chains.includes(walletDevnet)) {
         setStatus(locale === "en" ? "Switch wallet to devnet" : locale === "es" ? "Cambia la wallet a devnet" : "Mude a carteira para devnet");
         return;
@@ -242,67 +274,93 @@ export function AllowancePanel({ connection, locale }: { connection?: ConnectedW
       if (!feature) { setStatus(locale === "en" ? "Wallet cannot send transactions" : locale === "es" ? "Wallet sin envío de transacciones" : "A carteira não envia transações"); return; }
       setStatus(locale === "en" ? "Preparing…" : locale === "es" ? "Preparando…" : "Preparando…");
       setPending(true);
-      setSignature(undefined);
       try {
-        const response = await fetch(rpcUrl, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          signal: AbortSignal.timeout(10_000),
-          body: JSON.stringify({
-            jsonrpc: "2.0", id: crypto.randomUUID(),
-            method: "getLatestBlockhash", params: [{ commitment: "confirmed" }],
-          }),
-        });
-        const body = await response.json() as {
-          result?: { value?: { blockhash?: string; lastValidBlockHeight?: number } };
-        };
-        const latest = body.result?.value;
-        if (!response.ok || !latest?.blockhash || latest.lastValidBlockHeight === undefined) {
-          throw new Error(locale === "en" ? "RPC did not return a blockhash" : locale === "es" ? "RPC no devolvió un blockhash" : "RPC não retornou um blockhash");
-        }
-        const transaction = buildRevokeDelegationTransaction({
+        const data = new FormData(event.currentTarget);
+        const delegateWallet = String(data.get("delegateWallet"));
+        const maxAtomic = BigInt(Math.round(Number(data.get("maxUsdc")) * 1_000_000));
+        const expiresAt = new Date(Date.now() + Number(data.get("days")) * 86_400_000);
+        const latest = await getLatestBlockhash(locale);
+        const prepared = await prepareFixedAllowanceTransaction({
           ownerAddress: connection.account.address,
-          delegationAccount,
+          mint: usdcMint,
+          delegate: delegateWallet,
+          maxAtomic,
+          expiresAt,
+          nonce: BigInt(Date.now()),
+          authorityInitId: BigInt(String(data.get("authorityInitId"))),
           recentBlockhash: latest.blockhash,
           lastValidBlockHeight: BigInt(latest.lastValidBlockHeight),
         });
         const [result] = await feature.signAndSendTransaction({
           account: connection.account,
-          transaction: new Uint8Array(transaction),
+          transaction: new Uint8Array(prepared.transaction),
           chain: walletDevnet,
           options: { commitment: "confirmed", skipPreflight: false, maxRetries: 3 },
         });
         if (!result) throw new Error(locale === "en" ? "Wallet did not return a signature" : locale === "es" ? "La wallet no devolvió firma" : "A carteira não retornou uma assinatura");
         const encoded = bs58.encode(result.signature);
-        setSignature(encoded);
         setStatus(locale === "en" ? "Submitted · confirming…" : locale === "es" ? "Enviada · confirmando…" : "Enviada · confirmando…");
         await waitForFinalizedSignature(encoded, rpcUrl);
-        setStatus(locale === "en" ? "Revoked ✓" : locale === "es" ? "Revocada ✓" : "Revogada ✓");
+        const record = await fetch(`${gateway}/v1/allowances`, {
+          method: "POST",
+          headers: { "content-type": "application/json", authorization: `Bearer ${sessionToken}` },
+          body: JSON.stringify({
+            address: prepared.delegationAccount, delegateWallet, mint: usdcMint,
+            maxAtomic: String(maxAtomic), expiresAt: expiresAt.toISOString(), signature: encoded,
+          }),
+        });
+        if (!record.ok) throw new Error(`Could not record allowance: ${record.status}`);
+        await refreshAllowances();
+        setStatus(locale === "en" ? "Allowance active ✓" : locale === "es" ? "Allowance activa ✓" : "Allowance ativa ✓");
       } catch (cause) {
-        setStatus(cause instanceof Error ? cause.message : locale === "en" ? "Could not revoke" : locale === "es" ? "No se pudo revocar" : "Não foi possível revogar");
+        setStatus(cause instanceof Error ? cause.message : locale === "en" ? "Could not create allowance" : locale === "es" ? "No se pudo crear la allowance" : "Não foi possível criar a allowance");
       } finally {
         setPending(false);
       }
     }}>
-      <label>{locale === "en" ? "Delegation account" : locale === "es" ? "Cuenta de delegación" : "Conta de delegação"}
-        <input
-          required
-          minLength={32}
-          maxLength={44}
-          value={delegationAccount}
-          disabled={pending}
-          onChange={(event) => setDelegationAccount(event.target.value)}
-          placeholder={locale === "en" ? "Delegation account address" : locale === "es" ? "Dirección del delegation account" : "Endereço da conta de delegação"}
-        />
-      </label>
-      <button type="submit" disabled={pending} aria-busy={pending}>{status}</button>
-      {signature && <a
-        href={`https://explorer.solana.com/tx/${encodeURIComponent(signature)}?cluster=devnet`}
-        target="_blank"
-        rel="noreferrer"
-      >{locale === "en" ? "Open revocation in Explorer ↗" : locale === "es" ? "Abrir revocación en Explorer ↗" : "Abrir revogação no Explorer ↗"}</a>}
+      <label>{locale === "en" ? "Delegate wallet" : locale === "es" ? "Wallet delegada" : "Carteira delegada"}<input name="delegateWallet" required minLength={32} maxLength={44} disabled={pending} /></label>
+      <label>{locale === "en" ? "Maximum USDC" : locale === "es" ? "Máximo USDC" : "Máximo USDC"}<input name="maxUsdc" type="number" required min="0.000001" max="100" step="0.000001" defaultValue="1" disabled={pending} /></label>
+      <label>{locale === "en" ? "Expires in days" : locale === "es" ? "Vence en días" : "Expira em dias"}<input name="days" type="number" required min="1" max="90" defaultValue="30" disabled={pending} /></label>
+      <label>{locale === "en" ? "Authority initialization ID" : locale === "es" ? "ID de inicialización de authority" : "ID de inicialização da authority"}<input name="authorityInitId" type="number" required min="0" defaultValue="1" disabled={pending} /></label>
+      <button type="submit" disabled={pending} aria-busy={pending}>{pending ? status : locale === "en" ? "Create fixed allowance" : locale === "es" ? "Crear allowance fija" : "Criar allowance fixa"}</button>
+      {status && !pending && <p role="status">{status}</p>}
     </form>
   </section>;
+
+  async function revokeAllowance(delegationAccount: string) {
+    if (!connection || !sessionToken || pending) return;
+    const feature = connection.wallet.features[SolanaSignAndSendTransaction] as
+      SolanaSignAndSendTransactionFeature[typeof SolanaSignAndSendTransaction] | undefined;
+    if (!feature) return;
+    setPending(true);
+    try {
+      const latest = await getLatestBlockhash(locale);
+      const transaction = buildRevokeDelegationTransaction({
+        ownerAddress: connection.account.address,
+        delegationAccount,
+        recentBlockhash: latest.blockhash,
+        lastValidBlockHeight: BigInt(latest.lastValidBlockHeight),
+      });
+      const [result] = await feature.signAndSendTransaction({
+        account: connection.account, transaction: new Uint8Array(transaction),
+        chain: walletDevnet,
+        options: { commitment: "confirmed", skipPreflight: false, maxRetries: 3 },
+      });
+      if (!result) throw new Error("Wallet did not return a signature");
+      const encoded = bs58.encode(result.signature);
+      await waitForFinalizedSignature(encoded, rpcUrl);
+      const response = await fetch(`${gateway}/v1/allowances/${encodeURIComponent(delegationAccount)}/revoked`, {
+        method: "POST", headers: { authorization: `Bearer ${sessionToken}` },
+      });
+      if (!response.ok) throw new Error(`Could not record revocation: ${response.status}`);
+      await refreshAllowances();
+      setStatus(locale === "en" ? "Revoked ✓" : locale === "es" ? "Revocada ✓" : "Revogada ✓");
+    } catch (cause) {
+      setStatus(cause instanceof Error ? cause.message : "Could not revoke");
+    } finally {
+      setPending(false);
+    }
+  }
 }
 
 function ProductForm({ connection, onClose, onCreated, locale }: {
@@ -401,7 +459,27 @@ function bytesToBase64(value: Uint8Array) {
   return btoa(binary);
 }
 
-async function authenticateWallet(connection: ConnectedWallet, locale: Locale) {
+async function getLatestBlockhash(locale: Locale) {
+  const response = await fetch(rpcUrl, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    signal: AbortSignal.timeout(10_000),
+    body: JSON.stringify({
+      jsonrpc: "2.0", id: crypto.randomUUID(),
+      method: "getLatestBlockhash", params: [{ commitment: "confirmed" }],
+    }),
+  });
+  const body = await response.json() as {
+    result?: { value?: { blockhash?: string; lastValidBlockHeight?: number } };
+  };
+  const latest = body.result?.value;
+  if (!response.ok || !latest?.blockhash || latest.lastValidBlockHeight === undefined) {
+    throw new Error(locale === "en" ? "RPC did not return a blockhash" : locale === "es" ? "RPC no devolvió un blockhash" : "RPC não retornou um blockhash");
+  }
+  return { blockhash: latest.blockhash, lastValidBlockHeight: latest.lastValidBlockHeight };
+}
+
+export async function authenticateWallet(connection: ConnectedWallet, locale: Locale) {
   const feature = connection.wallet.features[SolanaSignMessage] as
     SolanaSignMessageFeature[typeof SolanaSignMessage] | undefined;
   if (!feature) throw new Error(locale === "en" ? "Wallet cannot sign messages" : locale === "es" ? "La wallet no soporta firma de mensajes" : "A carteira não assina mensagens");

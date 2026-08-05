@@ -54,6 +54,9 @@ CREATE TABLE IF NOT EXISTS agent_allowances (
   revoked_at timestamptz
 );
 
+ALTER TABLE agent_allowances ADD COLUMN IF NOT EXISTS signature text;
+ALTER TABLE agent_allowances ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+
 CREATE TABLE IF NOT EXISTS wallet_sessions (
   token_hash text PRIMARY KEY,
   owner_wallet text NOT NULL,
@@ -63,3 +66,16 @@ CREATE TABLE IF NOT EXISTS wallet_sessions (
 
 CREATE INDEX IF NOT EXISTS wallet_sessions_owner_expires_idx
   ON wallet_sessions (owner_wallet, expires_at DESC);
+
+CREATE TABLE IF NOT EXISTS wallet_challenges (
+  nonce_hash text PRIMARY KEY,
+  wallet text NOT NULL,
+  message text NOT NULL,
+  request_hash text NOT NULL,
+  idempotency_key text NOT NULL,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS wallet_challenges_wallet_expires_idx
+  ON wallet_challenges (wallet, expires_at DESC);

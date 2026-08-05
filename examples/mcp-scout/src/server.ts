@@ -56,7 +56,7 @@ const paid = createPaymentWrapper(resourceServer, {
 });
 
 const server = new McpServer({ name: "solana-project-scout", version: "0.1.0" });
-let previewUsed = false;
+const previewScope = process.env.MCP_PREVIEW_SCOPE ?? `merchant:${payTo}`;
 const inputSchema = {
   githubRepository: z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/)
     .describe("Repositorio público en formato owner/repo"),
@@ -70,12 +70,14 @@ server.registerTool(
     inputSchema,
   },
   async ({ githubRepository }) => {
-    if (previewUsed) {
+    try {
+      await receiptGuard.claimPreview(previewScope);
+    } catch (error) {
+      if (!(error instanceof Error) || error.message !== "PREVIEW_ALREADY_USED") throw error;
       return { content: [{ type: "text", text:
-        "La vista previa gratuita de esta sesión ya fue utilizada. Usa scout_project para el reporte pagado.",
+        "La vista previa gratuita de esta instalación ya fue utilizada. Usa scout_project para el reporte pagado.",
       }] };
     }
-    previewUsed = true;
     const report = await fetchProject(githubRepository);
     return { content: [{ type: "text", text: [
       `# ${report.name}`,

@@ -243,6 +243,20 @@ export async function buildFixedAllowanceTransaction(input: {
   recentBlockhash: string;
   lastValidBlockHeight: bigint;
 }) {
+  return (await prepareFixedAllowanceTransaction(input)).transaction;
+}
+
+export async function prepareFixedAllowanceTransaction(input: {
+  ownerAddress: string;
+  mint: string;
+  delegate: string;
+  maxAtomic: bigint;
+  expiresAt: Date;
+  nonce: bigint;
+  authorityInitId: bigint;
+  recentBlockhash: string;
+  lastValidBlockHeight: bigint;
+}) {
   const owner = address(input.ownerAddress);
   const instruction = await buildFixedAllowance({
     owner: createNoopSigner(owner),
@@ -253,7 +267,12 @@ export async function buildFixedAllowanceTransaction(input: {
     nonce: input.nonce,
     authorityInitId: input.authorityInitId,
   });
-  return compileWalletInstruction(owner, instruction, input);
+  const delegationAccount = instruction.accounts?.[2]?.address;
+  if (!delegationAccount) throw new Error("DELEGATION_ACCOUNT_NOT_DERIVED");
+  return {
+    transaction: compileWalletInstruction(owner, instruction, input),
+    delegationAccount: String(delegationAccount),
+  };
 }
 
 export async function buildRecurringAllowanceTransaction(input: {

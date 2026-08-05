@@ -14,8 +14,9 @@ const connectSources = new Set([
   "https://meterkit-api.juanchi.dev",
   "https://api.devnet.solana.com",
   "https://cloudflareinsights.com",
-  "http://127.0.0.1:3402",
-  "http://localhost:3402",
+  ...(process.env.NODE_ENV === "development"
+    ? ["http://127.0.0.1:3402", "http://localhost:3402"]
+    : []),
   configuredOrigin(process.env.NEXT_PUBLIC_GATEWAY_URL, "NEXT_PUBLIC_GATEWAY_URL"),
   configuredOrigin(process.env.NEXT_PUBLIC_SOLANA_RPC_URL, "NEXT_PUBLIC_SOLANA_RPC_URL"),
 ].filter((origin): origin is string => Boolean(origin)));
@@ -34,6 +35,7 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   allowedDevOrigins: ["127.0.0.1"],
   poweredByHeader: false,
   async headers() {
@@ -45,6 +47,9 @@ const nextConfig: NextConfig = {
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "X-Frame-Options", value: "DENY" },
         { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
+        ...(process.env.NODE_ENV === "production"
+          ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }]
+          : []),
       ],
     }];
   },

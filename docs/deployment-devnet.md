@@ -3,6 +3,21 @@
 Este runbook prepara una demo pública; no habilita mainnet ni necesita claves
 privadas. El gateway, el dashboard y PostgreSQL son servicios separados.
 
+## Promoción y rollback
+
+1. Trabajar en una rama y abrir PR.
+2. Exigir los checks `CI / verify` y `CodeQL / analyze`.
+3. Hacer merge sin force-push.
+4. Coolify debe registrar el SHA exacto desplegado; `HEAD` identifica la rama
+   fuente, no sustituye la evidencia del commit.
+5. Verificar `/health`, HTTP 402, CORS, headers y dashboard.
+6. Para rollback, seleccionar el deployment sano inmediatamente anterior en
+   Coolify y repetir el smoke público.
+
+La protección recomendada de `main` exige PR, una aprobación, resolución de
+conversaciones, checks actualizados y bloquea force-push/eliminación. Se activa
+después de que los nombres reales de los checks aparezcan en el primer run.
+
 ## Invariantes
 
 - `METERKIT_NETWORK` debe ser exactamente `solana-devnet`.

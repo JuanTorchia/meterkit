@@ -1,5 +1,17 @@
 # Backlog y roadmap de cuatro semanas
 
+## Hardening previo a pilotos — 2026-08-05
+
+- [x] Cerrar escape de ruta del cliente agente.
+- [x] Persistir y consumir challenges entre réplicas.
+- [x] Evitar falsos fallos de finality y permitir RPC secundario.
+- [x] Canonizar slugs de producto.
+- [x] Crear/listar/revocar allowances desde el dashboard.
+- [x] Fijar Actions e imágenes y añadir CodeQL, SBOM y Trivy.
+- [x] Añadir `pnpm evidence:grant`.
+- [ ] Migrar namespace global a UUID + slug por owner antes de alta pública abierta.
+- [ ] Obtener 3–5 pilotos externos; no sustituirlos con agentes internos.
+
 ## P0 — recorrido cobrable
 
 - [x] Monorepo, validación y separación devnet/mainnet.

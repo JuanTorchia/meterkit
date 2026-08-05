@@ -29,15 +29,15 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
         with:
           version: 11.10.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -64,3 +64,47 @@ jobs:
 
       - name: End-to-end test
         run: pnpm test:e2e
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level=high
+
+      - name: Build gateway image
+        run: docker build --file Dockerfile.gateway --tag meterkit-gateway:${{ github.sha }} .
+
+      - name: Build web image
+        run: >-
+          docker build --file Dockerfile.web
+          --build-arg NEXT_PUBLIC_GATEWAY_URL=https://meterkit-api.juanchi.dev
+          --tag meterkit-web:${{ github.sha }} .
+
+      - name: Scan gateway image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: meterkit-gateway:${{ github.sha }}
+          scanners: vuln
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Scan web image
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: meterkit-web:${{ github.sha }}
+          scanners: vuln
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Generate gateway SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: meterkit-gateway:${{ github.sha }}
+          artifact-name: meterkit-gateway-${{ github.sha }}.spdx.json
+
+      - name: Generate web SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: meterkit-web:${{ github.sha }}
+          artifact-name: meterkit-web-${{ github.sha }}.spdx.json

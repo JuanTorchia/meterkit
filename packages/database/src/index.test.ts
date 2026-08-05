@@ -10,10 +10,14 @@ suite("PostgresStore integration", () => {
   beforeAll(async () => {
     store = PostgresStore.connect(url!);
     await store.migrate();
-    await store.pool.query("TRUNCATE payments, products, wallet_sessions CASCADE");
+    await store.pool.query(
+      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances CASCADE",
+    );
   });
   afterAll(async () => {
-    await store.pool.query("TRUNCATE payments, products, wallet_sessions CASCADE");
+    await store.pool.query(
+      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances CASCADE",
+    );
     await store.close();
   });
 
@@ -75,5 +79,45 @@ suite("PostgresStore integration", () => {
       idempotencyKey,
       "different-hash",
     )).rejects.toThrow("IDEMPOTENCY_KEY_CONFLICT");
+
+    const challenge = {
+      nonceHash: "nonce-hash",
+      wallet: product.payTo,
+      message: "bounded signed message",
+      requestHash: "request-hash",
+      idempotencyKey: "challenge-request",
+      expiresAt: new Date(Date.now() + 60_000),
+    };
+    await store.saveWalletChallenge(challenge, 2);
+    const consumed = await Promise.all([
+      store.consumeWalletChallenge(challenge.nonceHash),
+      store.consumeWalletChallenge(challenge.nonceHash),
+    ]);
+    expect(consumed.filter(Boolean)).toHaveLength(1);
+    expect(await store.consumeWalletChallenge(challenge.nonceHash)).toBeNull();
+
+    await store.saveWalletChallenge({ ...challenge, nonceHash: "expired", expiresAt: new Date(0) }, 2);
+    const cleanup = await store.cleanupExpired();
+    expect(cleanup.challenges).toBeGreaterThanOrEqual(1);
+    expect(cleanup.sessions).toBeGreaterThanOrEqual(1);
+    expect(await store.getSessionOwner("session-token-hash")).toBe(product.payTo);
+
+    const allowance = {
+      address: "9NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUG",
+      ownerWallet: product.payTo,
+      delegateWallet: "8NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUF",
+      mint: product.assetMint,
+      maxAtomic: "1000000",
+      expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+      revokedAt: null,
+      signature: "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE7NXuBzJ3EQV4CuxpSVELD3t1bs5",
+    };
+    await store.saveAllowance(allowance);
+    expect(await store.listAllowancesForOwner(product.payTo)).toEqual([allowance]);
+    expect(await store.listAllowancesForOwner("11111111111111111111111111111111")).toEqual([]);
+    expect(await store.revokeAllowance("11111111111111111111111111111111", allowance.address))
+      .toBe(false);
+    expect(await store.revokeAllowance(product.payTo, allowance.address)).toBe(true);
+    expect((await store.listAllowancesForOwner(product.payTo))[0]?.revokedAt).not.toBeNull();
   });
 });

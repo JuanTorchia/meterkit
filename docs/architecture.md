@@ -44,6 +44,15 @@ Proveedor <──────────────── liquidación directa
     exige JSON. El middleware self-hosted sigue siendo la integración preferida.
 11. La interfaz se publica en inglés por defecto para grants y pilotos globales,
     con cambio inmediato a español para Latinoamérica.
+12. Los challenges de wallet viven en PostgreSQL y se consumen atómicamente.
+13. Los IDs de producto son slugs DNS minúsculos de hasta 63 caracteres. El
+    namespace continúa global durante el MVP para preservar URLs y recibos
+    existentes; antes del alta pública abierta debe migrarse a UUID interno más
+    `(owner_wallet, slug)`.
+14. Finality nunca infiere un fallo desde una respuesta RPC ausente y admite un
+    proveedor secundario.
+15. Las imágenes usan base por digest, Next.js standalone y dependencias
+    productivas del gateway.
 
 ## Consistencia y finalización
 

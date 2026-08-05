@@ -17,7 +17,7 @@ MeterKit nunca custodia USDC, seed phrases ni claves privadas. Los activos son: 
 | Repetición de alta HTTP | `Idempotency-Key`, hash del request y respuesta persistida | integración DB |
 | Alta con wallet ajena o firma reutilizada | challenge Ed25519 ligado a dominio, método, ruta, hash del producto e idempotency key; nonce de un solo uso y expiración de 5 minutos | `wallet-auth.test.ts` |
 | Recibo MCP reutilizado tras reinicio | validación RPC independiente y claim atómico persistente por hash SHA-256 | `receipt-guard.test.ts` |
-| Transacción confirmada caída | reconciliación periódica; error onchain inmediato o ausencia repetida pasan a `failed` | `finality.test.ts` |
+| Transacción confirmada caída | sólo un error onchain explícito pasa a `failed`; ausencia RPC queda recuperable y existe fallback opcional | `finality.test.ts` |
 | Logs sensibles | nunca registrar payload, firma completa, header ni variables secretas | revisión |
 | Abuso de endpoint | límite por IP, body 32 KiB, validación Zod | integración |
 | Facilitador comprometido | revalidar transacción, error y balances token por RPC antes del handler | tests SDK |
@@ -27,31 +27,45 @@ MeterKit nunca custodia USDC, seed phrases ni claves privadas. Los activos son: 
 | Lectura entre tenants | sesión firmada, token hasheado, expiración y consultas SQL por `owner_wallet` | integración PostgreSQL |
 | SSRF desde un producto | HTTPS, allowlist exacta, sin IP/puerto/credenciales/redirects, JSON y límite 1 MB | `upstream.test.ts` |
 | SSRF desde el verificador de pilotos | sólo HTTPS público; bloqueo de IP literal y DNS privado/link-local/reservado; sin redirects; localhost sólo con opt-in explícito | `packages/pilot/src/index.test.ts` |
+| Challenge perdido/reutilizado entre réplicas | hash en PostgreSQL, consumo atómico, expiración, máximo por wallet y limpieza horaria | `wallet-auth.test.ts`, integración DB |
+| Escape del scope del agente | origen/puerto/ruta normalizados; exact match por defecto y subrutas sólo con frontera explícita | `examples/client/src/index.test.ts` |
 
 ## Particularidades de Subscriptions
 
 El repositorio oficial advierte que una transacción firmada con durable nonce puede conservar vigencia y que revocar sólo el delegate del ATA no termina una suscripción. MeterKit usa las instrucciones específicas `revokeDelegation`, `cancelSubscription` o `revokeSubscriptionAuthority`; no deja transacciones de control firmadas sin enviar. El estado “active” tampoco demuestra fondos disponibles: el servicio debe comprobar cobro por período antes de conceder acceso.
 
-El dashboard serializa la revocación localmente y la entrega a Wallet Standard con `signAndSendTransaction`. La clave privada no sale de la wallet. El formulario avanzado solicita la cuenta de delegación concreta para evitar búsquedas ambiguas; una dirección inválida falla antes de solicitar firma.
+El dashboard deriva la cuenta de delegación mediante el SDK oficial, serializa
+creación o revocación localmente y la entrega a Wallet Standard con
+`signAndSendTransaction`. La clave privada no sale de la wallet. PostgreSQL
+indexa únicamente metadata, estado y recibo.
 
 ## Operación
 
 - Devnet y mainnet tienen despliegues, variables y bases separados.
 - Mainnet está deshabilitado hasta una autorización explícita y revisión.
 - Los secretos sólo viven en variables de entorno/secret manager.
-- Confirmación mínima `confirmed`; para marcar `finalized`, consultar RPC. Un error
-  onchain se marca `failed`; una firma ausente requiere 20 consultas consecutivas
-  antes de considerarse caída, evitando falsos fallos transitorios.
+- Confirmación mínima `confirmed`; para marcar `finalized`, consultar RPC. Un
+  error onchain explícito se marca `failed`; una firma ausente nunca se convierte
+  en fallo y puede recuperarse mediante un RPC secundario.
 - Alertar por errores de settlement, replay y discrepancias del indexador.
 - Rotar credenciales del facilitador sin afectar wallets de usuarios.
 
 ## Riesgos abiertos del MVP
 
-- La finalidad depende de la disponibilidad y honestidad del RPC configurado; para alta disponibilidad se deben comparar proveedores.
-- Los challenges de autenticación de wallet viven en memoria. Son seguros para una réplica, pero el servicio alojado debe moverlos a Redis/PostgreSQL.
+- La finalidad depende de la disponibilidad y honestidad de los RPC configurados;
+  para alta disponibilidad real deben operarse proveedores independientes.
+- El modo sin `DATABASE_URL` mantiene challenges en memoria únicamente para
+  desarrollo. El servicio alojado usa PostgreSQL y funciona con múltiples réplicas.
 - La ejecución real se verificó con wallets desechables y fondos exclusivamente devnet; no se incluyen claves.
 - El proveedor debe tener un ATA del mint USDC antes del primer cobro. Su creación es pública y no requiere la clave del proveedor, pero sí SOL devnet del fee payer.
 - El precheck DNS del CLI y la conexión HTTPS son operaciones separadas. HTTPS
   reduce los objetivos prácticos de DNS rebinding, pero el transporte todavía no
   fija la IP validada. El CLI beta debe usarse sólo con endpoints elegidos por el
   desarrollador y nunca con URLs provenientes de PRs o configuración no confiable.
+
+## Retención
+
+- Challenges, sesiones e idempotency keys vencidos se eliminan cada hora.
+- Los challenges se consumen mediante `DELETE ... RETURNING`.
+- Pagos y recibos no se borran automáticamente porque son evidencia del proveedor.
+- Allowances revocadas conservan metadata y recibo, nunca claves privadas.

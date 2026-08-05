@@ -3,6 +3,7 @@ import {
   assertAllowancePolicy,
   buildFixedAllowance,
   buildFixedAllowanceTransaction,
+  prepareFixedAllowanceTransaction,
   buildMonthlyPlan,
   buildInitSubscriptionAuthority,
   buildMonthlyPlanTransaction,
@@ -211,5 +212,11 @@ describe("allowance policy", () => {
       }),
     ]);
     expect(transactions.every((transaction) => transaction.byteLength > 100)).toBe(true);
+    const prepared = await prepareFixedAllowanceTransaction({
+      ...commonAllowance,
+      maxAtomic: 1_000_000n,
+    });
+    expect(prepared.transaction.byteLength).toBeGreaterThan(100);
+    expect(prepared.delegationAccount).toMatch(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/);
   });
 });

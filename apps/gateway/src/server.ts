@@ -6,6 +6,7 @@ import { rateLimit } from "express-rate-limit";
 import {
   MemoryPaymentStore,
   SOLANA_DEVNET,
+  SUBSCRIPTIONS_PROGRAM,
   explorerUrl,
   productSchema,
   type PaymentStore,
@@ -29,7 +30,7 @@ if (config.trustProxyHops > 0) {
 let store: PaymentStore = new MemoryPaymentStore();
 let productStore: ProductStore | undefined;
 let reconciler: SolanaFinalityReconciler | undefined;
-const walletChallenges = new WalletChallenges();
+let walletChallenges = new WalletChallenges();
 const upstreamHosts = parseUpstreamAllowlist(
   process.env.UPSTREAM_HOST_ALLOWLIST ?? "api.open-meteo.com,api.github.com",
 );
@@ -39,6 +40,19 @@ const paymentStore: PaymentStore = {
   list: () => store.list(),
 };
 app.disable("x-powered-by");
+app.use((_request, response, next) => {
+  response.set({
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Cross-Origin-Resource-Policy": "same-site",
+  });
+  if (process.env.NODE_ENV === "production") {
+    response.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  next();
+});
 app.use(cors({
   origin: (process.env.CORS_ORIGINS ?? "http://localhost:3000,http://127.0.0.1:3100")
     .split(",").map((origin) => origin.trim()),
@@ -64,7 +78,7 @@ app.get("/v1/products", async (request, response) => {
   }
   response.json(productStore ? await productStore.listProductsForOwner(owner) : []);
 });
-app.post("/v1/auth/session/challenge", (request, response) => {
+app.post("/v1/auth/session/challenge", async (request, response) => {
   const wallet = typeof request.body?.wallet === "string" ? request.body.wallet : "";
   if (wallet.length < 32 || wallet.length > 44) {
     response.status(422).json({ error: "invalid_wallet" });
@@ -74,7 +88,7 @@ app.post("/v1/auth/session/challenge", (request, response) => {
     .update(JSON.stringify({ wallet }))
     .digest("hex");
   const idempotencyKey = `session:${wallet}`;
-  response.json(walletChallenges.issue({
+  response.json(await walletChallenges.issue({
     wallet,
     requestHash,
     idempotencyKey,
@@ -94,7 +108,7 @@ app.post("/v1/auth/session", async (request, response) => {
     .update(JSON.stringify({ wallet }))
     .digest("hex");
   const idempotencyKey = `session:${wallet}`;
-  const authorized = auth && walletChallenges.verify({
+  const authorized = auth && await walletChallenges.verify({
     wallet,
     nonce: typeof auth.nonce === "string" ? auth.nonce : "",
     signedMessage: typeof auth.signedMessage === "string" ? auth.signedMessage : "",
@@ -114,7 +128,7 @@ app.post("/v1/auth/session", async (request, response) => {
     expiresAt: expiresAt.toISOString(),
   });
 });
-app.post("/v1/auth/challenge", (request, response) => {
+app.post("/v1/auth/challenge", async (request, response) => {
   const wallet = typeof request.body?.wallet === "string" ? request.body.wallet : "";
   const parsed = productSchema.safeParse(request.body?.product);
   const idempotencyKey = typeof request.body?.idempotencyKey === "string"
@@ -135,7 +149,7 @@ app.post("/v1/auth/challenge", (request, response) => {
     return;
   }
   const requestHash = createHash("sha256").update(JSON.stringify(parsed.data)).digest("hex");
-  response.json(walletChallenges.issue({
+  response.json(await walletChallenges.issue({
     wallet,
     requestHash,
     idempotencyKey,
@@ -173,7 +187,7 @@ app.post("/v1/products", async (request, response) => {
     .update(JSON.stringify(parsed.data))
     .digest("hex");
   const auth = request.body?.auth as Record<string, unknown> | undefined;
-  const authorized = auth && walletChallenges.verify({
+  const authorized = auth && await walletChallenges.verify({
     wallet: parsed.data.payTo,
     nonce: typeof auth.nonce === "string" ? auth.nonce : "",
     signedMessage: typeof auth.signedMessage === "string" ? auth.signedMessage : "",
@@ -191,6 +205,10 @@ app.post("/v1/products", async (request, response) => {
   } catch (error) {
     if (error instanceof Error && error.message === "IDEMPOTENCY_KEY_CONFLICT") {
       response.status(409).json({ error: "idempotency_key_conflict" });
+      return;
+    }
+    if (error instanceof Error && error.message === "PRODUCT_OWNER_CONFLICT") {
+      response.status(409).json({ error: "product_slug_unavailable" });
       return;
     }
     throw error;
@@ -214,6 +232,77 @@ app.get("/v1/payments", async (request, response) => {
     : [];
   response.set("Cache-Control", "no-store");
   response.json(publicPayments(payments));
+});
+app.get("/v1/allowances", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  response.set("Cache-Control", "no-store").json(
+    await productStore.listAllowancesForOwner(owner),
+  );
+});
+app.post("/v1/allowances", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  const body = request.body as Record<string, unknown>;
+  const maxAtomic = typeof body.maxAtomic === "string" && /^[1-9]\d*$/.test(body.maxAtomic)
+    ? BigInt(body.maxAtomic) : 0n;
+  const expiresAt = typeof body.expiresAt === "string" ? new Date(body.expiresAt) : new Date(NaN);
+  const validAddress = (value: unknown) =>
+    typeof value === "string" && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(value);
+  if (!validAddress(body.address) || !validAddress(body.delegateWallet) ||
+      body.mint !== config.product.assetMint || maxAtomic <= 0n ||
+      maxAtomic > 100_000_000n || !Number.isFinite(expiresAt.getTime()) ||
+      expiresAt <= new Date() || expiresAt.getTime() > Date.now() + 90 * 86_400_000 ||
+      typeof body.signature !== "string" ||
+      !/^[1-9A-HJ-NP-Za-km-z]{64,88}$/.test(body.signature)) {
+    response.status(422).json({ error: "invalid_allowance" });
+    return;
+  }
+  const receiptValid = await verifyAllowanceReceipt({
+    signature: String(body.signature),
+    owner,
+    delegationAccount: String(body.address),
+    delegate: String(body.delegateWallet),
+    mint: String(body.mint),
+  });
+  if (!receiptValid) {
+    response.status(422).json({ error: "allowance_receipt_not_verified" });
+    return;
+  }
+  await productStore.saveAllowance({
+    address: String(body.address),
+    ownerWallet: owner,
+    delegateWallet: String(body.delegateWallet),
+    mint: String(body.mint),
+    maxAtomic: String(maxAtomic),
+    expiresAt: expiresAt.toISOString(),
+    revokedAt: null,
+    signature: String(body.signature),
+  });
+  response.status(201).json({ status: "recorded" });
+});
+app.post("/v1/allowances/:address/revoked", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  const allowanceAddress = Array.isArray(request.params.address)
+    ? request.params.address[0] : request.params.address;
+  if (!allowanceAddress || !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(allowanceAddress)) {
+    response.status(422).json({ error: "invalid_allowance_address" });
+    return;
+  }
+  const changed = await productStore.revokeAllowance(owner, allowanceAddress);
+  response.status(changed ? 200 : 404).json({
+    status: changed ? "revoked" : "allowance_not_found",
+  });
 });
 app.get(
   "/v1/weather/premium",
@@ -287,9 +376,15 @@ async function start() {
     await postgres.create(product);
     store = postgres;
     productStore = postgres;
+    walletChallenges = new WalletChallenges(postgres);
     reconciler = new SolanaFinalityReconciler(
       postgres,
-      process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+      [
+        process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+        ...(process.env.SOLANA_RPC_FALLBACK_URL
+          ? [process.env.SOLANA_RPC_FALLBACK_URL]
+          : []),
+      ],
     );
     const pollMs = Math.max(Number(process.env.FINALITY_POLL_MS ?? 15_000), 5_000);
     const timer = setInterval(() => {
@@ -298,6 +393,12 @@ async function start() {
       });
     }, pollMs);
     timer.unref();
+    const cleanupTimer = setInterval(() => {
+      postgres.cleanupExpired().catch((error: unknown) => {
+        console.error(JSON.stringify({ event: "expired_data_cleanup_failed", error: String(error) }));
+      });
+    }, 60 * 60_000);
+    cleanupTimer.unref();
   }
   return app.listen(config.port, () => console.log(JSON.stringify({
     event: "gateway_started",
@@ -337,4 +438,46 @@ function publicPayments(payments: Awaited<ReturnType<PaymentStore["list"]>>) {
     status: payment.status,
     explorerUrl: explorerUrl(payment.signature),
   }));
+}
+
+async function verifyAllowanceReceipt(input: {
+  signature: string;
+  owner: string;
+  delegationAccount: string;
+  delegate: string;
+  mint: string;
+}) {
+  try {
+    const rpcUrl = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
+    const rpcResponse = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      signal: AbortSignal.timeout(10_000),
+      body: JSON.stringify({
+        jsonrpc: "2.0", id: crypto.randomUUID(), method: "getTransaction",
+        params: [input.signature, {
+          commitment: "finalized",
+          encoding: "jsonParsed",
+          maxSupportedTransactionVersion: 0,
+        }],
+      }),
+    });
+    if (!rpcResponse.ok) return false;
+    const body = await rpcResponse.json() as {
+      result?: {
+        meta?: { err?: unknown };
+        transaction?: { message?: { accountKeys?: Array<string | { pubkey?: string }> } };
+      } | null;
+    };
+    if (!body.result || body.result.meta?.err != null) return false;
+    const keys = new Set((body.result.transaction?.message?.accountKeys ?? [])
+      .map((key) => typeof key === "string" ? key : key.pubkey)
+      .filter((key): key is string => Boolean(key)));
+    return [
+      input.owner, input.delegationAccount, input.delegate, input.mint,
+      SUBSCRIPTIONS_PROGRAM,
+    ].every((key) => keys.has(key));
+  } catch {
+    return false;
+  }
 }

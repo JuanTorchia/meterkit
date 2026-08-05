@@ -1,16 +1,19 @@
 # Matriz de financiación
 
-Fecha de consulta: **2026-08-03**. Los importes y estados pueden cambiar; verificar antes de enviar.
+Fecha de consulta: **2026-08-05**. Los importes y estados pueden cambiar; verificar antes de enviar.
 
 ## 1. Agentic Engineering Grant
 
 - Enlace: [Superteam Earn](https://superteam.fun/earn/grants/agentic-engineering)
-- Estado: abierto/listado; 261 receptores visibles al consultar.
+- Estado: abierto/listado; 270 receptores visibles al consultar. MeterKit fue
+  enviado por el solicitante el **2026-08-04** y está pendiente de revisión.
 - Importe: 200 USDG; 50% tras aprobación/KYC y 50% al entregar.
 - Requisitos: alcance práctico, integración Solana, producto funcional; KYC. Si el repo es privado debe darse acceso al revisor.
 - Entregables: URL viva, repositorio GitHub y recibos de suscripción de herramientas de IA por un total de $200.
 - Encaje: MeterKit es un producto Solana acotado y demostrable; el dinero cubre herramientas para terminar x402 devnet.
-- Acción: presentar inmediatamente el texto de `grant-agentic-draft.md`. La solicitud real requiere identidad, KYC y cuenta del usuario; no se envía automáticamente.
+- Acción: conservar la respuesta enviada como snapshot histórico y preparar el
+  cierre únicamente si se aprueba. La identidad, KYC y recibo de IA siguen
+  siendo responsabilidad del solicitante.
 
 ## 2. Solana Foundation Argentina
 
@@ -34,7 +37,8 @@ Fecha de consulta: **2026-08-03**. Los importes y estados pueden cambiar; verifi
 ## 4. Colosseum Eternal
 
 - Enlace: [Colosseum Eternal](https://colosseum.com/eternal)
-- Estado: abierto; la página mostraba 36 días restantes y 88+ builders durante la consulta.
+- Estado: abierto; la página mostraba aproximadamente 33 días restantes y 115+
+  builders durante la consulta.
 - Importe: consideración para $250.000 de pre-seed y accelerator; no es un premio garantizado.
 - Requisitos: cuenta builder, iniciar cronómetro, sprint de cuatro semanas, actualización semanal de un minuto y producto final.
 - Entregables: cuatro updates y submission que demuestre priorización, iteración y shipping.
@@ -50,3 +54,11 @@ Fecha de consulta: **2026-08-03**. Los importes y estados pueden cambiar; verifi
 5. Iniciar Eternal sólo cuando el sprint pueda sostenerse cuatro semanas.
 6. Cobrar integración/hosted.
 
+## Convención de estado
+
+- **Enviado:** formulario entregado por el solicitante; no implica aprobación.
+- **Implementado:** existe código en el repositorio.
+- **Verificado:** existe una prueba automatizada o evidencia pública correlacionada.
+- **Pendiente:** depende de terceros, KYC, pilotos reales o una acción del solicitante.
+
+No se contabilizan validaciones sintéticas como pilotos, clientes o ingresos.

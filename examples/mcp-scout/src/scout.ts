@@ -23,8 +23,8 @@ export async function fetchProject(
     safeGithubFetch(releaseSource, true, request),
   ]);
   if (!repoResponse.ok) throw new Error(`GitHub respondió ${repoResponse.status} para ${repository}`);
-  const repo = repoSchema.parse(await repoResponse.json());
-  const release = releaseResponse.ok ? releaseSchema.parse(await releaseResponse.json()) : null;
+  const repo = repoSchema.parse(await readBoundedJson(repoResponse));
+  const release = releaseResponse.ok ? releaseSchema.parse(await readBoundedJson(releaseResponse)) : null;
   return {
     name: repo.name, fullName: repo.full_name, description: repo.description,
     htmlUrl: repo.html_url, homepage: repo.homepage || null,
@@ -41,13 +41,32 @@ async function safeGithubFetch(url: string, allowNotFound: boolean, request: typ
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8_000);
   try {
+    const headers: Record<string, string> = {
+      accept: "application/vnd.github+json",
+      "user-agent": "meterkit-scout/0.1",
+      "x-github-api-version": "2022-11-28",
+    };
+    if (process.env.GITHUB_TOKEN) headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
     const response = await request(url, {
       signal: controller.signal,
-      headers: { accept: "application/vnd.github+json", "user-agent": "meterkit-scout/0.1" },
+      headers,
     });
+    const length = Number(response.headers.get("content-length") ?? 0);
+    if (length > 512_000) throw new Error("GitHub response exceeds the 500 KiB safety limit");
+    if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0") {
+      throw new Error("GitHub API rate limit reached; configure GITHUB_TOKEN or retry later");
+    }
     if (!allowNotFound && response.status === 404) throw new Error("Repositorio público no encontrado");
     return response;
   } finally { clearTimeout(timer); }
+}
+
+async function readBoundedJson(response: Response) {
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  if (bytes.byteLength > 512_000) {
+    throw new Error("GitHub response exceeds the 500 KiB safety limit");
+  }
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
 }
 
 export function renderReport(project: ProjectFacts) {

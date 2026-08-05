@@ -27,4 +27,14 @@ describe("FileReceiptGuard", () => {
       reason: expect.objectContaining({ message: "PAYMENT_REPLAYED" }),
     });
   });
+
+  it("persists the free-preview entitlement across guard instances", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "meterkit-previews-"));
+    directories.push(directory);
+    await new FileReceiptGuard(directory).claimPreview("installation-a");
+    await expect(new FileReceiptGuard(directory).claimPreview("installation-a"))
+      .rejects.toThrow("PREVIEW_ALREADY_USED");
+    await expect(new FileReceiptGuard(directory).claimPreview("installation-b"))
+      .resolves.toBeUndefined();
+  });
 });

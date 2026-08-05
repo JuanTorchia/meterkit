@@ -5,8 +5,6 @@ Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 [![CI](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml)
 [![Public devnet smoke](https://github.com/JuanTorchia/meterkit/actions/workflows/public-demo-smoke.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/public-demo-smoke.yml)
 
-[![CI](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml)
-
 > Estado: **MVP funcional, sólo devnet**. Los flujos x402 HTTP y MCP fueron
 > liquidados y finalizados en devnet. Una allowance limitada fue creada,
 > verificada, revocada y cerrada onchain. Un plan nativo de 30 días completó
@@ -27,7 +25,9 @@ mainnet: este entorno acepta únicamente activos de prueba.
   productos/pagos por wallet.
 - proxy alojado real con allowlist HTTPS y defensas SSRF; el middleware directo
   continúa siendo la integración recomendada.
-- builders y transacciones Wallet Standard de `@solana/subscriptions` para fixed/recurring/plans, alta y revocación; el dashboard puede firmar y enviar una revocación en devnet.
+- builders y transacciones Wallet Standard de `@solana/subscriptions` para
+  fixed/recurring/plans; el dashboard crea, lista y revoca fixed allowances
+  conservando el control en la wallet.
 - MCP “Solana Project Scout” con preview gratuito, fuentes GitHub públicas y cobro oficial x402/MCP.
 
 MeterKit no recibe fondos, no conoce seed phrases y no firma por usuarios.
@@ -87,7 +87,22 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm test:e2e
+pnpm audit --prod
 ```
+
+La CI fija Actions por SHA, ejecuta CodeQL, genera SBOM y bloquea imágenes con
+vulnerabilidades HIGH/CRITICAL corregibles. Las imágenes usan una base Node
+fijada por digest y runtime sin npm.
+
+Para producir un reporte sanitizado y reproducible de cierre:
+
+```bash
+DATABASE_TEST_URL=postgresql://meterkit:meterkit@localhost:5432/meterkit \
+pnpm evidence:grant
+```
+
+Sin una keypair desechable controlada por el solicitante, los pagos vivos quedan
+marcados `skipped`; nunca se inventan como evidencia.
 
 ## Pago devnet
 

@@ -21,7 +21,33 @@ export interface ProductStore {
   listPaymentsForProduct(productId: string): Promise<readonly PaymentRecord[]>;
   createSession(tokenHash: string, ownerWallet: string, expiresAt: Date): Promise<void>;
   getSessionOwner(tokenHash: string): Promise<string | null>;
+  saveWalletChallenge(challenge: WalletChallengeRecord, maxActive: number): Promise<void>;
+  consumeWalletChallenge(nonceHash: string): Promise<WalletChallengeRecord | null>;
+  cleanupExpired(now?: Date): Promise<{ challenges: number; sessions: number; idempotencyKeys: number }>;
+  saveAllowance(allowance: AgentAllowanceRecord): Promise<void>;
+  listAllowancesForOwner(ownerWallet: string): Promise<readonly AgentAllowanceRecord[]>;
+  revokeAllowance(ownerWallet: string, address: string): Promise<boolean>;
 }
+
+export type WalletChallengeRecord = {
+  nonceHash: string;
+  wallet: string;
+  message: string;
+  requestHash: string;
+  idempotencyKey: string;
+  expiresAt: Date;
+};
+
+export type AgentAllowanceRecord = {
+  address: string;
+  ownerWallet: string;
+  delegateWallet: string;
+  mint: string;
+  maxAtomic: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  signature: string | null;
+};
 
 export interface FinalityStore {
   listConfirmedSignatures(limit?: number): Promise<readonly string[]>;
@@ -249,6 +275,126 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
     return result.rows[0]?.owner_wallet ?? null;
   }
 
+  async saveWalletChallenge(challenge: WalletChallengeRecord, maxActive: number) {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [challenge.wallet]);
+      await client.query(
+        "DELETE FROM wallet_challenges WHERE wallet=$1 AND expires_at <= now()",
+        [challenge.wallet],
+      );
+      const active = await client.query<{ count: string }>(
+        `SELECT count(*)::text AS count FROM wallet_challenges
+         WHERE wallet=$1 AND expires_at > now()`,
+        [challenge.wallet],
+      );
+      if (Number(active.rows[0]?.count ?? 0) >= maxActive) {
+        throw new Error("TOO_MANY_ACTIVE_CHALLENGES");
+      }
+      await client.query(
+        `INSERT INTO wallet_challenges
+          (nonce_hash, wallet, message, request_hash, idempotency_key, expires_at)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+        [
+          challenge.nonceHash, challenge.wallet, challenge.message,
+          challenge.requestHash, challenge.idempotencyKey, challenge.expiresAt,
+        ],
+      );
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async consumeWalletChallenge(nonceHash: string) {
+    const result = await this.pool.query(
+      `DELETE FROM wallet_challenges
+       WHERE nonce_hash=$1
+       RETURNING nonce_hash, wallet, message, request_hash, idempotency_key, expires_at`,
+      [nonceHash],
+    );
+    const row = result.rows[0] as Record<string, unknown> | undefined;
+    return row ? {
+      nonceHash: String(row.nonce_hash),
+      wallet: String(row.wallet),
+      message: String(row.message),
+      requestHash: String(row.request_hash),
+      idempotencyKey: String(row.idempotency_key),
+      expiresAt: new Date(row.expires_at as string | Date),
+    } : null;
+  }
+
+  async cleanupExpired(now = new Date()) {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      const challenges = await client.query(
+        "DELETE FROM wallet_challenges WHERE expires_at <= $1",
+        [now],
+      );
+      const sessions = await client.query(
+        "DELETE FROM wallet_sessions WHERE expires_at <= $1",
+        [now],
+      );
+      const idempotencyKeys = await client.query(
+        "DELETE FROM idempotency_keys WHERE expires_at <= $1",
+        [now],
+      );
+      await client.query("COMMIT");
+      return {
+        challenges: challenges.rowCount ?? 0,
+        sessions: sessions.rowCount ?? 0,
+        idempotencyKeys: idempotencyKeys.rowCount ?? 0,
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  async saveAllowance(allowance: AgentAllowanceRecord) {
+    await this.pool.query(
+      `INSERT INTO agent_allowances
+        (address, owner_wallet, delegate_wallet, mint, max_atomic, expires_at, revoked_at, signature)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       ON CONFLICT (address) DO UPDATE SET
+         delegate_wallet=EXCLUDED.delegate_wallet, mint=EXCLUDED.mint,
+         max_atomic=EXCLUDED.max_atomic, expires_at=EXCLUDED.expires_at,
+         revoked_at=EXCLUDED.revoked_at, signature=EXCLUDED.signature
+       WHERE agent_allowances.owner_wallet=EXCLUDED.owner_wallet`,
+      [
+        allowance.address, allowance.ownerWallet, allowance.delegateWallet,
+        allowance.mint, allowance.maxAtomic, allowance.expiresAt,
+        allowance.revokedAt, allowance.signature,
+      ],
+    );
+  }
+
+  async listAllowancesForOwner(ownerWallet: string) {
+    const result = await this.pool.query(
+      `SELECT address, owner_wallet, delegate_wallet, mint, max_atomic::text,
+              expires_at, revoked_at, signature
+       FROM agent_allowances WHERE owner_wallet=$1 ORDER BY created_at DESC LIMIT 100`,
+      [ownerWallet],
+    );
+    return result.rows.map(mapAllowance);
+  }
+
+  async revokeAllowance(ownerWallet: string, allowanceAddress: string) {
+    const result = await this.pool.query(
+      `UPDATE agent_allowances SET revoked_at=now()
+       WHERE address=$1 AND owner_wallet=$2 AND revoked_at IS NULL`,
+      [allowanceAddress, ownerWallet],
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
+
   async close() { await this.pool.end(); }
 }
 
@@ -281,6 +427,21 @@ function mapProduct(row: Record<string, unknown>): Product {
     payTo: row.pay_to,
     network: row.network,
   });
+}
+
+function mapAllowance(row: Record<string, unknown>): AgentAllowanceRecord {
+  return {
+    address: String(row.address),
+    ownerWallet: String(row.owner_wallet),
+    delegateWallet: String(row.delegate_wallet),
+    mint: String(row.mint),
+    maxAtomic: String(row.max_atomic),
+    expiresAt: new Date(row.expires_at as string | Date).toISOString(),
+    revokedAt: row.revoked_at
+      ? new Date(row.revoked_at as string | Date).toISOString()
+      : null,
+    signature: row.signature ? String(row.signature) : null,
+  };
 }
 
 function isUniqueViolation(error: unknown): error is { code: string } {

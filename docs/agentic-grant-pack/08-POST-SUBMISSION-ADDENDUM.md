@@ -3,6 +3,14 @@
 Prepared on **2026-08-04**. This addendum does not replace or silently modify the
 application evidence submitted on 2026-08-03.
 
+## Hardening posterior — 2026-08-05
+
+Sin modificar la respuesta histórica enviada, el repositorio añadió challenges
+durables PostgreSQL, scope exacto del agente, finality con fallback, gestión de
+allowances desde el dashboard, Actions por SHA, CodeQL, SBOM, Trivy y el comando
+`pnpm evidence:grant`. La batería pasó a 92/92 tests más 1/1 E2E. Esto continúa
+siendo evidencia interna y no se presenta como piloto, usuario o ingreso.
+
 ## Completed after the submitted snapshot
 
 - Public devnet dashboard: <https://meterkit.juanchi.dev>

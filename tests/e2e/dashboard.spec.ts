@@ -65,7 +65,9 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   await page.screenshot({ path: "artifacts/dashboard-mobile.png", fullPage: true });
   await page.goto("/agent/allowances");
   await expect(page.getByRole("heading", { name: "Your authorization stays yours." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Revoke an authorization." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Create, inspect and revoke allowances." })).toBeVisible();
+  await expect(page.getByLabel("Delegate wallet")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create fixed allowance" })).toBeVisible();
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/pilots");
   await expect(page.getByRole("heading", { name: "Verify your first paid endpoint without sharing a key." })).toBeVisible();

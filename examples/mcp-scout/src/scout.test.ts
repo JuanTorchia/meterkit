@@ -35,4 +35,30 @@ describe("Solana Project Scout", () => {
     );
     expect(request).not.toHaveBeenCalled();
   });
+
+  it("uses an optional server-side GitHub token without exposing it in output", async () => {
+    vi.stubEnv("GITHUB_TOKEN", "github-test-token");
+    const request = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      expect(new Headers(init?.headers).get("authorization")).toBe("Bearer github-test-token");
+      return new Response(JSON.stringify(String(input).endsWith("/releases/latest")
+        ? { tag_name: "v1" } : repository), { status: 200 });
+    });
+    const facts = await fetchProject("solana-foundation/kit", request as typeof fetch);
+    expect(JSON.stringify(facts)).not.toContain("github-test-token");
+    vi.unstubAllEnvs();
+  });
+
+  it("fails closed on oversized and rate-limited GitHub responses", async () => {
+    const oversized = vi.fn(async () => new Response("{}", {
+      status: 200, headers: { "content-length": "512001" },
+    }));
+    await expect(fetchProject("solana-foundation/kit", oversized as typeof fetch))
+      .rejects.toThrow("500 KiB");
+
+    const limited = vi.fn(async () => new Response("rate limited", {
+      status: 403, headers: { "x-ratelimit-remaining": "0" },
+    }));
+    await expect(fetchProject("solana-foundation/kit", limited as typeof fetch))
+      .rejects.toThrow("rate limit");
+  });
 });

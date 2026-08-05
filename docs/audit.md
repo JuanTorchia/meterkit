@@ -3,6 +3,20 @@
 Fecha de última revisión: **2026-08-05**. Este documento distingue
 implementación, prueba determinista y evidencia onchain.
 
+## Cierre P1/P2
+
+- Scope del agente exacto por defecto y 13 pruebas adversariales.
+- Challenge durable PostgreSQL, consumo atómico y límite por wallet.
+- Finality sin falsos `failed` por ausencia RPC y fallback opcional.
+- Slug canónico compartido por UI/API/ruta; namespace global documentado como
+  excepción temporal de compatibilidad.
+- Creación, listado, Explorer y revocación de allowances desde el dashboard.
+- Actions por SHA, Dependabot, CodeQL, SBOM y Trivy.
+- Imágenes por digest; escaneo local sin HIGH/CRITICAL corregibles.
+- Baseline posterior: **92/92 tests**, lint, typecheck, build y Playwright verdes.
+
+Esta es evidencia interna; no representa pilotos, usuarios ni ingresos.
+
 | Criterio | Estado | Evidencia |
 |---|---|---|
 | Challenge x402 v2 de 0,01 USDC | Implementado y probado | `packages/sdk/src/index.test.ts` |
@@ -41,7 +55,7 @@ pnpm test:e2e
 
 Resultado actual: la batería completa pasa con PostgreSQL, carrera concurrente,
 contrato MCP stdio, transacciones onchain serializadas y Playwright E2E. La
-ejecución del 2026-08-05 pasó **62/62 tests en 12 archivos** y **1/1 E2E**. La
+  ejecución del 2026-08-05 pasó **92/92 tests en 14 archivos** y **1/1 E2E**. La
 inspección visual no mostró overflow, errores de consola, respuestas HTTP fallidas
 ni overlays en 1440×1000 y 390×844.
 
