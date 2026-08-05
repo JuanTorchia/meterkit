@@ -66,6 +66,15 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   await page.goto("/agent/allowances");
   await expect(page.getByRole("heading", { name: "Your authorization stays yours." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Revoke an authorization." })).toBeVisible();
+  await page.goto("/pilots");
+  await expect(page.getByRole("heading", { name: "Verify your first paid endpoint without sharing a key." })).toBeVisible();
+  await expect(page.getByText("meterkit-pilot.json", { exact: false }).first()).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await expect(page.getByRole("navigation", { name: "Product areas" }).getByRole("link", { name: "Pilots" })).toBeVisible();
+  expect(await page.evaluate(() =>
+    document.documentElement.scrollWidth === document.documentElement.clientWidth)).toBe(true);
+  await page.screenshot({ path: "artifacts/pilots-mobile.png", fullPage: true });
   expect(consoleErrors).toEqual([]);
   expect(failedResponses).toEqual([]);
 });

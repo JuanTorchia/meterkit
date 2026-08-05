@@ -8,12 +8,24 @@ configuring a disposable wallet. It uses Solana devnet only.
 ```bash
 git clone https://github.com/JuanTorchia/meterkit.git
 cd meterkit
-pnpm pilot:check
+pnpm install --frozen-lockfile
+pnpm pilot:init -- https://your-api.test/premium
 ```
 
-The command checks public health, product discovery, the unpaid HTTP 402
-challenge, and tenant isolation. It sends no private key or personal data and
-does not count as a completed pilot.
+Edit only `meterkit-pilot.json`: set the expected devnet network, USDC mint,
+maximum atomic amount and exact recipient. Then run:
+
+```bash
+pnpm pilot:verify -- \
+  --config meterkit-pilot.json \
+  --out pilot-report.json
+```
+
+The command checks the developer's endpoint, decodes the unpaid HTTP 402
+challenge and fails closed on policy mismatches. It sends no private key,
+payment proof or personal data and does not count as a completed pilot.
+
+To check the hosted MeterKit infrastructure itself, run `pnpm pilot:check`.
 
 ## 2. Protect one local test endpoint
 

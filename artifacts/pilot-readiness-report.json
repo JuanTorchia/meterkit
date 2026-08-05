@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "kind": "meterkit-external-endpoint-readiness",
+  "passed": true,
+  "checkedAt": "2026-08-05T01:29:58.354Z",
+  "endpoint": "https://meterkit-api.juanchi.dev/v1/weather/premium",
+  "checks": [
+    {
+      "name": "unpaid request returns HTTP 402",
+      "ok": true,
+      "evidence": {
+        "status": 402
+      }
+    },
+    {
+      "name": "PAYMENT-REQUIRED header is present",
+      "ok": true,
+      "evidence": {
+        "present": true
+      }
+    },
+    {
+      "name": "x402 challenge decodes",
+      "ok": true,
+      "evidence": {
+        "x402Version": 2,
+        "scheme": "exact"
+      }
+    },
+    {
+      "name": "network matches policy",
+      "ok": true,
+      "evidence": {
+        "actual": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+        "enforced": false
+      }
+    },
+    {
+      "name": "USDC mint matches policy",
+      "ok": true,
+      "evidence": {
+        "actual": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+        "enforced": false
+      }
+    },
+    {
+      "name": "recipient matches policy",
+      "ok": true,
+      "evidence": {
+        "actual": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
+        "enforced": false
+      }
+    },
+    {
+      "name": "amount is within policy",
+      "ok": true,
+      "evidence": {
+        "amountAtomic": "10000",
+        "enforced": false
+      }
+    }
+  ],
+  "requirement": {
+    "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    "mint": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+    "amountAtomic": "10000",
+    "recipient": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
+    "scheme": "exact",
+    "maxTimeoutSeconds": 300
+  },
+  "notice": "No wallet, private key, seed phrase, payment proof or mainnet asset was used. This verifies readiness, not a completed settlement."
+}

@@ -19,6 +19,8 @@
     "test:e2e": "playwright test",
     "wallet:devnet": "tsx scripts/create-devnet-wallet.ts",
     "pilot:check": "node scripts/pilot-check.mjs",
+    "pilot:init": "pnpm --filter @meterkit/pilot build && node packages/pilot/dist/cli.js init",
+    "pilot:verify": "pnpm --filter @meterkit/pilot build && node packages/pilot/dist/cli.js verify",
     "demo:verify": "node scripts/verify-public-dashboard.mjs",
     "demo:record": "node scripts/record-demo.mjs",
     "demo:institutional": "node scripts/record-institutional-demo.mjs",

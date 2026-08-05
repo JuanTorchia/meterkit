@@ -1,0 +1,39 @@
+{
+  "name": "@meterkit/pilot",
+  "version": "0.1.0",
+  "description": "Self-service x402 endpoint verifier for MeterKit pilots",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "meterkit-pilot": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/cli.d.ts",
+    "dist/cli.js",
+    "dist/cli.js.map",
+    "dist/index.d.ts",
+    "dist/index.js",
+    "dist/index.js.map",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "pnpm build",
+    "pilot": "node dist/cli.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

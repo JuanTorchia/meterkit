@@ -8,7 +8,7 @@ import { MobileProductLinks } from "./product-links";
 
 const copy = {
   en: {
-    products: "Product", demo: "Live demo", docs: "Docs", dashboard: "Provider workspace",
+    products: "Product", demo: "Live demo", pilots: "Pilots", docs: "Docs", dashboard: "Provider workspace",
     eyebrow: "OPEN SOURCE · NON-CUSTODIAL · SOLANA",
     title: <>Turn an API call into<br /><em>a direct USDC payment.</em></>,
     intro: "Add pay-per-request to an API or MCP tool in minutes. The customer pays your wallet directly; MeterKit never holds the funds.",
@@ -26,7 +26,7 @@ const copy = {
     footer: "USDC commerce infrastructure for APIs and agents.",
   },
   es: {
-    products: "Producto", demo: "Demo en vivo", docs: "Docs", dashboard: "Workspace del proveedor",
+    products: "Producto", demo: "Demo en vivo", pilots: "Pilotos", docs: "Docs", dashboard: "Workspace del proveedor",
     eyebrow: "OPEN SOURCE · NO CUSTODIAL · SOLANA",
     title: <>Convierte una llamada API en<br /><em>un pago directo en USDC.</em></>,
     intro: "Agrega cobro por solicitud a una API o herramienta MCP en minutos. El cliente paga directamente a tu wallet; MeterKit nunca recibe los fondos.",
@@ -44,7 +44,7 @@ const copy = {
     footer: "Infraestructura comercial en USDC para APIs y agentes.",
   },
   "pt-BR": {
-    products: "Produto", demo: "Demo ao vivo", docs: "Docs", dashboard: "Workspace do provedor",
+    products: "Produto", demo: "Demo ao vivo", pilots: "Pilotos", docs: "Docs", dashboard: "Workspace do provedor",
     eyebrow: "OPEN SOURCE · SEM CUSTÓDIA · SOLANA",
     title: <>Transforme uma chamada de API em<br /><em>um pagamento direto em USDC.</em></>,
     intro: "Adicione cobrança por requisição a uma API ou ferramenta MCP em minutos. O cliente paga diretamente à sua carteira; MeterKit nunca recebe os fundos.",
@@ -116,7 +116,7 @@ function MarketingNav({ locale, setLocale, text }: {
 }) {
   return <nav className="marketingNav">
     <Link className="brand" href="/"><span className="mark">M</span> MeterKit</Link>
-    <div className="navlinks"><a href="#product">{text.products}</a><Link href="/demo">{text.demo}</Link><a href="#docs">{text.docs}</a></div>
+    <div className="navlinks"><a href="#product">{text.products}</a><Link href="/demo">{text.demo}</Link><Link href="/pilots">{text.pilots}</Link><a href="#docs">{text.docs}</a></div>
     <div className="navActions">
       <div className="localeSwitch" aria-label="Language">
         {locales.map((option) => <button key={option} className={locale === option ? "active" : ""} aria-pressed={locale === option} aria-label={localeLabels[option]} onClick={() => setLocale(option)}>{option === "pt-BR" ? "PT" : option.toUpperCase()}</button>)}
