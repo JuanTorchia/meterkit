@@ -1,6 +1,6 @@
 # Requirement traceability and claim audit
 
-Audited on **2026-08-04** against repository source, the public deployment and
+Audited on **2026-08-05** against repository source, the public deployment and
 recorded devnet evidence.
 
 | Requirement | Implementation | Verification | Status |
@@ -15,6 +15,7 @@ recorded devnet evidence.
 | FR-07 useful MCP tool | `examples/mcp-scout` | Scout tests + devnet receipt `4ZkuVW…pM5wg` | Paid flow verified |
 | FR-08 capped allowance | subscriptions package + devnet verifier | policy tests + `53Y9wj…9h4mi` | Onchain verified |
 | FR-08 revocation | subscriptions package + Wallet Standard UI path | closed PDA + `2Ccw1b…XqzoU` | Onchain verified |
+| Native subscription | plan, subscribe, pull and cancel builders | four finalized devnet transactions | Onchain verified |
 | Finality | `apps/gateway/src/finality.ts` | finality tests + real receipt finalized | Verified |
 | Wallet authentication | `apps/gateway/src/wallet-auth.ts` | signature, replay, expiration and mutation tests | Verified |
 | Public hosted demo | Coolify deployment, devnet only | `meterkit.juanchi.dev`, `meterkit-api.juanchi.dev` | Verified |
@@ -37,8 +38,8 @@ recorded devnet evidence.
 - Say “npm-ready” or “packaged,” not “published on npm.”
 - Say “public devnet dashboard,” not “production dashboard.”
 - Paid MCP devnet flow completed on 2026-08-04; cite the Explorer receipt.
-- Say “allowance lifecycle completed onchain”; the monthly plan/subscription
-  lifecycle remains pending.
+- Say “allowance and fixed 30-day subscription lifecycles completed onchain.”
+  The protocol period is 720 hours, not a calendar month.
 
 ### Do not claim yet
 
@@ -52,7 +53,7 @@ recorded devnet evidence.
 
 The proposed grant scope is credible because its hardest feasibility assumption—
 direct USDC settlement through an x402-protected request—already has independent
-devnet evidence. The remaining work is primarily external validation, monthly
-subscription completion and presentation. The application should be
+devnet evidence. The remaining grant evidence is primarily external validation
+and the applicant-controlled AI subscription receipt. The application should be
 submitted as a working proof seeking a public-release milestone, not as a finished
 production company.

@@ -1,6 +1,6 @@
 # Final verification results
 
-Executed on **2026-08-03** from the MeterKit repository.
+Last executed on **2026-08-05** from the MeterKit repository.
 
 | Check | Result |
 |---|---|
@@ -8,8 +8,11 @@ Executed on **2026-08-03** from the MeterKit repository.
 | `pnpm lint` | Pass |
 | `pnpm typecheck` | Pass |
 | `pnpm build` | Pass |
-| `pnpm test` | Pass — 7 test files, 27/27 tests |
+| `pnpm test` | Pass — 12 test files, 62/62 tests |
 | `pnpm test:e2e` | Pass — 1/1 Playwright flow |
+| Public x402 closeout | Pass — direct +10,000 atomic test-USDC, replay 402, finalized receipt |
+| Public dashboard | Pass — 5 finalized rows, 5 Explorer links, no console errors |
+| Institutional demo | Pass — H.264, 1280×720, 70.2 seconds |
 
 ## Test coverage observed
 

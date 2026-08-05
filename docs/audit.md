@@ -1,6 +1,7 @@
 # Auditoría de estado del MVP
 
-Fecha: **2026-08-04**. Este documento distingue implementación, prueba determinista y evidencia onchain.
+Fecha de última revisión: **2026-08-05**. Este documento distingue
+implementación, prueba determinista y evidencia onchain.
 
 | Criterio | Estado | Evidencia |
 |---|---|---|
@@ -26,6 +27,7 @@ Fecha: **2026-08-04**. Este documento distingue implementación, prueba determin
 | Allowance real devnet | Completada 2026-08-04 | [`53Y9wj…9h4mi`](https://explorer.solana.com/tx/53Y9wj86BDMKB2Xs1LUBX1VDm6xejNpb5P1JUDi5Nr8wBYKXtZ21kq21VGKFCdtTLq8DZAmmLBVgJLHYSNy9h4mi?cluster=devnet), revocada en [`2Ccw1b…XqzoU`](https://explorer.solana.com/tx/2Ccw1bA19qKkHdoRHJ1vBa9tG32Dm8eDE9hHc8fH1RsWaoo3iehkWauYkHrfZaGKYLsg8RntJi95AAfFr9rXqzoU?cluster=devnet) |
 | Suscripción real devnet | Completada 2026-08-04 | [plan](https://explorer.solana.com/tx/43Pahib7rdLYov3V28iRfbsWVbm56RkeQfPbjPVtzTNBM5Yi8yHDKCAxp8GYxVHDh7p93uxZ3Jzxut2W7SSYszA?cluster=devnet), [subscribe](https://explorer.solana.com/tx/3PJXJQyCmhQTPNbokEWw4EK2GBefJBsic1HwsvuXg78KvmH1JHTh8CiHTS3r2rpzB414caroHjiGMKm2yNybFdBe?cluster=devnet), [pull](https://explorer.solana.com/tx/2pbvy5PC9BmRodop2AfcL1tv6mgssb5fAQr6fR2NdQQCSA4bs7xGSCVAP3QZq4b2u44iydkUXEwwzN3DUyQA32KG?cluster=devnet) y [cancel](https://explorer.solana.com/tx/2nHxkGEM5bJoFDDBXqcfXH2cBEAgieQdnNjTgi6mauvEmMZ749UPP3NJabVuQspBdjNgmq1rUgAbU7QQ1ktcuidf?cluster=devnet), todos finalizados |
 | Verificador devnet | Ejecutado | saldo proveedor `0 → 10000`, replay HTTP 402, registro PostgreSQL `finalized` |
+| Cierre x402 actualizado | Completado 2026-08-05 | saldo proveedor `90000 → 100000`, replay HTTP 402, recibo `3622LW…NUCm8v` finalizado |
 
 ## Comandos ejecutados
 
@@ -39,6 +41,7 @@ pnpm test:e2e
 
 Resultado actual: la batería completa pasa con PostgreSQL, carrera concurrente,
 contrato MCP stdio, transacciones onchain serializadas y Playwright E2E. La
+ejecución del 2026-08-05 pasó **62/62 tests en 12 archivos** y **1/1 E2E**. La
 inspección visual no mostró overflow, errores de consola, respuestas HTTP fallidas
 ni overlays en 1440×1000 y 390×844.
 

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "kind": "meterkit-grant-closeout-evidence",
+  "checkedAt": "2026-08-05T02:59:47.730Z",
+  "network": "solana-devnet",
+  "externalUsersRepresented": 0,
+  "x402": {
+    "payer": "8SJE3aVLPpPgh5qsYJppsgdXdWusYUmJy3gfGKDEPsqS",
+    "provider": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
+    "amountAtomic": "10000",
+    "providerBalanceBeforeAtomic": "90000",
+    "providerBalanceAfterAtomic": "100000",
+    "replayStatus": 402,
+    "receiptStatus": "finalized",
+    "transaction": "3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v",
+    "slot": 481292762,
+    "explorerUrl": "https://explorer.solana.com/tx/3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v?cluster=devnet"
+  },
+  "browser": {
+    "target": "https://meterkit.juanchi.dev/dashboard",
+    "receiptRows": 5,
+    "finalizedRows": 5,
+    "explorerLinks": 5,
+    "consoleErrors": 0,
+    "horizontalOverflow": false,
+    "screenshot": "artifacts/internal-synthetic-dashboard.png",
+    "allowanceControlsScreenshot": "artifacts/allowances-live.png",
+    "allowanceControlsConsoleErrors": 0
+  },
+  "verification": {
+    "lint": "passed",
+    "typecheck": "passed",
+    "unitAndIntegrationTests": {
+      "passed": 62,
+      "failed": 0,
+      "testFiles": 12
+    },
+    "build": "passed",
+    "playwright": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "demo": {
+    "path": "artifacts/meterkit-institutional-75s.mp4",
+    "durationSeconds": 70.2,
+    "codec": "h264",
+    "width": 1280,
+    "height": 720,
+    "audio": false,
+    "liveChallengeStatus": 402,
+    "receiptTransaction": "3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v"
+  },
+  "nativePrimitives": {
+    "allowanceLifecycleFinalized": true,
+    "allowanceRevoked": true,
+    "subscriptionLifecycleFinalized": true,
+    "transactionsChecked": 8,
+    "transactionsWithError": 0
+  }
+}

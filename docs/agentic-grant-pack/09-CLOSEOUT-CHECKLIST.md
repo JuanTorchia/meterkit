@@ -4,7 +4,7 @@ Prepared after submission. Do not replace the original Drive snapshot silently.
 
 ## Technical evidence ready
 
-- [x] Public repository at commit `b4cd3d7`.
+- [x] Public repository and signed autodeploy on `main`.
 - [x] Public devnet dashboard and gateway.
 - [x] Real finalized x402 HTTP and MCP settlements.
 - [x] Replay rejection and direct provider balance increase.
@@ -13,7 +13,10 @@ Prepared after submission. Do not replace the original Drive snapshot silently.
 - [x] Public readiness workflow and full CI.
 - [x] EN/ES/PT-BR interface.
 - [x] Post-submission addendum.
-- [x] Automated 86-second video generated and visually inspected at multiple frames.
+- [x] Automated 70.2-second institutional video regenerated from the public
+  challenge and newest finalized receipt, then visually inspected at multiple frames.
+- [x] Fresh 2026-08-05 x402 settlement increased the provider balance exactly,
+  rejected replay and appeared finalized in the public dashboard.
 
 ## Applicant-controlled items
 

@@ -48,3 +48,17 @@ An ephemeral Chromium profile then verified the public dashboard: four finalized
 receipt rows, four Explorer links, English default, no console errors and no
 horizontal overflow. Capture:
 [`artifacts/internal-synthetic-dashboard.png`](../../artifacts/internal-synthetic-dashboard.png).
+
+## Closeout run — 2026-08-05
+
+The disposable `grant-closeout-agent` payer completed one additional public
+devnet purchase. The provider balance increased from 90,000 to 100,000 atomic
+test-USDC units, the protected response returned, replay was rejected with HTTP
+402 and the PostgreSQL receipt reached `finalized`.
+
+Transaction:
+[`3622LW…NUCm8v`](https://explorer.solana.com/tx/3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v?cluster=devnet).
+
+The browser verification then found five finalized rows and five Explorer links,
+with no console errors or horizontal overflow. This remains internal synthetic
+protocol evidence and represents zero external users.
