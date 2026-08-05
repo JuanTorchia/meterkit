@@ -8,11 +8,22 @@ Last executed on **2026-08-05** from the MeterKit repository.
 | `pnpm lint` | Pass |
 | `pnpm typecheck` | Pass |
 | `pnpm build` | Pass |
-| `pnpm test` | Pass — 12 test files, 62/62 tests |
+| `pnpm test` | Pass — 14 test files, 92/92 tests |
 | `pnpm test:e2e` | Pass — 1/1 Playwright flow |
+| `pnpm audit --prod` | Pass — no known vulnerabilities |
+| Trivy gateway/web | Pass — 0 fixable HIGH/CRITICAL findings |
 | Public x402 closeout | Pass — direct +10,000 atomic test-USDC, replay 402, finalized receipt |
 | Public dashboard | Pass — 5 finalized rows, 5 Explorer links, no console errors |
+| Allowances UI | Pass — desktop/mobile, no overflow or console errors |
 | Institutional demo | Pass — H.264, 1280×720, 70.2 seconds |
+
+Exact verified and deployed commit:
+`935b3121306afed7521e92e7f3deba068f1547f4`.
+
+- Final CI: <https://github.com/JuanTorchia/meterkit/actions/runs/30975434095>
+- Final CodeQL: <https://github.com/JuanTorchia/meterkit/actions/runs/30975434109>
+- Latest x402 settlement:
+  <https://explorer.solana.com/tx/5bxnnwYwf49x4Bw54KUjD4NTiCLkPc999wDWGW1X69iUjimnh3bdah6hUksjja6xHeN2QTiwWLexrZ6eAnkaXsfB?cluster=devnet>
 
 ## Test coverage observed
 
@@ -23,10 +34,9 @@ Last executed on **2026-08-05** from the MeterKit repository.
 - allowance, subscription and revocation transaction builders;
 - landing/dashboard non-custodial messaging and payment display.
 
-The first sandboxed test attempt could not open local sockets and returned
-operating-system `EPERM` errors for PostgreSQL and ephemeral HTTP listeners. The
-same unmodified suite was rerun with local socket access and passed 27/27. This
-was an execution-environment restriction rather than a product test failure.
+The final suite ran with PostgreSQL and browser access enabled and passed
+92/92 tests plus 1/1 Playwright flow. Earlier smaller counts remain in the
+historical snapshot and must not be presented as the current baseline.
 
 ## Package exclusions
 

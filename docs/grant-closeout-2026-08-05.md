@@ -9,8 +9,9 @@ The submitted product milestone is technically satisfied when a fresh devnet
 payment completes the protected request, settles directly to the provider,
 rejects replay and appears finalized in the public dashboard.
 
-Result: **passed** on 2026-08-05. Transaction
-[`3622LW…NUCm8v`](https://explorer.solana.com/tx/3622LWHPD3gbURBVbXiq1TfUC7AiZ5jwb1Hr7PfSkq8XqR4SLmxEYEf9BXFVoNCLiUuwGpwWuVsNWVpZGVNUCm8v?cluster=devnet)
+Result: **passed** again on 2026-08-05 from exact commit
+`935b3121306afed7521e92e7f3deba068f1547f4`. Transaction
+[`5bxnnw…kaXsfB`](https://explorer.solana.com/tx/5bxnnwYwf49x4Bw54KUjD4NTiCLkPc999wDWGW1X69iUjimnh3bdah6hUksjja6xHeN2QTiwWLexrZ6eAnkaXsfB?cluster=devnet)
 increased the provider balance by exactly 10,000 atomic test-USDC units. Reuse
 returned HTTP 402 and the indexed receipt reached `finalized`.
 
@@ -26,7 +27,7 @@ KPI remains **three completed external developer integrations**; current count:
 | npm-ready middleware and example | `packages/sdk`, packed integration and `examples/client` | Complete |
 | Hosted devnet API and dashboard | Public Coolify deployment with signed autodeploy | Complete |
 | Paid MCP Project Scout call | Finalized 0.02 test-USDC Explorer receipt | Complete |
-| Critical security tests | 62/62 unit/integration tests, including replay and policy failures | Complete |
+| Critical security tests | 92/92 unit/integration tests, including replay and policy failures | Complete |
 | Allowance and revocation | Fixed allowance created, read, revoked and closed on devnet | Complete |
 | Native subscription lifecycle | Plan, subscribe, pull and cancel finalized on devnet | Complete |
 | Browser QA and short demo | Public dashboard verified; institutional film is 70.2 seconds | Complete |
