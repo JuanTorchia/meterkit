@@ -1,0 +1,25 @@
+name: Documentation improvement
+description: Report unclear, missing or incorrect MeterKit documentation.
+title: "[Docs] "
+labels: ["documentation", "needs-triage"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Page or file
+      placeholder: README.md, docs/pilot-quickstart.md, or a public URL
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What was unclear or incorrect?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Suggested improvement
+      description: Describe what a reader should be able to do after the change.
+    validations:
+      required: true

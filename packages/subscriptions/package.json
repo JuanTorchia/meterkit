@@ -1,7 +1,27 @@
 {
   "name": "@meterkit/subscriptions",
   "version": "0.1.0",
+  "description": "Wallet-controlled Solana allowance and subscription transaction builders for MeterKit",
   "license": "Apache-2.0",
+  "keywords": [
+    "solana",
+    "usdc",
+    "allowances",
+    "subscriptions",
+    "payments"
+  ],
+  "homepage": "https://meterkit.juanchi.dev",
+  "bugs": {
+    "url": "https://github.com/JuanTorchia/meterkit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuanTorchia/meterkit.git",
+    "directory": "packages/subscriptions"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,8 +32,13 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

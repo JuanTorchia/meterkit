@@ -4,6 +4,63 @@ Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 
 [![CI](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/ci.yml)
 [![Public devnet smoke](https://github.com/JuanTorchia/meterkit/actions/workflows/public-demo-smoke.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/public-demo-smoke.yml)
+[![CodeQL](https://github.com/JuanTorchia/meterkit/actions/workflows/codeql.yml/badge.svg)](https://github.com/JuanTorchia/meterkit/actions/workflows/codeql.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
+**Devnet only — do not send mainnet assets.**
+
+MeterKit lets an API or MCP provider set a USDC price, add TypeScript middleware
+and receive payments directly from the client through x402. MeterKit does not
+custody funds or store user private keys.
+
+Its primary agentic use case is giving autonomous clients a bounded, revocable
+USDC budget for paid APIs and MCP tools over standard HTTP.
+
+- [Public devnet dashboard](https://meterkit.juanchi.dev)
+- [Gateway health](https://meterkit-api.juanchi.dev/health)
+- [Contributor guide](CONTRIBUTING.md)
+- [Community plan](docs/community.md)
+- [External pilot quickstart](docs/pilot-quickstart.md)
+- [Security policy](SECURITY.md)
+- [Roadmap](docs/roadmap.md)
+
+## English quickstart
+
+Requirements: Node.js 22+, pnpm 11+ and Docker.
+
+```bash
+git clone https://github.com/JuanTorchia/meterkit.git
+cd meterkit
+corepack enable
+pnpm install --frozen-lockfile
+docker compose up -d
+cp .env.example .env
+pnpm typecheck
+DATABASE_TEST_URL=postgresql://meterkit:meterkit@localhost:5432/meterkit pnpm test
+pnpm dev
+```
+
+An unpaid protected request:
+
+```bash
+curl -i http://localhost:3402/v1/weather/premium
+```
+
+returns an x402 v2 HTTP 402 challenge containing the exact devnet network, USDC
+mint, amount and provider recipient.
+
+The repository includes the SDK and middleware, PostgreSQL receipt index,
+Next.js dashboard, paying example client, Solana Project Scout paid MCP tool,
+native allowance/subscription builders and reproducible security evidence.
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change. Use
+[GitHub Discussions](https://github.com/JuanTorchia/meterkit/discussions) for
+questions and [private vulnerability reporting](SECURITY.md) for security
+issues.
+
+---
+
+## Guía detallada en español
 
 > Estado: **MVP funcional, sólo devnet**. Los flujos x402 HTTP y MCP fueron
 > liquidados y finalizados en devnet. Una allowance limitada fue creada,
@@ -136,6 +193,7 @@ Plan de 30 días: [crear](https://explorer.solana.com/tx/43Pahib7rdLYov3V28iRfbs
 [cobrar 0,01 USDC](https://explorer.solana.com/tx/2pbvy5PC9BmRodop2AfcL1tv6mgssb5fAQr6fR2NdQQCSA4bs7xGSCVAP3QZq4b2u44iydkUXEwwzN3DUyQA32KG?cluster=devnet) ·
 [cancelar](https://explorer.solana.com/tx/2nHxkGEM5bJoFDDBXqcfXH2cBEAgieQdnNjTgi6mauvEmMZ749UPP3NJabVuQspBdjNgmq1rUgAbU7QQ1ktcuidf?cluster=devnet).
 El protocolo expresa el período como 720 horas: 30 días fijos, no mes calendario.
+
 6. Repita el mismo comprobante: debe rechazarse y no volver a ejecutar el handler.
 
 El cliente requiere `SOLANA_PRIVATE_KEY` como arreglo JSON de 64 bytes, sólo en el proceso local. El repositorio ignora `.local-wallets/` y nunca debe recibir keypairs en Git. No se cambia a mainnet sin revisión y autorización explícita.

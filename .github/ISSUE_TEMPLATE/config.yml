@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage questions and ideas
+    url: https://github.com/JuanTorchia/meterkit/discussions
+    about: Ask for help or discuss an idea without opening an implementation issue.
+  - name: Security vulnerability
+    url: https://github.com/JuanTorchia/meterkit/security/advisories/new
+    about: Report vulnerabilities privately. Never disclose wallet or payment secrets.
+  - name: Support guide
+    url: https://github.com/JuanTorchia/meterkit/blob/main/SUPPORT.md
+    about: Choose the correct support and pilot channel.

@@ -1,7 +1,27 @@
 {
   "name": "@meterkit/core",
   "version": "0.1.0",
+  "description": "Strict payment, product and receipt contracts shared by MeterKit packages",
   "license": "Apache-2.0",
+  "keywords": [
+    "solana",
+    "usdc",
+    "x402",
+    "payments",
+    "mcp"
+  ],
+  "homepage": "https://meterkit.juanchi.dev",
+  "bugs": {
+    "url": "https://github.com/JuanTorchia/meterkit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuanTorchia/meterkit.git",
+    "directory": "packages/core"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,11 +31,20 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepack": "pnpm build"
   },
-  "dependencies": { "zod": "^4.0.17" }
+  "dependencies": {
+    "zod": "^4.0.17"
+  }
 }
