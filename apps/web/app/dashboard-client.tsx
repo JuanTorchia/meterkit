@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useConnect, useWallets, type UiWallet, type UiWalletAccount } from "@wallet-standard/react";
 import { getWallets } from "@wallet-standard/app";
 import type { Wallet, WalletAccount } from "@wallet-standard/base";
@@ -13,6 +13,7 @@ import {
 import { buildRevokeDelegationTransaction } from "@meterkit/subscriptions";
 import bs58 from "bs58";
 import { dateLocales, type Locale } from "./locale";
+import { waitForFinalizedSignature } from "./solana-finality";
 
 type Product = {
   id: string; name: string; description: string; resource: string;
@@ -37,15 +38,28 @@ export function WalletButton({ onConnect, locale }: {
 }) {
   const wallets = useWallets();
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [open]);
   if (!wallets.length) return <button className="wallet" disabled>
     {locale === "en" ? "Install a Solana wallet" : locale === "es" ? "Instala una wallet Solana" : "Instale uma carteira Solana"}
   </button>;
   return (
     <div className="walletMenu">
-      <button className="wallet" onClick={() => setOpen((value) => !value)}>
+      <button
+        className="wallet"
+        aria-expanded={open}
+        aria-controls="wallet-options"
+        onClick={() => setOpen((value) => !value)}
+      >
         <span className="dot" /> {locale === "en" ? "Connect wallet" : locale === "es" ? "Conectar wallet" : "Conectar carteira"}
       </button>
-      {open && <div className="walletOptions">
+      {open && <div className="walletOptions" id="wallet-options">
         {wallets.map((wallet) =>
           <WalletOption key={`${wallet.name}:${wallet.version}`} wallet={wallet} onAccount={(account) => {
             const rawWallet = getWallets().get().find((candidate) =>
@@ -109,24 +123,46 @@ export function DashboardClient({ locale }: { locale: Locale }) {
   const [sessionToken, setSessionToken] = useState<string>();
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string>();
+  const refreshSequence = useRef(0);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (signal?: AbortSignal) => {
+    const sequence = ++refreshSequence.current;
     try {
       const path = sessionToken ? "/v1" : "/v1/public";
       const headers = sessionToken ? { authorization: `Bearer ${sessionToken}` } : undefined;
       const [productsResponse, paymentsResponse] = await Promise.all([
-        fetch(`${gateway}${path}/products`, { headers }),
-        fetch(`${gateway}${path}/payments`, { headers }),
+        fetch(`${gateway}${path}/products`, { headers, signal }),
+        fetch(`${gateway}${path}/payments`, { headers, signal }),
       ]);
       if (!productsResponse.ok || !paymentsResponse.ok) throw new Error(locale === "en" ? "Gateway unavailable" : locale === "es" ? "Gateway no disponible" : "Gateway indisponível");
-      setProducts(await productsResponse.json() as Product[]);
-      setPayments(await paymentsResponse.json() as Payment[]);
+      const [nextProducts, nextPayments] = await Promise.all([
+        productsResponse.json() as Promise<Product[]>,
+        paymentsResponse.json() as Promise<Payment[]>,
+      ]);
+      if (sequence !== refreshSequence.current || signal?.aborted) return;
+      setProducts(nextProducts);
+      setPayments(nextPayments);
       setError(undefined);
     } catch (cause) {
+      if (signal?.aborted || sequence !== refreshSequence.current) return;
       setError(cause instanceof Error ? cause.message : locale === "en" ? "Could not read the gateway" : locale === "es" ? "No se pudo leer el gateway" : "Não foi possível acessar o gateway");
     }
   }, [locale, sessionToken]);
-  useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 10_000); return () => clearInterval(timer); }, [refresh]);
+  useEffect(() => {
+    let active: AbortController | undefined;
+    const run = () => {
+      active?.abort();
+      active = new AbortController();
+      void refresh(active.signal);
+    };
+    run();
+    const timer = setInterval(run, 10_000);
+    return () => {
+      clearInterval(timer);
+      active?.abort();
+      refreshSequence.current += 1;
+    };
+  }, [refresh]);
 
   const volume = payments.reduce((sum, payment) => sum + BigInt(payment.amountAtomic), 0n);
   return (
@@ -186,6 +222,7 @@ export function AllowancePanel({ connection, locale }: { connection?: ConnectedW
   const [status, setStatus] = useState(locale === "en" ? "Revoke allowance" : locale === "es" ? "Revocar allowance" : "Revogar allowance");
   useEffect(() => setStatus(locale === "en" ? "Revoke allowance" : locale === "es" ? "Revocar allowance" : "Revogar allowance"), [locale]);
   const [signature, setSignature] = useState<string>();
+  const [pending, setPending] = useState(false);
   return <section className="allowances" id="allowances">
     <div>
       <span className="kicker">{text.payerControl}</span>
@@ -194,6 +231,7 @@ export function AllowancePanel({ connection, locale }: { connection?: ConnectedW
     </div>
     <form onSubmit={async (event) => {
       event.preventDefault();
+      if (pending) return;
       if (!connection) { setStatus(locale === "en" ? "Connect your wallet" : locale === "es" ? "Conecta tu wallet" : "Conecte sua carteira"); return; }
       if (!connection.account.chains.includes(walletDevnet)) {
         setStatus(locale === "en" ? "Switch wallet to devnet" : locale === "es" ? "Cambia la wallet a devnet" : "Mude a carteira para devnet");
@@ -203,10 +241,13 @@ export function AllowancePanel({ connection, locale }: { connection?: ConnectedW
         SolanaSignAndSendTransactionFeature[typeof SolanaSignAndSendTransaction] | undefined;
       if (!feature) { setStatus(locale === "en" ? "Wallet cannot send transactions" : locale === "es" ? "Wallet sin envío de transacciones" : "A carteira não envia transações"); return; }
       setStatus(locale === "en" ? "Preparing…" : locale === "es" ? "Preparando…" : "Preparando…");
+      setPending(true);
+      setSignature(undefined);
       try {
         const response = await fetch(rpcUrl, {
           method: "POST",
           headers: { "content-type": "application/json" },
+          signal: AbortSignal.timeout(10_000),
           body: JSON.stringify({
             jsonrpc: "2.0", id: crypto.randomUUID(),
             method: "getLatestBlockhash", params: [{ commitment: "confirmed" }],
@@ -234,9 +275,13 @@ export function AllowancePanel({ connection, locale }: { connection?: ConnectedW
         if (!result) throw new Error(locale === "en" ? "Wallet did not return a signature" : locale === "es" ? "La wallet no devolvió firma" : "A carteira não retornou uma assinatura");
         const encoded = bs58.encode(result.signature);
         setSignature(encoded);
+        setStatus(locale === "en" ? "Submitted · confirming…" : locale === "es" ? "Enviada · confirmando…" : "Enviada · confirmando…");
+        await waitForFinalizedSignature(encoded, rpcUrl);
         setStatus(locale === "en" ? "Revoked ✓" : locale === "es" ? "Revocada ✓" : "Revogada ✓");
       } catch (cause) {
         setStatus(cause instanceof Error ? cause.message : locale === "en" ? "Could not revoke" : locale === "es" ? "No se pudo revocar" : "Não foi possível revogar");
+      } finally {
+        setPending(false);
       }
     }}>
       <label>{locale === "en" ? "Delegation account" : locale === "es" ? "Cuenta de delegación" : "Conta de delegação"}
@@ -245,11 +290,12 @@ export function AllowancePanel({ connection, locale }: { connection?: ConnectedW
           minLength={32}
           maxLength={44}
           value={delegationAccount}
+          disabled={pending}
           onChange={(event) => setDelegationAccount(event.target.value)}
           placeholder={locale === "en" ? "Delegation account address" : locale === "es" ? "Dirección del delegation account" : "Endereço da conta de delegação"}
         />
       </label>
-      <button type="submit">{status}</button>
+      <button type="submit" disabled={pending} aria-busy={pending}>{status}</button>
       {signature && <a
         href={`https://explorer.solana.com/tx/${encodeURIComponent(signature)}?cluster=devnet`}
         target="_blank"
@@ -266,65 +312,79 @@ function ProductForm({ connection, onClose, onCreated, locale }: {
   locale: Locale;
 }) {
   const [status, setStatus] = useState(locale === "en" ? "Create" : locale === "es" ? "Crear" : "Criar");
+  const [pending, setPending] = useState(false);
+  const labels = locale === "en"
+    ? { id: "Product ID", name: "Product name", description: "Customer result", upstream: "Protected upstream URL", price: "Price in USDC" }
+    : locale === "es"
+      ? { id: "ID del producto", name: "Nombre", description: "Resultado para el cliente", upstream: "URL protegida de origen", price: "Precio en USDC" }
+      : { id: "ID do produto", name: "Nome", description: "Resultado para o cliente", upstream: "URL de origem protegida", price: "Preço em USDC" };
   return <form className="productForm" onSubmit={async (event) => {
-    event.preventDefault(); setStatus(locale === "en" ? "Saving…" : locale === "es" ? "Guardando…" : "Salvando…");
-    const data = new FormData(event.currentTarget);
-    const id = String(data.get("id"));
-    const feature = connection.wallet.features[SolanaSignMessage] as
-      SolanaSignMessageFeature[typeof SolanaSignMessage] | undefined;
-    if (!feature) { setStatus(locale === "en" ? "Wallet cannot sign messages" : locale === "es" ? "Wallet sin firma de mensajes" : "A carteira não assina mensagens"); return; }
-    const product = {
-      id, name: data.get("name"), description: data.get("description"),
-      resource: `${gateway}/v1/products/${encodeURIComponent(id)}/proxy`,
-      upstreamUrl: data.get("upstreamUrl"),
-      priceAtomic: String(Math.round(Number(data.get("price")) * 1_000_000)),
-      assetMint: usdcMint, payTo: connection.account.address, network: devnet,
-    };
-    const idempotencyKey = crypto.randomUUID();
-    const challengeResponse = await fetch(`${gateway}/v1/auth/challenge`, {
-      method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        wallet: connection.account.address,
-        product,
-        idempotencyKey,
-      }),
-    });
-    if (!challengeResponse.ok) { setStatus(locale === "en" ? "Authorization failed" : locale === "es" ? "No se pudo autorizar" : "Não foi possível autorizar"); return; }
-    const challenge = await challengeResponse.json() as { nonce: string; message: string };
-    const [signed] = await feature.signMessage({
-      account: connection.account,
-      message: new TextEncoder().encode(challenge.message),
-    });
-    if (!signed) { setStatus(locale === "en" ? "Signature cancelled" : locale === "es" ? "Firma cancelada" : "Assinatura cancelada"); return; }
-    const response = await fetch(`${gateway}/v1/products`, {
-      method: "POST", headers: {
-        "content-type": "application/json",
-        "Idempotency-Key": idempotencyKey,
-      },
-      body: JSON.stringify({
-        product,
-        auth: {
-          nonce: challenge.nonce,
-          signedMessage: bytesToBase64(signed.signedMessage),
-          signature: bytesToBase64(signed.signature),
-        },
-      }),
-    });
-    if (!response.ok) { setStatus(`Error ${response.status}`); return; }
-    await onCreated(); onClose();
+    event.preventDefault();
+    if (pending) return;
+    setPending(true);
+    setStatus(locale === "en" ? "Saving…" : locale === "es" ? "Guardando…" : "Salvando…");
+    try {
+      const data = new FormData(event.currentTarget);
+      const id = String(data.get("id"));
+      const feature = connection.wallet.features[SolanaSignMessage] as
+        SolanaSignMessageFeature[typeof SolanaSignMessage] | undefined;
+      if (!feature) throw new Error(locale === "en" ? "Wallet cannot sign messages" : locale === "es" ? "Wallet sin firma de mensajes" : "A carteira não assina mensagens");
+      const product = {
+        id, name: data.get("name"), description: data.get("description"),
+        resource: `${gateway}/v1/products/${encodeURIComponent(id)}/proxy`,
+        upstreamUrl: data.get("upstreamUrl"),
+        priceAtomic: String(Math.round(Number(data.get("price")) * 1_000_000)),
+        assetMint: usdcMint, payTo: connection.account.address, network: devnet,
+      };
+      const idempotencyKey = crypto.randomUUID();
+      const challengeResponse = await fetch(`${gateway}/v1/auth/challenge`, {
+        method: "POST", headers: { "content-type": "application/json" },
+        signal: AbortSignal.timeout(15_000),
+        body: JSON.stringify({ wallet: connection.account.address, product, idempotencyKey }),
+      });
+      if (!challengeResponse.ok) throw new Error(locale === "en" ? "Authorization failed" : locale === "es" ? "No se pudo autorizar" : "Não foi possível autorizar");
+      const challenge = await challengeResponse.json() as { nonce: string; message: string };
+      const [signed] = await feature.signMessage({
+        account: connection.account,
+        message: new TextEncoder().encode(challenge.message),
+      });
+      if (!signed) throw new Error(locale === "en" ? "Signature cancelled" : locale === "es" ? "Firma cancelada" : "Assinatura cancelada");
+      const response = await fetch(`${gateway}/v1/products`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "Idempotency-Key": idempotencyKey },
+        signal: AbortSignal.timeout(15_000),
+        body: JSON.stringify({
+          product,
+          auth: {
+            nonce: challenge.nonce,
+            signedMessage: bytesToBase64(signed.signedMessage),
+            signature: bytesToBase64(signed.signature),
+          },
+        }),
+      });
+      if (!response.ok) throw new Error(`Error ${response.status}`);
+      await onCreated();
+      onClose();
+    } catch (cause) {
+      setStatus(cause instanceof Error ? cause.message : locale === "en" ? "Could not create product" : locale === "es" ? "No se pudo crear el producto" : "Não foi possível criar o produto");
+    } finally {
+      setPending(false);
+    }
   }}>
-    <input name="id" required pattern="[a-z0-9-]+" placeholder="premium-weather" />
-    <input name="name" required minLength={3} placeholder="Premium Weather API" />
-    <input name="description" required placeholder={locale === "en" ? "What the customer receives" : locale === "es" ? "Qué obtiene el cliente" : "O que o cliente recebe"} />
-    <input
-      name="upstreamUrl"
-      required
-      type="url"
-      defaultValue="https://api.open-meteo.com/v1/forecast?latitude=-34.6037&longitude=-58.3816&current=temperature_2m"
-      placeholder="https://api.example.com/data"
-    />
-    <input name="price" required type="number" min="0.000001" step="0.000001" defaultValue="0.01" />
-    <button type="submit">{status}</button><button type="button" onClick={onClose}>{locale === "en" ? "Cancel" : locale === "es" ? "Cancelar" : "Cancelar"}</button>
+    <label><span>{labels.id}</span><input name="id" disabled={pending} required pattern="[a-z0-9-]+" placeholder="premium-weather" /></label>
+    <label><span>{labels.name}</span><input name="name" disabled={pending} required minLength={3} placeholder="Premium Weather API" /></label>
+    <label><span>{labels.description}</span><input name="description" disabled={pending} required placeholder={locale === "en" ? "What the customer receives" : locale === "es" ? "Qué obtiene el cliente" : "O que o cliente recebe"} /></label>
+    <label><span>{labels.upstream}</span><input
+        name="upstreamUrl"
+        disabled={pending}
+        required
+        type="url"
+        defaultValue="https://api.open-meteo.com/v1/forecast?latitude=-34.6037&longitude=-58.3816&current=temperature_2m"
+        placeholder="https://api.example.com/data"
+      /></label>
+    <label><span>{labels.price}</span><input name="price" disabled={pending} required type="number" min="0.000001" step="0.000001" defaultValue="0.01" /></label>
+    <button type="submit" disabled={pending} aria-busy={pending}>{status}</button>
+    <button type="button" disabled={pending} onClick={onClose}>{locale === "en" ? "Cancel" : locale === "es" ? "Cancelar" : "Cancelar"}</button>
   </form>;
 }
 

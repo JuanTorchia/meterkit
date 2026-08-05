@@ -1,5 +1,25 @@
 import type { NextConfig } from "next";
 
+function configuredOrigin(value: string | undefined, name: string) {
+  if (!value) return undefined;
+  const url = new URL(value);
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
+    throw new Error(`${name} must be an http(s) URL without embedded credentials`);
+  }
+  return url.origin;
+}
+
+const connectSources = new Set([
+  "'self'",
+  "https://meterkit-api.juanchi.dev",
+  "https://api.devnet.solana.com",
+  "https://cloudflareinsights.com",
+  "http://127.0.0.1:3402",
+  "http://localhost:3402",
+  configuredOrigin(process.env.NEXT_PUBLIC_GATEWAY_URL, "NEXT_PUBLIC_GATEWAY_URL"),
+  configuredOrigin(process.env.NEXT_PUBLIC_SOLANA_RPC_URL, "NEXT_PUBLIC_SOLANA_RPC_URL"),
+].filter((origin): origin is string => Boolean(origin)));
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -7,10 +27,10 @@ const contentSecurityPolicy = [
   "form-action 'self'",
   "object-src 'none'",
   "img-src 'self' data:",
-  "font-src 'self' https://fonts.gstatic.com data:",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data:",
+  "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
-  "connect-src 'self' https://meterkit-api.juanchi.dev https://api.devnet.solana.com https://cloudflareinsights.com http://127.0.0.1:3402 http://localhost:3402",
+  `connect-src ${[...connectSources].join(" ")}`,
 ].join("; ");
 
 const nextConfig: NextConfig = {

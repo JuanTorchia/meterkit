@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AllowancePanel, type ConnectedWallet, WalletButton } from "../../dashboard-client";
-import { isLocale, localeLabels, locales, type Locale } from "../../locale";
+import { localeLabels, locales } from "../../locale";
 import { MobileProductLinks } from "../../product-links";
+import { useLocale } from "../../use-locale";
 
 const copy = {
   en: { badge: "Payer control · Solana Devnet", dashboard: "Provider workspace →", kicker: "AGENT / PAYER CONTROL", title: "Your authorization stays yours.", intro: "Connect the payer wallet to revoke a bounded allowance. MeterKit never receives your seed phrase or private key." },
@@ -13,19 +14,11 @@ const copy = {
 } as const;
 
 export default function AgentAllowancesPage() {
-  const [locale, setLocale] = useState<Locale>("en");
+  const [locale, setLocale] = useLocale();
   const [connection, setConnection] = useState<ConnectedWallet>();
-  useEffect(() => {
-    const saved = localStorage.getItem("meterkit-locale");
-    if (isLocale(saved)) setLocale(saved);
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = locale;
-    localStorage.setItem("meterkit-locale", locale);
-  }, [locale]);
   const text = copy[locale];
 
-  return <main className="workspacePage payerPage">
+  return <main className="workspacePage payerPage" id="main-content">
     <nav className="workspaceNav">
       <Link className="brand" href="/"><span className="mark" aria-hidden="true">M</span> MeterKit</Link>
       <span className="devnetBadge">● {text.badge}</span>

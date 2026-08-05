@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { Locale } from "./locale";
 
 const labels = {
@@ -9,11 +12,14 @@ const labels = {
 
 export function MobileProductLinks({ locale }: { locale: Locale }) {
   const text = labels[locale];
-  return <div className="mobileProductNav" role="navigation" aria-label="Product areas">
-    <Link href="/demo">{text.demo}</Link>
-    <Link href="/pilots">{text.pilots}</Link>
-    <Link href="/dashboard">{text.provider}</Link>
-    <Link href="/agent/allowances">{text.payer}</Link>
+  const pathname = usePathname();
+  const areaLabel = locale === "en" ? "Product areas" : locale === "es" ? "Áreas del producto" : "Áreas do produto";
+  const current = (href: string) => pathname === href ? "page" as const : undefined;
+  return <div className="mobileProductNav" role="navigation" aria-label={areaLabel}>
+    <Link href="/demo" aria-current={current("/demo")}>{text.demo}</Link>
+    <Link href="/pilots" aria-current={current("/pilots")}>{text.pilots}</Link>
+    <Link href="/dashboard" aria-current={current("/dashboard")}>{text.provider}</Link>
+    <Link href="/agent/allowances" aria-current={current("/agent/allowances")}>{text.payer}</Link>
     <a href="https://github.com/JuanTorchia/meterkit/tree/main/examples/mcp-scout"
       target="_blank" rel="noreferrer">{text.scout} ↗</a>
   </div>;

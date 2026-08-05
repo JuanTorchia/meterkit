@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { DashboardClient } from "../dashboard-client";
-import { isLocale, localeLabels, locales, type Locale } from "../locale";
+import { localeLabels, locales } from "../locale";
 import { MobileProductLinks } from "../product-links";
+import { useLocale } from "../use-locale";
 
 const copy = {
   en: { badge: "Public demo · Solana Devnet", demo: "Live demo", controls: "Payer controls", kicker: "PROVIDER WORKSPACE", title: "Products, payments and receipts.", intro: "Before connecting, this workspace shows public devnet demo data. Connect to manage only the products and payments owned by your wallet. Signing in is free and does not authorize a payment." },
@@ -13,17 +13,9 @@ const copy = {
 } as const;
 
 export default function DashboardPage() {
-  const [locale, setLocale] = useState<Locale>("en");
-  useEffect(() => {
-    const saved = localStorage.getItem("meterkit-locale");
-    if (isLocale(saved)) setLocale(saved);
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = locale;
-    localStorage.setItem("meterkit-locale", locale);
-  }, [locale]);
+  const [locale, setLocale] = useLocale();
   const text = copy[locale];
-  return <main className="workspacePage">
+  return <main className="workspacePage" id="main-content">
     <nav className="workspaceNav">
       <Link className="brand" href="/"><span className="mark" aria-hidden="true">M</span> MeterKit</Link>
       <span className="devnetBadge">● {text.badge}</span>

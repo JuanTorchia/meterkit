@@ -26,6 +26,7 @@ MeterKit nunca custodia USDC, seed phrases ni claves privadas. Los activos son: 
 | Autorización retenida | bloquehash reciente; no usar durable nonce por defecto; cancelar propuestas | procedimiento |
 | Lectura entre tenants | sesión firmada, token hasheado, expiración y consultas SQL por `owner_wallet` | integración PostgreSQL |
 | SSRF desde un producto | HTTPS, allowlist exacta, sin IP/puerto/credenciales/redirects, JSON y límite 1 MB | `upstream.test.ts` |
+| SSRF desde el verificador de pilotos | sólo HTTPS público; bloqueo de IP literal y DNS privado/link-local/reservado; sin redirects; localhost sólo con opt-in explícito | `packages/pilot/src/index.test.ts` |
 
 ## Particularidades de Subscriptions
 
@@ -50,3 +51,7 @@ El dashboard serializa la revocación localmente y la entrega a Wallet Standard 
 - Los challenges de autenticación de wallet viven en memoria. Son seguros para una réplica, pero el servicio alojado debe moverlos a Redis/PostgreSQL.
 - La ejecución real se verificó con wallets desechables y fondos exclusivamente devnet; no se incluyen claves.
 - El proveedor debe tener un ATA del mint USDC antes del primer cobro. Su creación es pública y no requiere la clave del proveedor, pero sí SOL devnet del fee payer.
+- El precheck DNS del CLI y la conexión HTTPS son operaciones separadas. HTTPS
+  reduce los objetivos prácticos de DNS rebinding, pero el transporte todavía no
+  fija la IP validada. El CLI beta debe usarse sólo con endpoints elegidos por el
+  desarrollador y nunca con URLs provenientes de PRs o configuración no confiable.

@@ -1,12 +1,16 @@
 name: MeterKit devnet pilot report
-description: Record a completed external middleware test without sharing keys or personal data.
+description: Record a completed external integration without sharing wallet secrets or private endpoint URLs.
 title: "[Pilot] "
 labels: ["pilot"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for testing MeterKit. Never paste a seed phrase, private key, session token, `.env`, or mainnet transaction here.
+        This is a **public GitHub issue**. Your GitHub handle and everything you submit will be public even if you choose aggregate-only citation below.
+
+        Never paste a seed phrase, private key, session token, `.env`, payment header, private response body, internal URL, or mainnet transaction. Use only Solana devnet and test assets. Read the [pilot evidence and privacy guide](https://github.com/JuanTorchia/meterkit/blob/main/docs/pilot-evidence.md) before submitting.
+
+        This form is a structured participant self-report. It is reviewed for internal consistency but does not constitute an independent audit of endpoint ownership or production use.
   - type: dropdown
     id: project
     attributes:
@@ -19,28 +23,99 @@ body:
         - Other developer tool
     validations:
       required: true
-  - type: checkboxes
-    id: readiness
+  - type: input
+    id: start_issue
     attributes:
-      label: Readiness check
+      label: Pilot start issue
+      description: URL of the public MeterKit pilot-start issue created before integration. This supplies the shared start timestamp and funnel denominator.
+      placeholder: https://github.com/JuanTorchia/meterkit/issues/...
+    validations:
+      required: true
+  - type: dropdown
+    id: modality
+    attributes:
+      label: Pilot modality
       options:
-        - label: I ran `pnpm pilot:check` successfully.
+        - Self-service
+        - Guided session
+        - Self-service with asynchronous support
+    validations:
+      required: true
+  - type: input
+    id: support
+    attributes:
+      label: Support interventions
+      description: Number of calls, chats, or maintainer unblockings required after you started.
+      placeholder: "0"
+    validations:
+      required: true
+  - type: checkboxes
+    id: ownership
+    attributes:
+      label: Endpoint ownership and safety
+      options:
+        - label: I integrated MeterKit into an endpoint or MCP tool that I control.
           required: true
         - label: I used only Solana devnet and test assets.
           required: true
-        - label: I did not share a private key or seed phrase with MeterKit.
+        - label: I did not share a private key, seed phrase, or other wallet secret with MeterKit.
           required: true
+  - type: input
+    id: endpoint_fingerprint
+    attributes:
+      label: Endpoint fingerprint
+      description: SHA-256 of the canonical endpoint URL. Do not publish a private URL. Instructions are in docs/pilot-evidence.md.
+      placeholder: "64 lowercase hexadecimal characters"
+    validations:
+      required: true
+  - type: input
+    id: sdk_version
+    attributes:
+      label: MeterKit SDK version or commit
+      description: Package version, packed artifact version, or full Git commit used by the host project.
+      placeholder: "@meterkit/sdk 0.1.0 or full commit SHA"
+    validations:
+      required: true
+  - type: input
+    id: host_changes
+    attributes:
+      label: Approximate host-project lines changed
+      description: Approximate application and configuration lines added or changed for MeterKit; exclude lockfiles and generated files.
+      placeholder: "12"
+    validations:
+      required: true
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Endpoint policy verification
+      options:
+        - label: I ran `pnpm pilot:verify -- --config meterkit-pilot.json --out pilot-report.json` against my endpoint and it passed.
+          required: true
+        - label: "The report shows `enforced: true` for network, mint, recipient, and maximum amount."
+          required: true
+        - label: I reviewed the report locally and did not publish a private endpoint URL.
+          required: true
+  - type: input
+    id: challenge_fingerprint
+    attributes:
+      label: Challenge fingerprint
+      description: SHA-256 of the decoded PAYMENT-REQUIRED JSON, calculated before payment. Never paste the payment header itself.
+      placeholder: "64 lowercase hexadecimal characters"
+    validations:
+      required: true
   - type: input
     id: first402
     attributes:
-      label: Minutes to first HTTP 402
+      label: Minutes from start to first HTTP 402
+      description: Start is immediately before installing or adding MeterKit to the host project.
       placeholder: "5"
     validations:
       required: true
   - type: input
     id: settlement
     attributes:
-      label: Minutes to first devnet settlement
+      label: Minutes from start to first devnet settlement
+      description: Use the same start event as the previous field.
       placeholder: "20"
     validations:
       required: true
@@ -48,24 +123,63 @@ body:
     id: explorer
     attributes:
       label: Devnet Explorer transaction
-      description: Public devnet transaction only; never submit a mainnet transaction for this pilot.
+      description: Public devnet transaction only. The URL must include `cluster=devnet`; never submit a mainnet transaction.
       placeholder: https://explorer.solana.com/tx/...?cluster=devnet
     validations:
       required: true
-  - type: checkboxes
-    id: replay
+  - type: input
+    id: receipt
     attributes:
-      label: Security behavior
+      label: Request or receipt correlation ID
+      description: A non-secret request ID, receipt ID, or locally generated opaque correlation ID that links the settlement, protected response, and replay attempt.
+      placeholder: "Public non-secret ID; do not paste a payment proof"
+    validations:
+      required: true
+  - type: input
+    id: replay_result
+    attributes:
+      label: Replay rejection result
+      description: HTTP status and public error code only, for example `402 payment_replayed`. Do not paste headers or response bodies containing secrets.
+      placeholder: "HTTP status and error code"
+    validations:
+      required: true
+  - type: checkboxes
+    id: completion
+    attributes:
+      label: Completed flow
       options:
-        - label: Reusing the same payment proof was rejected.
+        - label: The protected response was returned only after settlement.
           required: true
-        - label: The provider received test USDC directly.
+        - label: The provider received test USDC directly in the recipient configured in `pilot-report.json`.
+          required: true
+        - label: The Explorer transaction, correlation ID, and challenge fingerprint refer to this same pilot flow.
+          required: true
+        - label: Reusing the same payment proof was rejected and did not execute the protected handler again.
           required: true
   - type: textarea
     id: friction
     attributes:
-      label: Where did you get stuck?
-      description: Include commands or public error messages, but redact paths, tokens and wallet secrets.
+      label: Friction and failed stages
+      description: Include the stage, commands, and public error codes. Redact local paths, URLs, tokens, headers, responses, and wallet secrets. Write `None` if there was no friction.
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Immediate outcome
+      options:
+        - Kept the integration enabled for further devnet testing
+        - Completed the proof and removed the integration
+        - Completed with unresolved limitations
+    validations:
+      required: true
+  - type: dropdown
+    id: retention
+    attributes:
+      label: May maintainers request a seven-day retention update?
+      options:
+        - Yes, ask in this public issue
+        - No follow-up
     validations:
       required: true
   - type: dropdown
@@ -82,10 +196,11 @@ body:
   - type: dropdown
     id: consent
     attributes:
-      label: Evidence consent
+      label: Citation consent
+      description: The issue remains public under every option. This controls only how MeterKit may cite it elsewhere.
       options:
-        - Anonymous aggregate only
-        - Public GitHub handle and result
-        - Do not cite outside this issue
+        - Aggregate metrics only; do not quote or name me elsewhere
+        - May cite my public GitHub handle and result
+        - Do not cite this issue outside GitHub
     validations:
       required: true

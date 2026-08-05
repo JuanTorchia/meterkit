@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { PaymentFlowVisual } from "./payment-flow-visual";
-import { isLocale, localeLabels, locales, type Locale } from "./locale";
+import { localeLabels, locales, type Locale } from "./locale";
 import { MobileProductLinks } from "./product-links";
+import { useLocale } from "./use-locale";
 
 const copy = {
   en: {
@@ -64,18 +64,10 @@ const copy = {
 } as const;
 
 export default function Home() {
-  const [locale, setLocale] = useState<Locale>("en");
-  useEffect(() => {
-    const saved = localStorage.getItem("meterkit-locale");
-    if (isLocale(saved)) setLocale(saved);
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = locale;
-    localStorage.setItem("meterkit-locale", locale);
-  }, [locale]);
+  const [locale, setLocale] = useLocale();
   const text = copy[locale];
 
-  return <main>
+  return <main id="main-content">
     <MarketingNav locale={locale} setLocale={setLocale} text={text} />
     <section className="newHero">
       <div className="newHeroCopy">

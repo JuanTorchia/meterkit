@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { isLocale, localeLabels, locales, type Locale } from "../locale";
+import { useRef, useState } from "react";
+import { localeLabels, locales } from "../locale";
 import { MobileProductLinks } from "../product-links";
+import { useLocale } from "../use-locale";
 
 const gateway = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:3402";
 const expectedProduct = "premium-weather";
@@ -24,8 +25,8 @@ const copy = {
     perRequest: "test USDC\nper request", paidTo: "Paid directly to",
     agent: "AI AGENT / CUSTOMER", console: "Request console", run: "Run live request", sent: "Request sent",
     calling: "Calling the protected endpoint…", required: "PAYMENT REQUIRED", recipient: "recipient",
-    proof: "Show correlated receipt →", validating: "Loading matching public evidence…",
-    checks: ["Live 402: network, mint, amount and recipient", "Previously signed by a synthetic devnet wallet", "Previously finalized receipt matched to this product"],
+    proof: "Show matching public receipt →", validating: "Loading matching public evidence…",
+    checks: ["Live 402 fields present; devnet network validated", "Previously signed by a synthetic devnet wallet", "Finalized receipt matches product, amount and network"],
     responseLabel: "PROTECTED RESPONSE ILLUSTRATION", response: "21°C · Buenos Aires",
     responseDetail: "Example payload · no request was unlocked in this playback",
     receipt: "Previously finalized receipt", reset: "Start again",
@@ -40,8 +41,8 @@ const copy = {
     perRequest: "USDC de prueba\npor solicitud", paidTo: "Pago directo a",
     agent: "AGENTE IA / CLIENTE", console: "Consola de solicitud", run: "Ejecutar solicitud", sent: "Solicitud enviada",
     calling: "Consultando el endpoint protegido…", required: "PAGO REQUERIDO", recipient: "destinatario",
-    proof: "Mostrar recibo correlacionado →", validating: "Buscando evidencia pública coincidente…",
-    checks: ["402 en vivo: red, mint, monto y destinatario", "Firmado previamente por una wallet sintética de devnet", "Recibo previamente finalizado y asociado al producto"],
+    proof: "Mostrar recibo público coincidente →", validating: "Buscando evidencia pública coincidente…",
+    checks: ["Campos 402 presentes; red devnet validada", "Firmado previamente por una wallet sintética de devnet", "Recibo finalizado coincide en producto, monto y red"],
     responseLabel: "ILUSTRACIÓN DE RESPUESTA PROTEGIDA", response: "21°C · Buenos Aires",
     responseDetail: "Payload de ejemplo · este playback no desbloqueó una solicitud",
     receipt: "Recibo previamente finalizado", reset: "Comenzar otra vez",
@@ -56,8 +57,8 @@ const copy = {
     perRequest: "USDC de teste\npor requisição", paidTo: "Pagamento direto para",
     agent: "AGENTE DE IA / CLIENTE", console: "Console da requisição", run: "Executar requisição", sent: "Requisição enviada",
     calling: "Consultando o endpoint protegido…", required: "PAGAMENTO NECESSÁRIO", recipient: "destinatário",
-    proof: "Mostrar recibo correlacionado →", validating: "Buscando evidência pública correspondente…",
-    checks: ["402 ao vivo: rede, mint, valor e destinatário", "Assinado anteriormente por uma carteira sintética de devnet", "Recibo previamente finalizado e associado ao produto"],
+    proof: "Mostrar recibo público correspondente →", validating: "Buscando evidência pública correspondente…",
+    checks: ["Campos 402 presentes; rede devnet validada", "Assinado anteriormente por uma carteira sintética de devnet", "Recibo finalizado corresponde a produto, valor e rede"],
     responseLabel: "ILUSTRAÇÃO DA RESPOSTA PROTEGIDA", response: "21°C · Buenos Aires",
     responseDetail: "Payload de exemplo · este playback não desbloqueou uma requisição",
     receipt: "Recibo previamente finalizado", reset: "Começar novamente",
@@ -67,22 +68,13 @@ const copy = {
 } as const;
 
 export default function DemoPage() {
-  const [locale, setLocale] = useState<Locale>("en");
+  const [locale, setLocale] = useLocale();
   const [phase, setPhase] = useState<Phase>("idle");
   const [requirement, setRequirement] = useState<Requirement>();
   const [receipt, setReceipt] = useState<Receipt>();
   const [error, setError] = useState("");
   const statusRef = useRef<HTMLDivElement>(null);
   const text = copy[locale];
-
-  useEffect(() => {
-    const saved = localStorage.getItem("meterkit-locale");
-    if (isLocale(saved)) setLocale(saved);
-  }, []);
-  useEffect(() => {
-    document.documentElement.lang = locale;
-    localStorage.setItem("meterkit-locale", locale);
-  }, [locale]);
 
   const run = async () => {
     setError(""); setReceipt(undefined); setRequirement(undefined); setPhase("requesting");
@@ -130,7 +122,7 @@ export default function DemoPage() {
   const reset = () => { setPhase("idle"); setError(""); setReceipt(undefined); setRequirement(undefined); };
   const started = phase !== "idle" && phase !== "requesting";
 
-  return <main className="demoPage">
+  return <main className="demoPage" id="main-content">
     <nav className="demoNav">
       <Link className="brand" href="/"><span className="mark" aria-hidden="true">M</span> MeterKit</Link>
       <span className="devnetBadge">● {text.badge}</span>

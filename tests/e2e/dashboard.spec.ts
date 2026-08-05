@@ -32,7 +32,7 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   await expect(page.getByText("0.01 test USDC")).toBeVisible();
   await expect(page.getByText(/recipient 7NXuBz/)).toBeVisible();
   await page.route("**/v1/public/payments", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
-  await page.getByRole("button", { name: /Show correlated receipt/ }).click();
+  await page.getByRole("button", { name: /Show matching public receipt/ }).click();
   await expect(page.locator(".demoError")).toContainText("No finalized receipt matches");
   await expect(page.getByRole("button", { name: /^Retry/ })).toBeEnabled();
   await expect(page.getByText("Wallet signed locally")).toHaveCount(0);
@@ -66,9 +66,13 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   await page.goto("/agent/allowances");
   await expect(page.getByRole("heading", { name: "Your authorization stays yours." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Revoke an authorization." })).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/pilots");
   await expect(page.getByRole("heading", { name: "Verify your first paid endpoint without sharing a key." })).toBeVisible();
   await expect(page.getByText("meterkit-pilot.json", { exact: false }).first()).toBeVisible();
+  await expect(page).toHaveTitle("External developer pilot | MeterKit");
+  await expect(page.getByRole("button", { name: /^Copy:/ })).toHaveCount(3);
+  await page.screenshot({ path: "artifacts/pilots-desktop.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
   await expect(page.getByRole("navigation", { name: "Product areas" }).getByRole("link", { name: "Pilots" })).toBeVisible();

@@ -1,0 +1,54 @@
+name: MeterKit pilot start
+description: Register the start of an external devnet integration so incomplete and completed attempts are measured.
+title: "[Pilot start] "
+labels: ["pilot", "pilot-start"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a **public GitHub issue**. Do not include endpoint URLs, keys, seed phrases, `.env` contents, payment proofs, private response data or mainnet transactions.
+
+        Opening this form records the common start time for funnel measurement. It is not evidence of a completed pilot.
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project category
+      options:
+        - HTTP API
+        - MCP server
+        - AI agent or automation
+        - Data service
+        - Other developer tool
+    validations:
+      required: true
+  - type: dropdown
+    id: modality
+    attributes:
+      label: Pilot modality
+      options:
+        - Self-service
+        - Guided session
+        - Self-service with asynchronous public support
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope acknowledgement
+      options:
+        - label: I control the test endpoint or MCP tool being integrated.
+          required: true
+        - label: I will use only Solana devnet and test assets.
+          required: true
+        - label: I understand that this start record and my GitHub handle are public.
+          required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Starting point
+      options:
+        - No x402 integration yet
+        - Existing endpoint already returns HTTP 402
+        - Existing x402 endpoint, evaluating MeterKit middleware
+    validations:
+      required: true

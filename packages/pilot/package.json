@@ -3,6 +3,22 @@
   "version": "0.1.0",
   "description": "Self-service x402 endpoint verifier for MeterKit pilots",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JuanTorchia/meterkit.git",
+    "directory": "packages/pilot"
+  },
+  "homepage": "https://github.com/JuanTorchia/meterkit/tree/main/packages/pilot#readme",
+  "bugs": {
+    "url": "https://github.com/JuanTorchia/meterkit/issues"
+  },
   "type": "module",
   "bin": {
     "meterkit-pilot": "./dist/cli.js"

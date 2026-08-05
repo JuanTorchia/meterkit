@@ -1,0 +1,10 @@
+{
+  "endpoint": "https://meterkit-api.juanchi.dev/v1/weather/premium",
+  "policy": {
+    "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+    "mint": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+    "maxAmountAtomic": "10000",
+    "recipient": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
+    "allowLocalhost": false
+  }
+}

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "meterkit-external-endpoint-readiness",
   "passed": true,
-  "checkedAt": "2026-08-05T01:29:58.354Z",
+  "checkedAt": "2026-08-05T01:59:27.926Z",
   "endpoint": "https://meterkit-api.juanchi.dev/v1/weather/premium",
   "checks": [
     {
@@ -28,35 +28,62 @@
       }
     },
     {
+      "name": "payment scheme is exact",
+      "ok": true,
+      "evidence": {
+        "actual": "exact"
+      }
+    },
+    {
+      "name": "network is supported Solana devnet",
+      "ok": true,
+      "evidence": {
+        "expected": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+        "actual": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+      }
+    },
+    {
+      "name": "asset is supported devnet USDC",
+      "ok": true,
+      "evidence": {
+        "expected": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+        "actual": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+      }
+    },
+    {
       "name": "network matches policy",
       "ok": true,
       "evidence": {
+        "expected": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
         "actual": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-        "enforced": false
+        "enforced": true
       }
     },
     {
       "name": "USDC mint matches policy",
       "ok": true,
       "evidence": {
+        "expected": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
         "actual": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-        "enforced": false
+        "enforced": true
       }
     },
     {
       "name": "recipient matches policy",
       "ok": true,
       "evidence": {
+        "expected": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
         "actual": "9a4xvgAdtPxJf7eifkCTpUwwqd8Q8u8L6QJzwCCeaiR5",
-        "enforced": false
+        "enforced": true
       }
     },
     {
       "name": "amount is within policy",
       "ok": true,
       "evidence": {
+        "maximumAtomic": "10000",
         "amountAtomic": "10000",
-        "enforced": false
+        "enforced": true
       }
     }
   ],
