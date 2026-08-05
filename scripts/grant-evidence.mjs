@@ -68,7 +68,13 @@ run("public devnet health and x402 challenge", "pnpm", ["pilot:check"]);
 if (process.env.SOLANA_PRIVATE_KEY && process.env.MERCHANT_WALLET) {
   run("live x402 devnet settlement and replay", "pnpm", [
     "--filter", "@meterkit/example-client", "verify:devnet",
-  ]);
+  ], {
+    env: {
+      GATEWAY_URL: process.env.GATEWAY_URL ??
+        process.env.METERKIT_GATEWAY_URL ??
+        "https://meterkit-api.juanchi.dev",
+    },
+  });
 } else {
   checks.push({
     name: "live x402 devnet settlement and replay",
