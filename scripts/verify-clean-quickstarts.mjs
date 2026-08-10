@@ -22,6 +22,7 @@ function run(command, args, cwd) {
     cwd,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    timeout: 120_000,
   });
 }
 
@@ -164,6 +165,7 @@ try {
 
   for (const manager of managers) {
     for (const surface of surfaces) {
+      process.stderr.write(`checking ${manager}/${surface}\n`);
       const project = join(temporary, `${manager}-${surface}`);
       run(
         binary,
@@ -178,13 +180,27 @@ try {
         "@usemeterkit/sdk": `file:${sdkPack}`,
       };
       manifest.overrides = { "@usemeterkit/core": `file:${corePack}` };
-      manifest.resolutions = { "@usemeterkit/core": `file:${corePack}` };
       manifest.pnpm = {
         overrides: { "@usemeterkit/core": `file:${corePack}` },
       };
+      manifest.resolutions = { "@usemeterkit/core": `file:${corePack}` };
       writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      for (const generatedInstallArtifact of [
+        "node_modules",
+        "pnpm-lock.yaml",
+        "package-lock.json",
+        "yarn.lock",
+        "bun.lock",
+        "bun.lockb",
+      ]) {
+        rmSync(join(project, generatedInstallArtifact), {
+          recursive: true,
+          force: true,
+        });
+      }
       install(project, manager);
       await exercise(project, surface);
+      process.stderr.write(`passed ${manager}/${surface}\n`);
       results.push({ manager, surface, unpaidStatus: 402 });
     }
   }
