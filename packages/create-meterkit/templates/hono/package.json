@@ -7,7 +7,7 @@
     "check:unpaid": "curl -i http://localhost:3000/premium"
   },
   "dependencies": {
-    "@usemeterkit/sdk": "0.1.0",
+    "@usemeterkit/sdk": "0.2.0",
     "hono": "4.13.0",
     "@hono/node-server": "2.1.0"
   },

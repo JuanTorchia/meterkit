@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createInitializerPlan } from "./plan.js";
 import { writeInitializerPlan } from "./write.js";
 
-export const CREATE_METERKIT_VERSION = "0.1.0";
+export const CREATE_METERKIT_VERSION = "0.2.0";
 
 interface CliArguments {
   directory: string;

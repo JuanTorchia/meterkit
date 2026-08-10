@@ -7,7 +7,7 @@
     "check:unpaid": "curl -i http://localhost:3000/premium"
   },
   "dependencies": {
-    "@usemeterkit/sdk": "0.1.0",
+    "@usemeterkit/sdk": "0.2.0",
     "express": "5.1.0"
   },
   "devDependencies": {

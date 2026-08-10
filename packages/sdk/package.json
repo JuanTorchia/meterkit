@@ -1,6 +1,6 @@
 {
   "name": "@usemeterkit/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Non-custodial x402 USDC middleware for APIs and MCP tools on Solana",
   "license": "Apache-2.0",
   "keywords": [

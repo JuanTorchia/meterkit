@@ -87,9 +87,9 @@ try {
     command("pnpm", ["--filter", filter, "build"]);
     command("pnpm", ["--filter", filter, "pack", "--pack-destination", packs]);
   }
-  const corePack = join(packs, "usemeterkit-core-0.1.0.tgz");
-  const sdkPack = join(packs, "usemeterkit-sdk-0.1.0.tgz");
-  const initializerPack = join(packs, "create-meterkit-0.1.0.tgz");
+  const corePack = join(packs, "usemeterkit-core-0.2.0.tgz");
+  const sdkPack = join(packs, "usemeterkit-sdk-0.2.0.tgz");
+  const initializerPack = join(packs, "create-meterkit-0.2.0.tgz");
   const tool = join(temporary, "tool");
   await mkdir(tool);
   await writeFile(

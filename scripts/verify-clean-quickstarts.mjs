@@ -15,6 +15,7 @@ const root = resolve(import.meta.dirname, "..");
 const temporary = mkdtempSync(join(dirname(root), ".meterkit-clean-"));
 const surfaces = ["express", "next-route", "hono", "mcp"];
 const managers = ["pnpm", "npm", "yarn", "bun"];
+const candidateVersion = "0.2.0";
 const merchantWallet = "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE";
 
 function run(command, args, cwd) {
@@ -37,7 +38,7 @@ function pack(filter, destination) {
     filter === "create-meterkit"
       ? "create-meterkit"
       : filter.replace("@", "").replace("/", "-");
-  return join(destination, `${name}-0.1.0.tgz`);
+  return join(destination, `${name}-${candidateVersion}.tgz`);
 }
 
 async function waitForStatus(url, expected, child, diagnostics = () => "") {

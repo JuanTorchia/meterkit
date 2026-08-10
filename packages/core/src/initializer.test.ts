@@ -3,13 +3,13 @@ import { initializerPlanSchema } from "./initializer.js";
 
 const plan = {
   schemaVersion: 1,
-  initializerVersion: "0.1.0",
+  initializerVersion: "0.2.0",
   surface: "express",
   targetDirectory: "/tmp/weather-api",
   packageManager: "pnpm",
   network: "solana-devnet",
   files: [{ path: "src/server.ts", fingerprint: `sha256:${"a".repeat(64)}` }],
-  dependencies: { "@usemeterkit/sdk": "0.1.0" },
+  dependencies: { "@usemeterkit/sdk": "0.2.0" },
   environmentKeys: ["MERCHANT_WALLET", "SOLANA_RPC_URL"],
   warnings: ["TEST_ASSETS_REQUIRED"],
 } as const;

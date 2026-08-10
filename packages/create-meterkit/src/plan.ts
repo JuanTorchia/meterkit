@@ -9,7 +9,7 @@ import {
   type InitializerPlan,
 } from "@usemeterkit/core";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const TEMPLATE_ROOT = fileURLToPath(new URL("../templates", import.meta.url));
 
 export interface InitializerOptions {
@@ -81,7 +81,7 @@ export async function createInitializerPlan(
       packageManager,
       network: "solana-devnet",
       files,
-      dependencies: { "@usemeterkit/sdk": "0.1.0" },
+      dependencies: { "@usemeterkit/sdk": "0.2.0" },
       environmentKeys: ["MERCHANT_WALLET", "SOLANA_RPC_URL"],
       warnings: ["DEVNET_ONLY", "DO_NOT_USE_PRIVATE_KEYS"],
     });
