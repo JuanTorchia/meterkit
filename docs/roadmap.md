@@ -19,7 +19,7 @@ transacciones del equipo como adopción externa.
 - [x] Crear/listar/revocar allowances desde el dashboard.
 - [x] Fijar Actions e imágenes y añadir CodeQL, SBOM y Trivy.
 - [x] Añadir `pnpm evidence:grant`.
-- [ ] Migrar namespace global a UUID + slug por owner antes de alta pública abierta.
+- [x] Migrar namespace global a UUID + slug por owner antes de alta pública abierta.
 - [ ] Obtener 3–5 pilotos externos; no sustituirlos con agentes internos.
 
 ## P0 — recorrido cobrable
@@ -75,9 +75,10 @@ independientes puedan evaluar sin asistencia constante.
 
 ### Entregables
 
-- Publicar `@meterkit/sdk` y `@meterkit/core` con versiones reproducibles.
-- Incorporar UUID interno y namespace `owner/slug` antes del alta pública abierta.
-- Crear un quickstart que llegue al primer HTTP 402 en menos de 10 minutos.
+- Publicar `@meterkit/sdk` y `@meterkit/core` con versiones reproducibles
+  (empaquetado y trusted-publishing implementados; publicación npm pendiente).
+- [x] Incorporar UUID interno y namespace `owner/slug` antes del alta pública abierta.
+- [x] Crear un quickstart que llegue al primer HTTP 402 en menos de 10 minutos.
 - Integrar MeterKit en la aplicación privada que originó la necesidad, utilizando
   exclusivamente la interfaz pública del SDK y sin atajos internos.
 - Ejecutar tres pilotos externos con wallets distintas.
