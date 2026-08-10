@@ -6,29 +6,30 @@ MeterKit nunca custodia USDC, seed phrases ni claves privadas. Los activos son: 
 
 ## Amenazas y controles
 
-| Amenaza | Control | Prueba |
-|---|---|---|
-| Reutilizar pago | firma única y almacenamiento atómico; conflicto 409 | `sdk.test.ts` |
-| Monto insuficiente | requisitos exactos y delta onchain exacto antes de servir | test RPC de monto |
-| Mint o receptor falsos | balances pre/post RPC deben coincidir con mint y owner configurados | tests RPC mint/receptor |
-| Red equivocada | sólo CAIP-2 devnet en MVP; mainnet no se acepta | test de red |
-| Autorización expirada | `maxTimeoutSeconds=300`; facilitador simula y valida bloquehash | test expiración |
-| Doble ejecución concurrente | constraint único en DB y operación transaccional | carrera real PostgreSQL |
-| Repetición de alta HTTP | `Idempotency-Key`, hash del request y respuesta persistida | integración DB |
-| Alta con wallet ajena o firma reutilizada | challenge Ed25519 ligado a dominio, método, ruta, hash del producto e idempotency key; nonce de un solo uso y expiración de 5 minutos | `wallet-auth.test.ts` |
-| Recibo MCP reutilizado tras reinicio | validación RPC independiente y claim atómico persistente por hash SHA-256 | `receipt-guard.test.ts` |
-| Transacción confirmada caída | sólo un error onchain explícito pasa a `failed`; ausencia RPC queda recuperable y existe fallback opcional | `finality.test.ts` |
-| Logs sensibles | nunca registrar payload, firma completa, header ni variables secretas | revisión |
-| Abuso de endpoint | límite por IP, body 32 KiB, validación Zod | integración |
-| Facilitador comprometido | revalidar transacción, error y balances token por RPC antes del handler | tests SDK |
-| Allowance excesiva | monto máximo, vencimiento obligatorio, copy de riesgo y revocación | unitario |
-| Revocación en red equivocada | UI exige `solana:devnet`, blockhash RPC devnet y no acepta fallback mainnet | builder/UI |
-| Autorización retenida | bloquehash reciente; no usar durable nonce por defecto; cancelar propuestas | procedimiento |
-| Lectura entre tenants | sesión firmada, token hasheado, expiración y consultas SQL por `owner_wallet` | integración PostgreSQL |
-| SSRF desde un producto | HTTPS, allowlist exacta, sin IP/puerto/credenciales/redirects, JSON y límite 1 MB | `upstream.test.ts` |
-| SSRF desde el verificador de pilotos | sólo HTTPS público; bloqueo de IP literal y DNS privado/link-local/reservado; sin redirects; localhost sólo con opt-in explícito | `packages/pilot/src/index.test.ts` |
-| Challenge perdido/reutilizado entre réplicas | hash en PostgreSQL, consumo atómico, expiración, máximo por wallet y limpieza horaria | `wallet-auth.test.ts`, integración DB |
-| Escape del scope del agente | origen/puerto/ruta normalizados; exact match por defecto y subrutas sólo con frontera explícita | `examples/client/src/index.test.ts` |
+| Amenaza                                      | Control                                                                                                                               | Prueba                                |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| Reutilizar pago                              | firma única y almacenamiento atómico; conflicto 409                                                                                   | `sdk.test.ts`                         |
+| Monto insuficiente                           | requisitos exactos y delta onchain exacto antes de servir                                                                             | test RPC de monto                     |
+| Mint o receptor falsos                       | balances pre/post RPC deben coincidir con mint y owner configurados                                                                   | tests RPC mint/receptor               |
+| Red equivocada                               | sólo CAIP-2 devnet en MVP; mainnet no se acepta                                                                                       | test de red                           |
+| Autorización expirada                        | `maxTimeoutSeconds=300`; facilitador simula y valida bloquehash                                                                       | test expiración                       |
+| Doble ejecución concurrente                  | constraint único en DB y operación transaccional                                                                                      | carrera real PostgreSQL               |
+| Repetición de alta HTTP                      | `Idempotency-Key`, hash del request y respuesta persistida                                                                            | integración DB                        |
+| Alta con wallet ajena o firma reutilizada    | challenge Ed25519 ligado a dominio, método, ruta, hash del producto e idempotency key; nonce de un solo uso y expiración de 5 minutos | `wallet-auth.test.ts`                 |
+| Recibo MCP reutilizado tras reinicio         | validación RPC independiente y claim atómico persistente por hash SHA-256                                                             | `receipt-guard.test.ts`               |
+| Transacción confirmada caída                 | sólo un error onchain explícito pasa a `failed`; ausencia RPC queda recuperable y existe fallback opcional                            | `finality.test.ts`                    |
+| Logs sensibles                               | nunca registrar payload, firma completa, header ni variables secretas                                                                 | revisión                              |
+| Abuso de endpoint                            | límite por IP, body 32 KiB, validación Zod                                                                                            | integración                           |
+| Facilitador comprometido                     | revalidar transacción, error y balances token por RPC antes del handler                                                               | tests SDK                             |
+| Allowance excesiva                           | monto máximo, vencimiento obligatorio, copy de riesgo y revocación                                                                    | unitario                              |
+| Revocación en red equivocada                 | UI exige `solana:devnet`, blockhash RPC devnet y no acepta fallback mainnet                                                           | builder/UI                            |
+| Autorización retenida                        | bloquehash reciente; no usar durable nonce por defecto; cancelar propuestas                                                           | procedimiento                         |
+| Lectura entre tenants                        | sesión firmada, token hasheado, expiración y consultas SQL por `owner_wallet`                                                         | integración PostgreSQL                |
+| Colisión de producto entre tenants           | UUID interno, unicidad `(owner_wallet, slug)` y rechazo de rutas legacy ambiguas                                                      | integración PostgreSQL y tests SDK    |
+| SSRF desde un producto                       | HTTPS, allowlist exacta, sin IP/puerto/credenciales/redirects, JSON y límite 1 MB                                                     | `upstream.test.ts`                    |
+| SSRF desde el verificador de pilotos         | sólo HTTPS público; bloqueo de IP literal y DNS privado/link-local/reservado; sin redirects; localhost sólo con opt-in explícito      | `packages/pilot/src/index.test.ts`    |
+| Challenge perdido/reutilizado entre réplicas | hash en PostgreSQL, consumo atómico, expiración, máximo por wallet y limpieza horaria                                                 | `wallet-auth.test.ts`, integración DB |
+| Escape del scope del agente                  | origen/puerto/ruta normalizados; exact match por defecto y subrutas sólo con frontera explícita                                       | `examples/client/src/index.test.ts`   |
 
 ## Particularidades de Subscriptions
 
@@ -69,3 +70,10 @@ indexa únicamente metadata, estado y recibo.
 - Los challenges se consumen mediante `DELETE ... RETURNING`.
 - Pagos y recibos no se borran automáticamente porque son evidencia del proveedor.
 - Allowances revocadas conservan metadata y recibo, nunca claves privadas.
+
+## Publicación de paquetes
+
+Los paquetes se verifican desde un tag que coincide con sus manifests y se
+publican mediante GitHub OIDC con provenance. El workflow no contiene tokens npm.
+La publicación exige configurar previamente el trusted publisher del scope; un
+tarball local o un workflow verde no se presenta como publicación confirmada.

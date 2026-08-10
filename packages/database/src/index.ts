@@ -3,29 +3,55 @@ import { fileURLToPath } from "node:url";
 import pg from "pg";
 import {
   paymentRecordSchema,
+  persistedProductSchema,
   productSchema,
   type PaymentRecord,
   type PaymentStore,
+  type PersistedProduct,
   type Product,
 } from "@meterkit/core";
 
 const { Pool } = pg;
 
 export interface ProductStore {
-  create(product: Product): Promise<Product>;
-  createIdempotent(product: Product, key: string, requestHash: string): Promise<Product>;
-  get(id: string): Promise<Product | null>;
-  listProducts(): Promise<readonly Product[]>;
-  listProductsForOwner(ownerWallet: string): Promise<readonly Product[]>;
+  create(product: Product): Promise<PersistedProduct>;
+  createIdempotent(
+    product: Product,
+    key: string,
+    requestHash: string,
+  ): Promise<PersistedProduct>;
+  getByUid(uid: string): Promise<PersistedProduct | null>;
+  getByOwnerSlug(
+    ownerWallet: string,
+    slug: string,
+  ): Promise<PersistedProduct | null>;
+  getUniqueBySlug(slug: string): Promise<PersistedProduct | null>;
+  listProducts(): Promise<readonly PersistedProduct[]>;
+  listProductsForOwner(
+    ownerWallet: string,
+  ): Promise<readonly PersistedProduct[]>;
   listPaymentsForOwner(ownerWallet: string): Promise<readonly PaymentRecord[]>;
   listPaymentsForProduct(productId: string): Promise<readonly PaymentRecord[]>;
-  createSession(tokenHash: string, ownerWallet: string, expiresAt: Date): Promise<void>;
+  createSession(
+    tokenHash: string,
+    ownerWallet: string,
+    expiresAt: Date,
+  ): Promise<void>;
   getSessionOwner(tokenHash: string): Promise<string | null>;
-  saveWalletChallenge(challenge: WalletChallengeRecord, maxActive: number): Promise<void>;
-  consumeWalletChallenge(nonceHash: string): Promise<WalletChallengeRecord | null>;
-  cleanupExpired(now?: Date): Promise<{ challenges: number; sessions: number; idempotencyKeys: number }>;
+  saveWalletChallenge(
+    challenge: WalletChallengeRecord,
+    maxActive: number,
+  ): Promise<void>;
+  consumeWalletChallenge(
+    nonceHash: string,
+  ): Promise<WalletChallengeRecord | null>;
+  cleanupExpired(
+    now?: Date,
+  ): Promise<{ challenges: number; sessions: number; idempotencyKeys: number }>;
   saveAllowance(allowance: AgentAllowanceRecord): Promise<void>;
-  listAllowancesForOwner(ownerWallet: string): Promise<readonly AgentAllowanceRecord[]>;
+  listAllowancesForOwner(
+    ownerWallet: string,
+  ): Promise<readonly AgentAllowanceRecord[]>;
   revokeAllowance(ownerWallet: string, address: string): Promise<boolean>;
 }
 
@@ -55,24 +81,30 @@ export interface FinalityStore {
   markFailed(signature: string): Promise<boolean>;
 }
 
-export class PostgresStore implements PaymentStore, ProductStore, FinalityStore {
+export class PostgresStore
+  implements PaymentStore, ProductStore, FinalityStore
+{
   constructor(readonly pool: pg.Pool) {}
 
   static connect(connectionString: string) {
-    return new PostgresStore(new Pool({
-      connectionString,
-      max: 10,
-      connectionTimeoutMillis: 5_000,
-      idleTimeoutMillis: 30_000,
-    }));
+    return new PostgresStore(
+      new Pool({
+        connectionString,
+        max: 10,
+        connectionTimeoutMillis: 5_000,
+        idleTimeoutMillis: 30_000,
+      }),
+    );
   }
 
   async migrate() {
-    const migration = await readFile(
-      fileURLToPath(new URL("../migrations/001_init.sql", import.meta.url)),
-      "utf8",
-    );
-    await this.pool.query(migration);
+    for (const name of ["001_init.sql", "002_product_tenant_identity.sql"]) {
+      const migration = await readFile(
+        fileURLToPath(new URL(`../migrations/${name}`, import.meta.url)),
+        "utf8",
+      );
+      await this.pool.query(migration);
+    }
   }
 
   async has(signature: string) {
@@ -88,11 +120,21 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
     try {
       await this.pool.query(
         `INSERT INTO payments
-          (id, product_id, payer, pay_to, mint, amount_atomic, network, signature, status, settled_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+          (id, product_id, product_uid, payer, pay_to, mint, amount_atomic, network, signature, status, settled_at)
+         VALUES ($1,$2,
+           (SELECT uid FROM products WHERE owner_wallet=$4 AND id=$2),
+           $3,$4,$5,$6,$7,$8,$9,$10)`,
         [
-          value.id, value.productId, value.payer, value.payTo, value.mint,
-          value.amountAtomic, value.network, value.signature, "confirmed", value.settledAt,
+          value.id,
+          value.productId,
+          value.payer,
+          value.payTo,
+          value.mint,
+          value.amountAtomic,
+          value.network,
+          value.signature,
+          "confirmed",
+          value.settledAt,
         ],
       );
     } catch (error) {
@@ -141,18 +183,25 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
   async create(product: Product) {
     const value = productSchema.parse(product);
     const result = await this.pool.query(
-        `INSERT INTO products
+      `INSERT INTO products
           (id, owner_wallet, name, description, resource_url, upstream_url, network, asset_mint, pay_to, price_atomic)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-         ON CONFLICT (id) DO UPDATE SET
+         ON CONFLICT (owner_wallet, id) DO UPDATE SET
            name=EXCLUDED.name, description=EXCLUDED.description,
            resource_url=EXCLUDED.resource_url, upstream_url=EXCLUDED.upstream_url,
            price_atomic=EXCLUDED.price_atomic
          WHERE products.owner_wallet=EXCLUDED.owner_wallet
          RETURNING *`,
       [
-        value.id, value.payTo, value.name, value.description, value.resource,
-        value.upstreamUrl ?? null, value.network, value.assetMint, value.payTo,
+        value.id,
+        value.payTo,
+        value.name,
+        value.description,
+        value.resource,
+        value.upstreamUrl ?? null,
+        value.network,
+        value.assetMint,
+        value.payTo,
         value.priceAtomic,
       ],
     );
@@ -181,24 +230,33 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
           [key],
         );
         const row = existing.rows[0];
-        if (!row || row.request_hash !== requestHash) throw new Error("IDEMPOTENCY_KEY_CONFLICT");
-        if (!row.response_body) throw new Error("IDEMPOTENCY_REQUEST_INCOMPLETE");
+        if (!row || row.request_hash !== requestHash)
+          throw new Error("IDEMPOTENCY_KEY_CONFLICT");
+        if (!row.response_body)
+          throw new Error("IDEMPOTENCY_REQUEST_INCOMPLETE");
         await client.query("COMMIT");
-        return productSchema.parse(row.response_body);
+        return persistedProductSchema.parse(row.response_body);
       }
       const result = await client.query(
         `INSERT INTO products
           (id, owner_wallet, name, description, resource_url, upstream_url, network, asset_mint, pay_to, price_atomic)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-         ON CONFLICT (id) DO UPDATE SET
+         ON CONFLICT (owner_wallet, id) DO UPDATE SET
            name=EXCLUDED.name, description=EXCLUDED.description,
            resource_url=EXCLUDED.resource_url, upstream_url=EXCLUDED.upstream_url,
            price_atomic=EXCLUDED.price_atomic
          WHERE products.owner_wallet=EXCLUDED.owner_wallet
          RETURNING *`,
         [
-          value.id, value.payTo, value.name, value.description, value.resource,
-          value.upstreamUrl ?? null, value.network, value.assetMint, value.payTo,
+          value.id,
+          value.payTo,
+          value.name,
+          value.description,
+          value.resource,
+          value.upstreamUrl ?? null,
+          value.network,
+          value.assetMint,
+          value.payTo,
           value.priceAtomic,
         ],
       );
@@ -218,13 +276,36 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
     }
   }
 
-  async get(id: string) {
-    const result = await this.pool.query("SELECT * FROM products WHERE id=$1", [id]);
+  async getByUid(uid: string) {
+    const result = await this.pool.query(
+      "SELECT * FROM products WHERE uid=$1",
+      [uid],
+    );
     return result.rows[0] ? mapProduct(result.rows[0]) : null;
   }
 
+  async getByOwnerSlug(ownerWallet: string, slug: string) {
+    const result = await this.pool.query(
+      "SELECT * FROM products WHERE owner_wallet=$1 AND id=$2",
+      [ownerWallet, slug],
+    );
+    return result.rows[0] ? mapProduct(result.rows[0]) : null;
+  }
+
+  async getUniqueBySlug(slug: string) {
+    const result = await this.pool.query(
+      "SELECT * FROM products WHERE id=$1 ORDER BY created_at ASC LIMIT 2",
+      [slug],
+    );
+    return result.rows.length === 1 && result.rows[0]
+      ? mapProduct(result.rows[0])
+      : null;
+  }
+
   async listProducts() {
-    const result = await this.pool.query("SELECT * FROM products ORDER BY created_at DESC");
+    const result = await this.pool.query(
+      "SELECT * FROM products ORDER BY created_at DESC",
+    );
     return result.rows.map(mapProduct);
   }
 
@@ -240,19 +321,19 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
     const result = await this.pool.query(
       `SELECT p.id, p.product_id, p.payer, p.pay_to, p.mint,
               p.amount_atomic::text, p.network, p.signature, p.settled_at, p.status
-       FROM payments p JOIN products product ON product.id=p.product_id
+       FROM payments p JOIN products product ON product.uid=p.product_uid
        WHERE product.owner_wallet=$1 ORDER BY p.settled_at DESC LIMIT 200`,
       [ownerWallet],
     );
     return result.rows.map(mapPayment);
   }
 
-  async listPaymentsForProduct(productId: string) {
+  async listPaymentsForProduct(productUid: string) {
     const result = await this.pool.query(
       `SELECT id, product_id, payer, pay_to, mint, amount_atomic::text, network,
               signature, settled_at, status
-       FROM payments WHERE product_id=$1 ORDER BY settled_at DESC LIMIT 200`,
-      [productId],
+       FROM payments WHERE product_uid=$1 ORDER BY settled_at DESC LIMIT 200`,
+      [productUid],
     );
     return result.rows.map(mapPayment);
   }
@@ -275,11 +356,17 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
     return result.rows[0]?.owner_wallet ?? null;
   }
 
-  async saveWalletChallenge(challenge: WalletChallengeRecord, maxActive: number) {
+  async saveWalletChallenge(
+    challenge: WalletChallengeRecord,
+    maxActive: number,
+  ) {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
-      await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [challenge.wallet]);
+      await client.query(
+        "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
+        [challenge.wallet],
+      );
       await client.query(
         "DELETE FROM wallet_challenges WHERE wallet=$1 AND expires_at <= now()",
         [challenge.wallet],
@@ -297,8 +384,12 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
           (nonce_hash, wallet, message, request_hash, idempotency_key, expires_at)
          VALUES ($1,$2,$3,$4,$5,$6)`,
         [
-          challenge.nonceHash, challenge.wallet, challenge.message,
-          challenge.requestHash, challenge.idempotencyKey, challenge.expiresAt,
+          challenge.nonceHash,
+          challenge.wallet,
+          challenge.message,
+          challenge.requestHash,
+          challenge.idempotencyKey,
+          challenge.expiresAt,
         ],
       );
       await client.query("COMMIT");
@@ -318,14 +409,16 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
       [nonceHash],
     );
     const row = result.rows[0] as Record<string, unknown> | undefined;
-    return row ? {
-      nonceHash: String(row.nonce_hash),
-      wallet: String(row.wallet),
-      message: String(row.message),
-      requestHash: String(row.request_hash),
-      idempotencyKey: String(row.idempotency_key),
-      expiresAt: new Date(row.expires_at as string | Date),
-    } : null;
+    return row
+      ? {
+          nonceHash: String(row.nonce_hash),
+          wallet: String(row.wallet),
+          message: String(row.message),
+          requestHash: String(row.request_hash),
+          idempotencyKey: String(row.idempotency_key),
+          expiresAt: new Date(row.expires_at as string | Date),
+        }
+      : null;
   }
 
   async cleanupExpired(now = new Date()) {
@@ -369,9 +462,14 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
          revoked_at=EXCLUDED.revoked_at, signature=EXCLUDED.signature
        WHERE agent_allowances.owner_wallet=EXCLUDED.owner_wallet`,
       [
-        allowance.address, allowance.ownerWallet, allowance.delegateWallet,
-        allowance.mint, allowance.maxAtomic, allowance.expiresAt,
-        allowance.revokedAt, allowance.signature,
+        allowance.address,
+        allowance.ownerWallet,
+        allowance.delegateWallet,
+        allowance.mint,
+        allowance.maxAtomic,
+        allowance.expiresAt,
+        allowance.revokedAt,
+        allowance.signature,
       ],
     );
   }
@@ -395,7 +493,9 @@ export class PostgresStore implements PaymentStore, ProductStore, FinalityStore 
     return (result.rowCount ?? 0) > 0;
   }
 
-  async close() { await this.pool.end(); }
+  async close() {
+    await this.pool.end();
+  }
 }
 
 function mapPayment(row: Record<string, unknown>): PaymentRecord {
@@ -415,8 +515,9 @@ function mapPayment(row: Record<string, unknown>): PaymentRecord {
 
 const SOLANA_DEVNET_NETWORK = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 
-function mapProduct(row: Record<string, unknown>): Product {
-  return productSchema.parse({
+function mapProduct(row: Record<string, unknown>): PersistedProduct {
+  return persistedProductSchema.parse({
+    uid: row.uid,
     id: row.id,
     name: row.name,
     description: row.description,
@@ -445,6 +546,10 @@ function mapAllowance(row: Record<string, unknown>): AgentAllowanceRecord {
 }
 
 function isUniqueViolation(error: unknown): error is { code: string } {
-  return typeof error === "object" && error !== null && "code" in error &&
-    (error as { code: unknown }).code === "23505";
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code: unknown }).code === "23505"
+  );
 }

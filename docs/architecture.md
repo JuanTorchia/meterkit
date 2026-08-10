@@ -45,10 +45,11 @@ Proveedor <──────────────── liquidación directa
 11. La interfaz se publica en inglés por defecto para grants y pilotos globales,
     con cambio inmediato a español para Latinoamérica.
 12. Los challenges de wallet viven en PostgreSQL y se consumen atómicamente.
-13. Los IDs de producto son slugs DNS minúsculos de hasta 63 caracteres. El
-    namespace continúa global durante el MVP para preservar URLs y recibos
-    existentes; antes del alta pública abierta debe migrarse a UUID interno más
-    `(owner_wallet, slug)`.
+13. Cada producto tiene un UUID interno inmutable y un slug DNS minúsculo de
+    hasta 63 caracteres, único dentro de `(owner_wallet, slug)`. Las rutas nuevas
+    incluyen owner y slug. La ruta histórica por slug sólo se resuelve si existe
+    un único producto compatible; una ambigüedad se rechaza en vez de cruzar
+    tenants.
 14. Finality nunca infiere un fallo desde una respuesta RPC ausente y admite un
     proveedor secundario.
 15. Las imágenes usan base por digest, Next.js standalone y dependencias
@@ -57,6 +58,10 @@ Proveedor <──────────────── liquidación directa
 ## Consistencia y finalización
 
 El gateway sólo entrega el recurso tras `settle` y una segunda validación RPC. Esta compara balances token pre/post: el payer debe perder al menos el monto y el owner destinatario debe recibir exactamente el monto, con el mint configurado y `meta.err=null`. La firma es clave única. PostgreSQL aplica `UNIQUE(network, signature)` incluso bajo carreras. La respuesta incluye `PAYMENT-RESPONSE`; el índice proyecta un enlace Explorer. El pago entra como `confirmed` y un reconciliador consulta `getSignatureStatuses` cada 15 segundos para promover únicamente firmas exitosas a `finalized`.
+
+La identidad persistida del producto usa `products.uid`; los pagos apuntan a ese
+UUID. Slug y owner siguen presentes como identidad pública legible, sin permitir
+que un proveedor reserve el slug de otro.
 
 ## Fuentes técnicas
 

@@ -2,8 +2,14 @@
 
 Express middleware for non-custodial x402 v2 payments in USDC on Solana.
 
+```bash
+pnpm add @meterkit/sdk express
+```
+
 ```ts
-import { createX402Middleware } from "@meterkit/sdk";
+import { createX402Middleware, MemoryPaymentStore } from "@meterkit/sdk";
+
+const store = new MemoryPaymentStore(); // quickstart only; production must be durable
 
 app.get(
   "/premium",
@@ -25,3 +31,6 @@ app.get(
 ```
 
 `10000` atomic units are 0.01 USDC. The private key remains in the payer's wallet; the provider receives settlement directly. The current release intentionally accepts Solana devnet only.
+
+See the [standalone quickstart](https://github.com/JuanTorchia/meterkit/blob/main/docs/sdk-quickstart.md)
+for the first HTTP 402 and the pilot guide before processing a devnet payment.
