@@ -73,12 +73,18 @@ updates and product behavior in one pull request unless they are inseparable.
 
 ## Commit and pull request style
 
-Use an imperative, descriptive subject, for example:
+Use a Conventional Commits-style pull request title. The squash merge copies
+this title into `main`:
 
 ```text
-Reject encoded resource path escapes
-Document external pilot evidence
+fix(sdk): reject encoded resource path escapes
+docs: document external pilot evidence
+deps: patch vulnerable transitive dependency
 ```
+
+Allowed types are `feat`, `fix`, `docs`, `chore`, `ci`, `deps`, `build`,
+`refactor`, `perf`, `test` and `revert`. A breaking change may add `!` before the
+colon. CI rejects titles outside this format.
 
 The pull request description must explain the problem, approach, verification,
 security impact and any compatibility change. UI changes require screenshots.
@@ -86,9 +92,10 @@ Solana behavior changes require reproducible devnet or local-validator evidence.
 
 ## Review and merging
 
-`main` is protected. CI and CodeQL must pass, conversations must be resolved and
-an approving review is required. Maintainers normally squash merge, so the pull
-request title should be suitable for the changelog.
+`main` is protected. CI, CodeQL, dependency review and the pull request policy
+must pass, and conversations must be resolved. While MeterKit has one maintainer,
+an independent approval is recommended but not required. Maintainers squash
+merge, so the pull request title becomes part of the permanent history.
 
 Maintainers may close changes that expand scope without a demonstrated user
 need, weaken non-custodial guarantees, introduce financial promotion, or cannot
