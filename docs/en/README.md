@@ -27,3 +27,11 @@ first-class documentation path for Latin American builders.
 The English and Spanish documents describe the same software. If they conflict,
 the implementation and automated tests define behavior; open a documentation
 issue rather than relying on the more permissive wording.
+
+## Dependency updates
+
+Dependabot proposes grouped minor and patch updates every week and continues to
+report security alerts. Major versions are deliberate migration work: maintainers
+review official release notes, upgrade coupled packages together and run the full
+CI matrix. This keeps incompatible majors out of automatic PR churn without
+hiding vulnerabilities.
