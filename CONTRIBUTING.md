@@ -57,6 +57,22 @@ pnpm audit --prod
 Keep pull requests small enough to review. Do not combine refactors, dependency
 updates and product behavior in one pull request unless they are inseparable.
 
+### Documentation localization checklist
+
+When a change affects installation, public behavior, architecture, payments or
+security, the pull request author must:
+
+- update the English and Spanish paths in the same pull request;
+- keep commands, network identifiers, mint, amounts and security claims identical;
+- update each translated document's synchronization date;
+- verify every relative link from both language entry points;
+- avoid presenting machine translation as reviewed technical documentation;
+- state explicitly in the PR if a translation remains blocked.
+
+The maintained English entry point is [`docs/en/README.md`](docs/en/README.md).
+Spanish documentation under `docs/` remains a first-class path, not a deprecated
+archive.
+
 ## Engineering expectations
 
 - TypeScript remains strict; avoid `any` unless a boundary requires it and the
