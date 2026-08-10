@@ -1,5 +1,10 @@
 # Modelo de amenazas
 
+> Sincronizado 2026-08-10: los recibos públicos están acotados y versionados;
+> PostgreSQL impide regresiones terminales y conflictos concurrentes. Webacy
+> recibe únicamente la dirección pública del payer mediante HTTPS oficial, con
+> timeout, límite de bytes, credencial server-side y fail-mode explícito.
+
 ## Activos y límites de confianza
 
 MeterKit nunca custodia USDC, seed phrases ni claves privadas. Los activos son: autorizaciones firmadas, configuración de producto, recibos, disponibilidad del gateway y wallet patrocinadora si se activa Kora. Los límites son navegador/wallet, gateway, facilitador, RPC, PostgreSQL y programa de subscriptions.

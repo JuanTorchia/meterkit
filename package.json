@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "build:packages": "pnpm --filter @usemeterkit/core build && pnpm --filter @usemeterkit/database build && pnpm --filter @usemeterkit/sdk build && pnpm --filter @usemeterkit/subscriptions build",
+    "build:packages": "pnpm --filter @usemeterkit/core build && pnpm --filter @usemeterkit/database build && pnpm --filter @usemeterkit/sdk build && pnpm --filter @usemeterkit/subscriptions build && pnpm --filter @usemeterkit/policy-webacy build && pnpm --filter @usemeterkit/pilot build",
     "predev": "pnpm build:packages",
     "dev": "pnpm --parallel --filter @usemeterkit/gateway --filter @usemeterkit/web dev",
     "lint": "eslint .",
@@ -21,6 +21,9 @@
     "pilot:check": "node scripts/pilot-check.mjs",
     "pilot:init": "pnpm --filter @usemeterkit/pilot build && node packages/pilot/dist/cli.js init",
     "pilot:verify": "pnpm --filter @usemeterkit/pilot build && node packages/pilot/dist/cli.js verify",
+    "quickstart:clean": "node scripts/verify-clean-quickstarts.mjs",
+    "compatibility:verify": "node scripts/verify-compatibility.mjs",
+    "aaa:evidence": "node scripts/verify-aaa-evidence.mjs",
     "demo:verify": "node scripts/verify-public-dashboard.mjs",
     "demo:record": "node scripts/record-demo.mjs",
     "demo:institutional": "node scripts/record-institutional-demo.mjs",

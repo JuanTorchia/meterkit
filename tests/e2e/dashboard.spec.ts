@@ -1,5 +1,24 @@
 import { expect, test } from "@playwright/test";
 
+test("receipt states stay accessible and recoverable", async ({ page }) => {
+  await page.route("**/v1/public/products", (route) => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
+  await page.route("**/v1/public/payments", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify([
+      { id: "1", productId: "pending-api", amountAtomic: "10000", signature: "sanitized-test-signature-1", settledAt: new Date().toISOString(), status: "unknown", explorerUrl: "https://explorer.solana.com/?cluster=devnet" },
+      { id: "2", productId: "final-api", amountAtomic: "10000", signature: "sanitized-test-signature-2", settledAt: new Date().toISOString(), status: "finalized", explorerUrl: "https://explorer.solana.com/?cluster=devnet" },
+    ]),
+  }));
+  await page.goto("/dashboard");
+  await expect(page.getByText("… unknown", { exact: true })).toBeVisible();
+  await expect(page.getByText("✓ finalized", { exact: true })).toBeVisible();
+  const refresh = page.getByRole("button", { name: "Refresh ↻" });
+  await refresh.focus();
+  await expect(refresh).toBeFocused();
+  await refresh.press("Enter");
+});
+
 test("landing, guided demo and workspace communicate the non-custodial product", async ({ page }) => {
   const consoleErrors: string[] = [];
   const failedResponses: string[] = [];

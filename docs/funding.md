@@ -61,6 +61,21 @@ verificar cada convocatoria antes de enviar o solicitar un tramo.
 5. Iniciar Eternal sólo cuando el sprint pueda sostenerse cuatro semanas.
 6. Cobrar integración/hosted.
 
+## 5. Webacy Startup Accelerator
+
+- Enlace: [listado oficial en Superteam](https://superteam.fun/earn/grants/startup-accelerator-grant).
+- Estado consultado el **2026-08-10**: abierto/listado; MeterKit no fue enviado todavía.
+- Beneficio posible: hasta 10.000 en créditos de API DD.xyz según la descripción,
+  más soporte de integración y posible co-marketing. Se registra como beneficio
+  en especie, no como efectivo ni distribución garantizada.
+- Requisitos/entregables: integrar la API de seguridad durante tres meses,
+  colaborar en feedback/caso de estudio y usar una cadena compatible; Solana
+  figura en la documentación oficial de Webacy.
+- Encaje: política opcional de riesgo de payer antes del desafío x402, con
+  minimización, timeouts y fail-mode explícito. No interviene en la liquidación.
+- Próximo hito: publicar el adaptador probado y presentar tres integraciones
+  externas reales; no contar dogfooding como tracción.
+
 ## Convención de estado
 
 - **Enviado:** formulario entregado por el solicitante; no implica aprobación.

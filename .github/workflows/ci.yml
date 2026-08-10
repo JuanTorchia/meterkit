@@ -62,6 +62,12 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Verify clean package quickstart
+        run: pnpm quickstart:clean
+
+      - name: Verify compatibility matrix
+        run: pnpm compatibility:verify
+
       - name: End-to-end test
         run: pnpm test:e2e
 

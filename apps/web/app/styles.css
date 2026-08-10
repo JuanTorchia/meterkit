@@ -1064,6 +1064,17 @@ pre:focus-visible {
   color: var(--green);
   opacity: 1;
 }
+
+.receiptStatus {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.3rem 0.55rem;
+  text-transform: capitalize;
+}
+
+.receiptStatus-finalized { color: #8ef0bb; border-color: #377b59; }
+.receiptStatus-unknown, .receiptStatus-confirmed { color: #ffd789; border-color: #806b39; }
+.receiptStatus-failed { color: #ffaaa4; border-color: #8c4844; }
 .weatherResult {
   background: #eaf9c8;
 }

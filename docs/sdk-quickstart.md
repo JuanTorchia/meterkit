@@ -1,5 +1,9 @@
 # Protect an Express route in under ten minutes
 
+Activation target: install in 2 minutes, start the server in 3, inspect the 402
+challenge by minute 5, and complete the disposable devnet payment/replay journey
+by minute 10. Record actual times; these are targets, not measured claims.
+
 This path is for API providers evaluating the public MeterKit package. It does
 not require cloning the MeterKit monorepo, PostgreSQL or Docker.
 
@@ -41,3 +45,9 @@ infrastructure. Before processing a devnet payment:
 Use the [external pilot guide](pilot-quickstart.md) for a correlated settlement,
 protected response and rejected replay. Use the repository README only when
 self-hosting the complete dashboard and gateway.
+
+```bash
+pnpm quickstart:clean
+pnpm pilot:init -- http://localhost:3000/premium
+pnpm pilot:verify -- --config meterkit-pilot.json
+```

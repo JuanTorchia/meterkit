@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   SOLANA_DEVNET,
+  publicPaymentReceiptSchema,
   paymentRecordSchema,
   productSchema,
 } from "@usemeterkit/core";
@@ -183,5 +184,35 @@ suite("PostgresStore integration", () => {
     expect(
       (await store.listAllowancesForOwner(product.payTo))[0]?.revokedAt,
     ).not.toBeNull();
+
+    const timestamp = new Date().toISOString();
+    const receipt = publicPaymentReceiptSchema.parse({
+      schemaVersion: 1,
+      receiptId: crypto.randomUUID(),
+      productId: product.id,
+      network: SOLANA_DEVNET,
+      assetMint: product.assetMint,
+      amountAtomic: product.priceAtomic,
+      recipient: product.payTo,
+      payer: payment.payer,
+      resource: product.resource,
+      decision: "accepted",
+      settlement: "confirmed",
+      signatureFingerprint: "sha256:0123456789abcdef",
+      policyDecisions: [],
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      reasonCode: "SETTLEMENT_CONFIRMED",
+    });
+    await store.savePublicReceipt(receipt);
+    expect(await store.getPublicReceipt(receipt.receiptId)).toEqual(receipt);
+    const finalized = { ...receipt, settlement: "finalized" as const, updatedAt: new Date(Date.now() + 1_000).toISOString(), reasonCode: "SETTLEMENT_FINALIZED" };
+    await store.savePublicReceipt(finalized);
+    await expect(store.savePublicReceipt({ ...receipt, updatedAt: new Date(Date.now() + 2_000).toISOString() })).rejects.toThrow("RECEIPT_TRANSITION_REJECTED");
+    const concurrentReceipts = await Promise.allSettled([
+      store.savePublicReceipt({ ...finalized, updatedAt: new Date(Date.now() + 3_000).toISOString() }),
+      store.savePublicReceipt({ ...finalized, settlement: "failed", updatedAt: new Date(Date.now() + 4_000).toISOString(), reasonCode: "SETTLEMENT_FAILED" }),
+    ]);
+    expect(concurrentReceipts.filter((item) => item.status === "fulfilled")).toHaveLength(1);
   });
 });

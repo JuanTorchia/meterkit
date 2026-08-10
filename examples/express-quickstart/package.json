@@ -9,6 +9,7 @@
     "start": "tsx src/server.ts"
   },
   "dependencies": {
+    "@usemeterkit/policy-webacy": "workspace:*",
     "@usemeterkit/sdk": "workspace:*",
     "express": "^5.1.0"
   },

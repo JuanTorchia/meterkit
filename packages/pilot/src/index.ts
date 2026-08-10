@@ -2,6 +2,9 @@ import { Buffer } from "node:buffer";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 
+export { validateSettlementEvidence } from "./evidence.js";
+export * from "./activation.js";
+
 export const SOLANA_DEVNET_NETWORK = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 export const SOLANA_DEVNET_USDC_MINT = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 

@@ -40,6 +40,10 @@
     "dist/index.js.map",
     "README.md"
   ],
+  "dependencies": {
+    "@usemeterkit/core": "workspace:*",
+    "zod": "^4.0.17"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

@@ -13,6 +13,11 @@ first-class documentation path for Latin American builders.
    participant-controlled devnet integration.
 5. Read [CONTRIBUTING.md](../../CONTRIBUTING.md) before changing the project.
 
+Express `protect()` is canonical. The maintained Next.js App Router and MCP
+examples share the versioned receipt contract. Join the
+[consented three-developer pilot](../pilots/README.md); internal tests do not
+count as external traction.
+
 ## Language structure
 
 - English-only or already bilingual operational documents remain directly under

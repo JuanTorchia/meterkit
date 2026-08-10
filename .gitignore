@@ -15,3 +15,5 @@ artifacts/packs/*.tgz
 artifacts/grant-upload/
 artifacts/*-Grant-*.zip
 artifacts/*-Grant-*.zip.sha256
+artifacts/aaa-evidence/
+activation-report*.json

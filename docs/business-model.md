@@ -1,5 +1,10 @@
 # Modelo de negocio
 
+> Actualización 2026-08-10: el wedge es SDK OSS más integración pagada. El
+> hosted puede cobrar suscripción o comisión transparente/no custodial; no hay
+> token, rendimientos, trading ni ingresos afirmados. Créditos Webacy son apoyo
+> en especie, nunca efectivo.
+
 ## Propuesta
 
 “Conecta una wallet, fija un precio y comienza a cobrar USDC por solicitud o suscripción.”

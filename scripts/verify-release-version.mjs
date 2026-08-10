@@ -10,6 +10,8 @@ const expected = tag.slice(1);
 for (const path of [
   "packages/core/package.json",
   "packages/sdk/package.json",
+  "packages/pilot/package.json",
+  "packages/policy-webacy/package.json",
 ]) {
   const manifest = JSON.parse(await readFile(path, "utf8"));
   if (manifest.version !== expected) {

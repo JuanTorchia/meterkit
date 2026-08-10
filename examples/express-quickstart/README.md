@@ -1,7 +1,7 @@
 # MeterKit Express quickstart
 
-This is the smallest provider integration in the repository. After the public
-package release, copy this directory and replace the workspace dependency with:
+This is the canonical provider integration. It imports the same `protect()` API
+published to npm:
 
 ```bash
 pnpm add @usemeterkit/sdk express
@@ -14,6 +14,14 @@ MERCHANT_WALLET=<devnet-public-address> pnpm start
 curl -i http://localhost:3000/premium
 ```
 
-The response is an HTTP 402 containing the exact Solana devnet network, test-USDC
-mint, 0.01 USDC amount and recipient. The in-memory receipt store is for this
-quickstart only; hosted or replicated deployments need durable replay storage.
+The unpaid response is HTTP 402 containing the exact Solana devnet network,
+test-USDC mint, 0.01 USDC amount and recipient. Continue with
+[`docs/sdk-quickstart.md`](../../docs/sdk-quickstart.md) for the paid retry,
+sanitized receipt, Explorer evidence, and replay rejection.
+
+The in-memory store and `rpcUrl: false` are challenge-only local defaults. Any
+paid, hosted, or replicated deployment must use durable replay storage and RPC
+settlement validation.
+
+`WEBACY_API_KEY` optionally enables the removable payer-risk adapter in
+observe/fail-open mode. It is disabled by default and never enters settlement.

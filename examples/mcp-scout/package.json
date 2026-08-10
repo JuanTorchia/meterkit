@@ -9,6 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@usemeterkit/core": "workspace:*",
     "@usemeterkit/sdk": "workspace:*",
     "@modelcontextprotocol/sdk": "1.30.0",
     "@solana/kit": "5.5.1",

@@ -15,3 +15,5 @@ coverage
 *.log
 *.key
 *keypair*.json
+activation-report*.json
+specs/**/evidence/

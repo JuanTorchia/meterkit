@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://usemeterkit.dev/schemas/public-payment-receipt-v1.json",
+  "title": "MeterKit Public Payment Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "receiptId", "productId", "network", "assetMint", "amountAtomic", "recipient", "resource", "decision", "settlement", "policyDecisions", "createdAt", "updatedAt", "reasonCode"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "receiptId": { "type": "string", "format": "uuid" },
+    "productId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "network": { "type": "string", "const": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1" },
+    "assetMint": { "type": "string", "minLength": 32, "maxLength": 44 },
+    "amountAtomic": { "type": "string", "pattern": "^[1-9][0-9]*$" },
+    "recipient": { "type": "string", "minLength": 32, "maxLength": 44 },
+    "payer": { "type": "string", "minLength": 32, "maxLength": 44 },
+    "resource": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "decision": { "enum": ["accepted", "rejected", "unknown", "failed"] },
+    "settlement": { "enum": ["not_started", "pending", "confirmed", "finalized", "unknown", "failed"] },
+    "signatureFingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{16}$" },
+    "explorerUrl": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "policyDecisions": { "type": "array", "maxItems": 16, "items": { "type": "object" } },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "reasonCode": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{0,63}$" }
+  }
+}
