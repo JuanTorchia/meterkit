@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "build:packages": "pnpm --filter @usemeterkit/core build && pnpm --filter @usemeterkit/database build && pnpm --filter @usemeterkit/sdk build && pnpm --filter @usemeterkit/subscriptions build",
+    "build:packages": "pnpm --filter @usemeterkit/core build && pnpm --filter @usemeterkit/database build && pnpm --filter @usemeterkit/sdk build && pnpm --filter @usemeterkit/subscriptions build && pnpm --filter @usemeterkit/policy-webacy build && pnpm --filter @usemeterkit/pilot build",
     "predev": "pnpm build:packages",
     "dev": "pnpm --parallel --filter @usemeterkit/gateway --filter @usemeterkit/web dev",
     "lint": "eslint .",
