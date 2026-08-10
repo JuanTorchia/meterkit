@@ -1,5 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { SOLANA_DEVNET, paymentRecordSchema, productSchema } from "@meterkit/core";
+import {
+  SOLANA_DEVNET,
+  paymentRecordSchema,
+  productSchema,
+} from "@meterkit/core";
 import { PostgresStore } from "./index.js";
 
 const url = process.env.DATABASE_TEST_URL;
@@ -32,10 +36,24 @@ suite("PostgresStore integration", () => {
       payTo: "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE",
       network: SOLANA_DEVNET,
     });
-    await store.create(product);
-    expect(await store.get(product.id)).toEqual(product);
-    expect(await store.listProductsForOwner(product.payTo)).toEqual([product]);
-    expect(await store.listProductsForOwner("11111111111111111111111111111111")).toEqual([]);
+    const created = await store.create(product);
+    expect(created.uid).toMatch(/^[0-9a-f-]{36}$/);
+    expect(await store.getByUid(created.uid)).toEqual(created);
+    expect(await store.getByOwnerSlug(product.payTo, product.id)).toEqual(
+      created,
+    );
+    expect(await store.getUniqueBySlug(product.id)).toEqual(created);
+    expect(await store.listProductsForOwner(product.payTo)).toEqual([created]);
+    expect(
+      await store.listProductsForOwner("11111111111111111111111111111111"),
+    ).toEqual([]);
+
+    const secondOwner = "6NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUD";
+    const second = await store.create({ ...product, payTo: secondOwner });
+    expect(second.id).toBe(product.id);
+    expect(second.uid).not.toBe(created.uid);
+    expect(await store.getByOwnerSlug(secondOwner, product.id)).toEqual(second);
+    expect(await store.getUniqueBySlug(product.id)).toBeNull();
 
     const payment = paymentRecordSchema.parse({
       id: crypto.randomUUID(),
@@ -53,32 +71,60 @@ suite("PostgresStore integration", () => {
       store.save(payment),
       store.save({ ...payment, id: crypto.randomUUID() }),
     ]);
-    expect(concurrent.filter((result) => result.status === "fulfilled")).toHaveLength(1);
-    expect(concurrent.filter((result) => result.status === "rejected")).toHaveLength(1);
+    expect(
+      concurrent.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
+    expect(
+      concurrent.filter((result) => result.status === "rejected"),
+    ).toHaveLength(1);
     expect(await store.has(payment.signature)).toBe(true);
-    await expect(store.save({ ...payment, id: crypto.randomUUID() })).rejects.toThrow("PAYMENT_REPLAYED");
+    await expect(
+      store.save({ ...payment, id: crypto.randomUUID() }),
+    ).rejects.toThrow("PAYMENT_REPLAYED");
     expect(await store.list()).toHaveLength(1);
     expect(await store.listPaymentsForOwner(product.payTo)).toHaveLength(1);
-    expect(await store.listPaymentsForOwner("11111111111111111111111111111111")).toEqual([]);
-    expect(await store.listPaymentsForProduct(product.id)).toHaveLength(1);
+    expect(
+      await store.listPaymentsForOwner("11111111111111111111111111111111"),
+    ).toEqual([]);
+    expect(await store.listPaymentsForProduct(created.uid)).toHaveLength(1);
     expect(await store.listConfirmedSignatures()).toEqual([payment.signature]);
     expect(await store.markFinalized(payment.signature)).toBe(true);
     expect((await store.list())[0]?.status).toBe("finalized");
 
-    await store.createSession("session-token-hash", product.payTo, new Date(Date.now() + 60_000));
-    expect(await store.getSessionOwner("session-token-hash")).toBe(product.payTo);
-    await store.createSession("expired-token-hash", product.payTo, new Date(Date.now() - 1));
+    await store.createSession(
+      "session-token-hash",
+      product.payTo,
+      new Date(Date.now() + 60_000),
+    );
+    expect(await store.getSessionOwner("session-token-hash")).toBe(
+      product.payTo,
+    );
+    await store.createSession(
+      "expired-token-hash",
+      product.payTo,
+      new Date(Date.now() - 1),
+    );
     expect(await store.getSessionOwner("expired-token-hash")).toBeNull();
 
     const idempotencyKey = "product-request-0001";
-    const first = await store.createIdempotent(product, idempotencyKey, "same-hash");
-    const repeated = await store.createIdempotent(product, idempotencyKey, "same-hash");
-    expect(repeated).toEqual(first);
-    await expect(store.createIdempotent(
-      { ...product, name: "Changed product" },
+    const first = await store.createIdempotent(
+      product,
       idempotencyKey,
-      "different-hash",
-    )).rejects.toThrow("IDEMPOTENCY_KEY_CONFLICT");
+      "same-hash",
+    );
+    const repeated = await store.createIdempotent(
+      product,
+      idempotencyKey,
+      "same-hash",
+    );
+    expect(repeated).toEqual(first);
+    await expect(
+      store.createIdempotent(
+        { ...product, name: "Changed product" },
+        idempotencyKey,
+        "different-hash",
+      ),
+    ).rejects.toThrow("IDEMPOTENCY_KEY_CONFLICT");
 
     const challenge = {
       nonceHash: "nonce-hash",
@@ -96,11 +142,16 @@ suite("PostgresStore integration", () => {
     expect(consumed.filter(Boolean)).toHaveLength(1);
     expect(await store.consumeWalletChallenge(challenge.nonceHash)).toBeNull();
 
-    await store.saveWalletChallenge({ ...challenge, nonceHash: "expired", expiresAt: new Date(0) }, 2);
+    await store.saveWalletChallenge(
+      { ...challenge, nonceHash: "expired", expiresAt: new Date(0) },
+      2,
+    );
     const cleanup = await store.cleanupExpired();
     expect(cleanup.challenges).toBeGreaterThanOrEqual(1);
     expect(cleanup.sessions).toBeGreaterThanOrEqual(1);
-    expect(await store.getSessionOwner("session-token-hash")).toBe(product.payTo);
+    expect(await store.getSessionOwner("session-token-hash")).toBe(
+      product.payTo,
+    );
 
     const allowance = {
       address: "9NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUG",
@@ -110,14 +161,27 @@ suite("PostgresStore integration", () => {
       maxAtomic: "1000000",
       expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
       revokedAt: null,
-      signature: "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE7NXuBzJ3EQV4CuxpSVELD3t1bs5",
+      signature:
+        "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE7NXuBzJ3EQV4CuxpSVELD3t1bs5",
     };
     await store.saveAllowance(allowance);
-    expect(await store.listAllowancesForOwner(product.payTo)).toEqual([allowance]);
-    expect(await store.listAllowancesForOwner("11111111111111111111111111111111")).toEqual([]);
-    expect(await store.revokeAllowance("11111111111111111111111111111111", allowance.address))
-      .toBe(false);
-    expect(await store.revokeAllowance(product.payTo, allowance.address)).toBe(true);
-    expect((await store.listAllowancesForOwner(product.payTo))[0]?.revokedAt).not.toBeNull();
+    expect(await store.listAllowancesForOwner(product.payTo)).toEqual([
+      allowance,
+    ]);
+    expect(
+      await store.listAllowancesForOwner("11111111111111111111111111111111"),
+    ).toEqual([]);
+    expect(
+      await store.revokeAllowance(
+        "11111111111111111111111111111111",
+        allowance.address,
+      ),
+    ).toBe(false);
+    expect(await store.revokeAllowance(product.payTo, allowance.address)).toBe(
+      true,
+    );
+    expect(
+      (await store.listAllowancesForOwner(product.payTo))[0]?.revokedAt,
+    ).not.toBeNull();
   });
 });

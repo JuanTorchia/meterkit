@@ -2,14 +2,19 @@ import { z } from "zod";
 
 export const SOLANA_DEVNET = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 export const SOLANA_MAINNET = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
-export const SUBSCRIPTIONS_PROGRAM = "De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44";
+export const SUBSCRIPTIONS_PROGRAM =
+  "De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44";
 export const PRODUCT_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
 
 export const productSchema = z.object({
-  id: z.string().min(1).max(63).regex(
-    PRODUCT_SLUG_PATTERN,
-    "product id must be a lowercase DNS-style slug",
-  ),
+  id: z
+    .string()
+    .min(1)
+    .max(63)
+    .regex(
+      PRODUCT_SLUG_PATTERN,
+      "product id must be a lowercase DNS-style slug",
+    ),
   name: z.string().min(3).max(100),
   description: z.string().max(500),
   resource: z.string().url(),
@@ -20,6 +25,11 @@ export const productSchema = z.object({
   network: z.literal(SOLANA_DEVNET),
 });
 export type Product = z.infer<typeof productSchema>;
+
+export const persistedProductSchema = productSchema.extend({
+  uid: z.string().uuid(),
+});
+export type PersistedProduct = z.infer<typeof persistedProductSchema>;
 
 export const paymentRecordSchema = z.object({
   id: z.string(),
@@ -43,12 +53,17 @@ export interface PaymentStore {
 
 export class MemoryPaymentStore implements PaymentStore {
   readonly #records = new Map<string, PaymentRecord>();
-  async has(signature: string) { return this.#records.has(signature); }
+  async has(signature: string) {
+    return this.#records.has(signature);
+  }
   async save(record: PaymentRecord) {
-    if (this.#records.has(record.signature)) throw new Error("PAYMENT_REPLAYED");
+    if (this.#records.has(record.signature))
+      throw new Error("PAYMENT_REPLAYED");
     this.#records.set(record.signature, paymentRecordSchema.parse(record));
   }
-  async list() { return [...this.#records.values()]; }
+  async list() {
+    return [...this.#records.values()];
+  }
 }
 
 export function explorerUrl(signature: string, network: "devnet" = "devnet") {
