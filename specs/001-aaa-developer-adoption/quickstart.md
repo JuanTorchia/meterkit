@@ -7,13 +7,25 @@
 - Next.js route: production build and contract test passed;
 - MCP: tool advertisement and unpaid x402 challenge passed;
 - PostgreSQL receipt replay/concurrency/finality transitions: passed;
-- complete suite: 128/128 unit/integration tests and 6/6 browser E2E passed;
+- complete suite: 128/128 unit/integration tests and 7/7 browser E2E passed;
 - npm production audit: no known vulnerabilities;
 - Trivy gateway/web: 0 HIGH or CRITICAL fixed vulnerabilities.
 
-No new signed transaction was created for this feature run and no real funds
-were spent. Previously recorded devnet x402 and MCP settlements remain linked in
-the root README; they are historical evidence, not a fresh external pilot.
+Two fresh internal journeys were completed with disposable wallets and test-only
+assets. No mainnet assets or real funds were used, and neither journey is counted
+as an external pilot or revenue:
+
+- HTTP x402: 0.01 test USDC (10,000 atomic units) moved directly from payer
+  `8SJE...EPsqS` to provider `9a4x...eaiR5`; the provider balance increased from
+  150,000 to 160,000 atomic units, PostgreSQL indexed the receipt as `finalized`,
+  and reuse of the same proof returned HTTP 402. [Explorer evidence](https://explorer.solana.com/tx/3Hpch7aaRzKdMuN3dC1s3tnaWNhZttwkG9BRgiPJL6i9yJBt9T6SM7CoQy9pEeVmzYJQS2eXzhSNZzLHZpjQPXqD?cluster=devnet).
+- Solana Project Scout MCP: 0.02 test USDC (20,000 atomic units) settled for
+  `anza-xyz/kit`; the protected tool returned a dated report sourced from the
+  GitHub public API and repository. [Explorer evidence](https://explorer.solana.com/tx/2WCHimyCsaT6eMoaUzhoz9cFSwohxwmWuRbS3pzggtUrBMbetKEZmedq1ji6PpWVRa7a2w97xAvxEWV4k1Gtjzns?cluster=devnet).
+
+The HTTP run is the replay/finality evidence for this feature. MCP preview and
+receipt reuse remain covered by durable restart/replay tests; the fresh paid MCP
+run proves live settlement and protected output against devnet.
 
 This guide validates the feature; it is not the eventual public onboarding copy.
 
