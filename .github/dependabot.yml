@@ -22,6 +22,13 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # Major upgrades are migration projects, not unattended maintenance. They
+      # are reviewed from official release notes on a dedicated branch so
+      # coupled packages (notably Solana Kit/sysvars) move together.
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
     open-pull-requests-limit: 10
   - package-ecosystem: github-actions
     directory: /
