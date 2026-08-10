@@ -42,4 +42,11 @@ describe("agent resource scope", () => {
     expect(parseAllowedResource("http://localhost:3402/v1/weather/premium").origin)
       .toBe("http://localhost:3402");
   });
+
+  it("normalizes an adversarial trailing-slash input in linear time", () => {
+    const allowed = parseAllowedResource(
+      `https://api.example.com/v1/weather/premium${"/".repeat(100_000)}`,
+    );
+    expect(allowed.pathname).toBe("/v1/weather/premium");
+  });
 });
