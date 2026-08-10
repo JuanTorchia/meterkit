@@ -11,8 +11,8 @@
     "@meterkit/core": "workspace:*",
     "@solana/kit": "^5.5.1",
     "@solana/sysvars": "5.5.1",
-    "@x402/fetch": "2.20.0",
-    "@x402/svm": "2.20.0"
+    "@x402/fetch": "2.21.0",
+    "@x402/svm": "2.21.0"
   },
   "devDependencies": { "tsx": "^4.20.4" }
 }
