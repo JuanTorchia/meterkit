@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export * from "./policy.js";
 export * from "./receipt.js";
+export * from "./release.js";
+export * from "./initializer.js";
+export * from "./documentation.js";
+export * from "./authorization.js";
 
 export const SOLANA_DEVNET = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 export const SOLANA_MAINNET = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";

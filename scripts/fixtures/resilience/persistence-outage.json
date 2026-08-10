@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "dependency": "postgresql",
+  "sequence": [
+    { "operation": "reserve", "result": "unavailable" },
+    { "operation": "retry", "result": "reserved" },
+    { "operation": "consume", "result": "consumed" }
+  ],
+  "expected": {
+    "failClosed": true,
+    "protectedExecutionBeforeDurableReservation": false,
+    "duplicateProtectedExecutions": 0
+  }
+}

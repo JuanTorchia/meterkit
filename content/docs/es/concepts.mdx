@@ -1,0 +1,18 @@
+---
+title: Ciclo de pago
+description: Comprende desafío, autorización, liquidación, recibo, finalidad y rechazo de replay.
+section: Conceptos
+order: 1
+lastReviewedAt: 2026-08-10
+productVersionRange: ">=0.1.0 <0.2.0"
+surface: general
+maturity: recommended
+claimKeys:
+  ["x402-challenge", "exact-scope", "durable-replay", "finality-unknown"]
+---
+
+# Ciclo de pago
+
+Una llamada sin pago recibe HTTP 402 con red, mint, monto, destinatario y recurso exactos. El cliente firma solamente un alcance aceptable, reintenta y recibe el resultado protegido después de validar la liquidación.
+
+Los recibos son durables y el replay se rechaza. Un RPC no disponible produce un estado desconocido, nunca un fallo onchain inventado. Consulta [operaciones](./operations) para la recuperación.

@@ -6,10 +6,11 @@ security-sensitive software. The public deployment and repository are currently
 
 ## Supported versions
 
-| Version                                  | Supported |
-| ---------------------------------------- | --------- |
-| `main` and the latest tagged pre-release | Yes       |
-| Older commits and unmaintained forks     | No        |
+| Version                           | Supported                                    |
+| --------------------------------- | -------------------------------------------- |
+| Latest stable release             | Yes                                          |
+| `main`                            | Development fixes only; not a stable release |
+| Older releases, commits and forks | No                                           |
 
 No release is approved for mainnet unless its release notes explicitly say so.
 
@@ -36,6 +37,13 @@ or wallets you do not control.
 We aim to acknowledge a complete report within three business days, provide an
 initial assessment within seven days and coordinate disclosure after a fix is
 available. These are targets, not a paid bug-bounty promise.
+
+For a supported-version vulnerability, maintainers will prepare a minimal fix,
+run the full release gates, publish a security advisory and issue a patched
+semantic version. A compromised release is deprecated after a replacement is
+available. If a safe patch cannot be shipped promptly, affected distribution or
+hosted paths are disabled and the limitation is published. Mainnet is never
+used to reproduce or remediate a report.
 
 ## Scope
 

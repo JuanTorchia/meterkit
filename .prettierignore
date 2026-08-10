@@ -1,0 +1,18 @@
+.agents/
+.specify/
+apps/web/.source/
+artifacts/
+coverage/
+dist/
+node_modules/
+.meterkit/
+**/.source/
+playwright-report/
+test-results/
+
+# Historical grant/application snapshots must remain byte-stable.
+docs/agentic-grant-pack/
+docs/grant-closeout-2026-08-05.md
+
+# Prior completed feature records are retained as historical evidence.
+specs/001-aaa-developer-adoption/

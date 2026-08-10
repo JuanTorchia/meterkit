@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "dependency": "hosted-boundary",
+  "sequence": [
+    { "request": 60, "status": 200 },
+    { "request": 61, "status": 429, "retryAfterSeconds": 60 }
+  ],
+  "expected": {
+    "deterministic": true,
+    "paymentValidityChanged": false,
+    "duplicateProtectedExecutions": 0
+  }
+}

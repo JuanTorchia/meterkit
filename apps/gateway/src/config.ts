@@ -22,7 +22,9 @@ function parsePort(value: string): number {
 function parsePublicUrl(value: string): string {
   const url = new URL(value);
   if (url.username || url.password || url.search || url.hash) {
-    throw new Error("PUBLIC_GATEWAY_URL must not contain credentials, query or fragment");
+    throw new Error(
+      "PUBLIC_GATEWAY_URL must not contain credentials, query or fragment",
+    );
   }
   const local = url.hostname === "localhost" || url.hostname === "127.0.0.1";
   if (url.protocol !== "https:" && !(local && url.protocol === "http:")) {
@@ -41,7 +43,11 @@ export function loadGatewayConfig(
 
   const port = parsePort(env.PORT ?? env.GATEWAY_PORT ?? "3402");
   const trustProxyHops = Number(env.TRUST_PROXY_HOPS ?? "0");
-  if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0 || trustProxyHops > 3) {
+  if (
+    !Number.isInteger(trustProxyHops) ||
+    trustProxyHops < 0 ||
+    trustProxyHops > 3
+  ) {
     throw new Error("TRUST_PROXY_HOPS must be an integer between 0 and 3");
   }
   const publicGatewayUrl = parsePublicUrl(

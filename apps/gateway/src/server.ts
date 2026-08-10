@@ -23,6 +23,11 @@ import {
   parseUpstreamAllowlist,
 } from "./upstream.js";
 import { installHttpPolicy } from "./http-policy.js";
+import { toHostedAuthorization } from "./authorization.js";
+import {
+  buildGitHubAuthorizationUrl,
+  exchangeGitHubIdentity,
+} from "./github-auth.js";
 
 const app: Express = express();
 const config = loadGatewayConfig();
@@ -119,6 +124,75 @@ app.post("/v1/auth/session", async (request, response) => {
     token,
     expiresAt: expiresAt.toISOString(),
   });
+});
+app.get("/v1/auth/github", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  response.set("Cache-Control", "no-store").json({
+    configured: githubOAuthConfig() !== null,
+    identity: await productStore.getGitHubIdentity(owner),
+  });
+});
+app.post("/v1/auth/github/link", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  const oauth = githubOAuthConfig();
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  if (!oauth) {
+    response.status(503).json({ error: "github_oauth_not_configured" });
+    return;
+  }
+  const state = randomBytes(32).toString("base64url");
+  await productStore.createOAuthLinkState(
+    owner,
+    hashToken(state),
+    new Date(Date.now() + 10 * 60_000),
+  );
+  response.set("Cache-Control", "no-store").json({
+    authorizationUrl: buildGitHubAuthorizationUrl({
+      clientId: oauth.clientId,
+      callbackUrl: oauth.callbackUrl,
+      state,
+    }),
+  });
+});
+app.get("/v1/auth/github/callback", async (request, response) => {
+  const oauth = githubOAuthConfig();
+  const code = queryString(request.query.code);
+  const state = queryString(request.query.state);
+  if (
+    !oauth ||
+    !productStore ||
+    !code ||
+    !state ||
+    code.length > 512 ||
+    state.length > 128
+  ) {
+    response.redirect(303, `${dashboardUrl()}?github=error`);
+    return;
+  }
+  const owner = await productStore.consumeOAuthLinkState(hashToken(state));
+  if (!owner) {
+    response.redirect(303, `${dashboardUrl()}?github=expired`);
+    return;
+  }
+  try {
+    const identity = await exchangeGitHubIdentity({
+      clientId: oauth.clientId,
+      clientSecret: oauth.clientSecret,
+      callbackUrl: oauth.callbackUrl,
+      code,
+    });
+    await productStore.linkGitHubIdentity(owner, identity);
+    response.redirect(303, `${dashboardUrl()}?github=linked`);
+  } catch {
+    response.redirect(303, `${dashboardUrl()}?github=error`);
+  }
 });
 app.post("/v1/auth/challenge", async (request, response) => {
   const wallet =
@@ -267,7 +341,55 @@ app.get("/v1/allowances", async (request, response) => {
   }
   response
     .set("Cache-Control", "no-store")
-    .json(await productStore.listAllowancesForOwner(owner));
+    .json(
+      (await productStore.listAllowancesForOwner(owner)).map(
+        toHostedAuthorization,
+      ),
+    );
+});
+app.get("/v1/allowances/export", async (request, response) => {
+  const result = await exportHostedAllowanceMetadata(
+    request.header("authorization"),
+    productStore,
+    sessionOwner,
+  );
+  response
+    .set("Cache-Control", "no-store")
+    .status(result.status)
+    .json(result.body);
+});
+app.get("/v1/allowances/:address", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  const allowanceAddress = singleParam(request.params.address);
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  if (!allowanceAddress) {
+    response.status(422).json({ error: "invalid_allowance_address" });
+    return;
+  }
+  const allowance = await productStore.getAllowanceForOwner(
+    owner,
+    allowanceAddress,
+  );
+  response
+    .status(allowance ? 200 : 404)
+    .json(
+      allowance
+        ? toHostedAuthorization(allowance)
+        : { error: "allowance_not_found" },
+    );
+});
+app.delete("/v1/allowances/:address/metadata", async (request, response) => {
+  const allowanceAddress = singleParam(request.params.address);
+  const result = await deleteHostedAllowanceMetadata(
+    request.header("authorization"),
+    allowanceAddress,
+    productStore,
+    sessionOwner,
+  );
+  response.status(result.status).end();
 });
 app.post("/v1/allowances", async (request, response) => {
   const owner = await sessionOwner(request.header("authorization"));
@@ -321,6 +443,13 @@ app.post("/v1/allowances", async (request, response) => {
     expiresAt: expiresAt.toISOString(),
     revokedAt: null,
     signature: String(body.signature),
+    perRequestAtomic: String(maxAtomic),
+    recipientScope: config.product.payTo,
+    resourceScopes: [config.product.resource],
+    startsAt: new Date().toISOString(),
+    observedCommitment: "finalized",
+    observedAt: new Date().toISOString(),
+    status: "active",
   });
   response.status(201).json({ status: "recorded" });
 });
@@ -340,11 +469,45 @@ app.post("/v1/allowances/:address/revoked", async (request, response) => {
     response.status(422).json({ error: "invalid_allowance_address" });
     return;
   }
-  const changed = await productStore.revokeAllowance(owner, allowanceAddress);
+  const signature =
+    typeof request.body?.signature === "string" ? request.body.signature : "";
+  if (
+    !/^[1-9A-HJ-NP-Za-km-z]{64,88}$/.test(signature) ||
+    !(await verifyRevocationReceipt({
+      signature,
+      owner,
+      delegationAccount: allowanceAddress,
+    }))
+  ) {
+    response.status(422).json({ error: "revocation_receipt_not_verified" });
+    return;
+  }
+  const changed = await productStore.revokeAllowance(
+    owner,
+    allowanceAddress,
+    signature,
+  );
   response.status(changed ? 200 : 404).json({
     status: changed ? "revoked" : "allowance_not_found",
   });
 });
+app.post(
+  "/v1/allowances/:address/revocation-pending",
+  async (request, response) => {
+    const owner = await sessionOwner(request.header("authorization"));
+    const allowanceAddress = singleParam(request.params.address);
+    if (!owner || !productStore) {
+      response.status(401).json({ error: "wallet_session_required" });
+      return;
+    }
+    const changed = allowanceAddress
+      ? await productStore.beginAllowanceRevocation(owner, allowanceAddress)
+      : false;
+    response.status(changed ? 202 : 409).json({
+      status: changed ? "revocation_pending" : "revocation_not_started",
+    });
+  },
+);
 app.get(
   "/v1/weather/premium",
   createX402Middleware({
@@ -487,6 +650,44 @@ if (process.env.NODE_ENV !== "test") {
 }
 export { app, product, start };
 
+export async function exportHostedAllowanceMetadata(
+  authorization: string | undefined,
+  hostedStore: ProductStore | undefined,
+  resolveOwner: (authorization: string | undefined) => Promise<string | null>,
+  now: () => Date = () => new Date(),
+) {
+  const owner = await resolveOwner(authorization);
+  if (!owner || !hostedStore) {
+    return { status: 401 as const, body: { error: "wallet_session_required" } };
+  }
+  return {
+    status: 200 as const,
+    body: {
+      schemaVersion: 1 as const,
+      exportedAt: now().toISOString(),
+      authorizations: (await hostedStore.listAllowancesForOwner(owner)).map(
+        toHostedAuthorization,
+      ),
+    },
+  };
+}
+
+export async function deleteHostedAllowanceMetadata(
+  authorization: string | undefined,
+  allowanceAddress: string | undefined,
+  hostedStore: ProductStore | undefined,
+  resolveOwner: (authorization: string | undefined) => Promise<string | null>,
+) {
+  const owner = await resolveOwner(authorization);
+  if (!owner || !hostedStore) return { status: 401 as const };
+  if (!allowanceAddress) return { status: 404 as const };
+  const deleted = await hostedStore.deleteAllowanceMetadata(
+    owner,
+    allowanceAddress,
+  );
+  return { status: deleted ? (204 as const) : (404 as const) };
+}
+
 async function resolveScopedProduct(scope: {
   owner: string | null;
   slug: string;
@@ -507,8 +708,44 @@ function singleParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function queryString(value: unknown) {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return undefined;
+}
+
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
+}
+
+function githubOAuthConfig() {
+  const clientId = process.env.GITHUB_OAUTH_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_OAUTH_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+  return {
+    clientId,
+    clientSecret,
+    callbackUrl:
+      process.env.GITHUB_OAUTH_CALLBACK_URL ??
+      `${config.publicGatewayUrl}/v1/auth/github/callback`,
+  };
+}
+
+function dashboardUrl() {
+  const candidate = new URL(
+    process.env.PUBLIC_DASHBOARD_URL ?? "http://127.0.0.1:3100/dashboard",
+  );
+  const local = ["localhost", "127.0.0.1"].includes(candidate.hostname);
+  if (
+    (candidate.protocol !== "https:" &&
+      !(local && candidate.protocol === "http:")) ||
+    candidate.username ||
+    candidate.password
+  )
+    return "http://127.0.0.1:3100/dashboard";
+  candidate.search = "";
+  candidate.hash = "";
+  return candidate.toString().replace(/\/$/, "");
 }
 
 async function sessionOwner(authorization: string | undefined) {
@@ -581,6 +818,56 @@ async function verifyAllowanceReceipt(input: {
       input.mint,
       SUBSCRIPTIONS_PROGRAM,
     ].every((key) => keys.has(key));
+  } catch {
+    return false;
+  }
+}
+
+async function verifyRevocationReceipt(input: {
+  signature: string;
+  owner: string;
+  delegationAccount: string;
+}) {
+  try {
+    const rpcResponse = await fetch(
+      process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        signal: AbortSignal.timeout(10_000),
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: crypto.randomUUID(),
+          method: "getTransaction",
+          params: [
+            input.signature,
+            {
+              commitment: "finalized",
+              encoding: "jsonParsed",
+              maxSupportedTransactionVersion: 0,
+            },
+          ],
+        }),
+      },
+    );
+    if (!rpcResponse.ok) return false;
+    const body = (await rpcResponse.json()) as {
+      result?: {
+        meta?: { err?: unknown };
+        transaction?: {
+          message?: { accountKeys?: Array<string | { pubkey?: string }> };
+        };
+      } | null;
+    };
+    if (!body.result || body.result.meta?.err != null) return false;
+    const keys = new Set(
+      (body.result.transaction?.message?.accountKeys ?? [])
+        .map((key) => (typeof key === "string" ? key : key.pubkey))
+        .filter((key): key is string => Boolean(key)),
+    );
+    return [input.owner, input.delegationAccount, SUBSCRIPTIONS_PROGRAM].every(
+      (key) => keys.has(key),
+    );
   } catch {
     return false;
   }

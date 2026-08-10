@@ -11,14 +11,29 @@ describe("SolanaFinalityReconciler", () => {
       markFinalized,
       markFailed,
     };
-    const request = vi.fn(async () => new Response(JSON.stringify({
-      result: { value: [
-        { confirmationStatus: "finalized", err: null },
-        { confirmationStatus: "confirmed", err: null },
-        { confirmationStatus: "finalized", err: { InstructionError: [0, "Custom"] } },
-      ] },
-    }), { status: 200 }));
-    const result = await new SolanaFinalityReconciler(store, "https://rpc.example", request).reconcile();
+    const request = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            result: {
+              value: [
+                { confirmationStatus: "finalized", err: null },
+                { confirmationStatus: "confirmed", err: null },
+                {
+                  confirmationStatus: "finalized",
+                  err: { InstructionError: [0, "Custom"] },
+                },
+              ],
+            },
+          }),
+          { status: 200 },
+        ),
+    );
+    const result = await new SolanaFinalityReconciler(
+      store,
+      "https://rpc.example",
+      request,
+    ).reconcile();
     expect(result).toEqual({ checked: 3, finalized: 1, failed: 1, unknown: 0 });
     expect(markFinalized).toHaveBeenCalledExactlyOnceWith("final");
     expect(markFailed).toHaveBeenCalledExactlyOnceWith("failed");
@@ -26,13 +41,20 @@ describe("SolanaFinalityReconciler", () => {
 
   it("does not call RPC without pending receipts", async () => {
     const request = vi.fn();
-    const reconciler = new SolanaFinalityReconciler({
-      listConfirmedSignatures: async () => [],
-      markFinalized: async () => false,
-      markFailed: async () => false,
-    }, "https://rpc.example", request);
+    const reconciler = new SolanaFinalityReconciler(
+      {
+        listConfirmedSignatures: async () => [],
+        markFinalized: async () => false,
+        markFailed: async () => false,
+      },
+      "https://rpc.example",
+      request,
+    );
     await expect(reconciler.reconcile()).resolves.toEqual({
-      checked: 0, finalized: 0, failed: 0, unknown: 0,
+      checked: 0,
+      finalized: 0,
+      failed: 0,
+      unknown: 0,
     });
     expect(request).not.toHaveBeenCalled();
   });
@@ -44,35 +66,100 @@ describe("SolanaFinalityReconciler", () => {
       markFinalized: async () => false,
       markFailed,
     };
-    const request = vi.fn(async () => new Response(JSON.stringify({
-      result: { value: [null] },
-    }), { status: 200 }));
-    const reconciler = new SolanaFinalityReconciler(store, "https://rpc.example", request);
+    const request = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            result: { value: [null] },
+          }),
+          { status: 200 },
+        ),
+    );
+    const reconciler = new SolanaFinalityReconciler(
+      store,
+      "https://rpc.example",
+      request,
+    );
     await expect(reconciler.reconcile()).resolves.toEqual({
-      checked: 1, finalized: 0, failed: 0, unknown: 1,
+      checked: 1,
+      finalized: 0,
+      failed: 0,
+      unknown: 1,
     });
     await expect(reconciler.reconcile()).resolves.toEqual({
-      checked: 1, finalized: 0, failed: 0, unknown: 1,
+      checked: 1,
+      finalized: 0,
+      failed: 0,
+      unknown: 1,
     });
     expect(markFailed).not.toHaveBeenCalled();
   });
 
   it("falls back to a second RPC and recovers a finalized signature", async () => {
     const markFinalized = vi.fn(async () => true);
-    const request = vi.fn()
+    const request = vi
+      .fn()
       .mockResolvedValueOnce(new Response("unavailable", { status: 503 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({
-        result: { value: [{ confirmationStatus: "finalized", err: null }] },
-      }), { status: 200 }));
-    const reconciler = new SolanaFinalityReconciler({
-      listConfirmedSignatures: async () => ["recovered"],
-      markFinalized,
-      markFailed: async () => false,
-    }, ["https://rpc-primary.example", "https://rpc-fallback.example"], request);
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            result: { value: [{ confirmationStatus: "finalized", err: null }] },
+          }),
+          { status: 200 },
+        ),
+      );
+    const reconciler = new SolanaFinalityReconciler(
+      {
+        listConfirmedSignatures: async () => ["recovered"],
+        markFinalized,
+        markFailed: async () => false,
+      },
+      ["https://rpc-primary.example", "https://rpc-fallback.example"],
+      request,
+    );
     await expect(reconciler.reconcile()).resolves.toEqual({
-      checked: 1, finalized: 1, failed: 0, unknown: 0,
+      checked: 1,
+      finalized: 1,
+      failed: 0,
+      unknown: 0,
     });
     expect(request).toHaveBeenCalledTimes(2);
     expect(markFinalized).toHaveBeenCalledExactlyOnceWith("recovered");
+    expect(reconciler.lastEvidence).toMatchObject({
+      dependency: "solana-rpc",
+      outcome: "recovered",
+      attempts: 2,
+      fallbackUsed: true,
+    });
+  });
+
+  it("records a recoverable outage without leaking RPC URLs", async () => {
+    const request = vi.fn(
+      async () => new Response("unavailable", { status: 503 }),
+    );
+    const reconciler = new SolanaFinalityReconciler(
+      {
+        listConfirmedSignatures: async () => ["still-recoverable"],
+        markFinalized: async () => false,
+        markFailed: async () => false,
+      },
+      [
+        "https://rpc-primary.example/secret",
+        "https://rpc-fallback.example/secret",
+      ],
+      request,
+    );
+    await expect(reconciler.reconcile()).rejects.toThrow(
+      "SOLANA_RPC_UNAVAILABLE",
+    );
+    expect(reconciler.lastEvidence).toMatchObject({
+      dependency: "solana-rpc",
+      outcome: "unavailable",
+      attempts: 2,
+      fallbackUsed: true,
+    });
+    expect(JSON.stringify(reconciler.lastEvidence)).not.toContain(
+      "rpc-primary",
+    );
   });
 });

@@ -29,7 +29,17 @@ describe("settlement evidence", () => {
   });
 
   it("rejects replay acceptance and full signatures", () => {
-    expect(() => validateSettlementEvidence({ receipt, replay: { rejected: false, status: 200, protectedExecutions: 2 } })).toThrow();
-    expect(() => validateSettlementEvidence({ receipt: { ...receipt, signature: "full" }, replay: { rejected: true, status: 409, protectedExecutions: 1 } })).toThrow();
+    expect(() =>
+      validateSettlementEvidence({
+        receipt,
+        replay: { rejected: false, status: 200, protectedExecutions: 2 },
+      }),
+    ).toThrow();
+    expect(() =>
+      validateSettlementEvidence({
+        receipt: { ...receipt, signature: "full" },
+        replay: { rejected: true, status: 409, protectedExecutions: 1 },
+      }),
+    ).toThrow();
   });
 });

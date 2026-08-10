@@ -1,0 +1,6 @@
+{
+  "surface": "mcp",
+  "adapter": "@x402/mcp",
+  "candidateVersion": "2.21.0",
+  "acceptance": ["challenge", "settlement", "receipt", "replay"]
+}

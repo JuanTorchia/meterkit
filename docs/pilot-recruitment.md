@@ -5,13 +5,13 @@ automated health checks are users.
 
 ## Funnel
 
-| Stage | Target | Evidence |
-|---|---:|---|
-| Public post views | 200 | platform analytics or screenshot |
-| Repository visits | 30 | GitHub traffic snapshot |
-| Readiness checks | 10 | voluntary pasted result or support conversation |
-| Started integrations | 5 | GitHub pilot issue marked “started” |
-| Completed settlements | 3 | devnet Explorer URL and pilot form |
+| Stage                 | Target | Evidence                                        |
+| --------------------- | -----: | ----------------------------------------------- |
+| Public post views     |    200 | platform analytics or screenshot                |
+| Repository visits     |     30 | GitHub traffic snapshot                         |
+| Readiness checks      |     10 | voluntary pasted result or support conversation |
+| Started integrations  |      5 | GitHub pilot issue marked “started”             |
+| Completed settlements |      3 | devnet Explorer URL and pilot form              |
 
 ## Where to recruit
 

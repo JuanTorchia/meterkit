@@ -15,17 +15,21 @@ export function createPremiumRoute(wallet: string) {
     rpcUrl: false,
   });
   const handler = async () => NextResponse.json({ protected: true });
-  return withX402(handler, {
-    accepts: {
-      scheme: "exact",
-      price: { amount: product.priceAtomic, asset: product.assetMint },
-      network: SOLANA_DEVNET,
-      payTo: product.payTo,
-      maxTimeoutSeconds: 300,
+  return withX402(
+    handler,
+    {
+      accepts: {
+        scheme: "exact",
+        price: { amount: product.priceAtomic, asset: product.assetMint },
+        network: SOLANA_DEVNET,
+        payTo: product.payTo,
+        maxTimeoutSeconds: 300,
+      },
+      description: product.description,
+      mimeType: "application/json",
     },
-    description: product.description,
-    mimeType: "application/json",
-  }, server);
+    server,
+  );
 }
 
 let configuredRoute: ReturnType<typeof createPremiumRoute> | undefined;

@@ -253,7 +253,7 @@ function MarketingNav({
         <a href="#product">{text.products}</a>
         <Link href="/demo">{text.demo}</Link>
         <Link href="/pilots">{text.pilots}</Link>
-        <a href="#docs">{text.docs}</a>
+        <Link href={`/${locale === "es" ? "es" : "en"}/docs`}>{text.docs}</Link>
       </div>
       <div className="navActions">
         <div className="localeSwitch" role="group" aria-label="Language">

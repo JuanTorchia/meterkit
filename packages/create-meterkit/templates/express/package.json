@@ -1,0 +1,17 @@
+{
+  "name": "meterkit-express-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "check:unpaid": "curl -i http://localhost:3000/premium"
+  },
+  "dependencies": {
+    "@usemeterkit/sdk": "0.2.0",
+    "express": "5.1.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.9",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Documentación de MeterKit",
+  "pages": [
+    "index",
+    "concepts",
+    "integrations",
+    "operations",
+    "reference",
+    "trust"
+  ]
+}

@@ -14,9 +14,9 @@
     "@modelcontextprotocol/sdk": "1.30.0",
     "@solana/kit": "5.5.1",
     "@solana/sysvars": "5.5.1",
-    "@x402/core": "2.20.0",
-    "@x402/mcp": "2.20.0",
-    "@x402/svm": "2.20.0",
+    "@x402/core": "2.21.0",
+    "@x402/mcp": "2.21.0",
+    "@x402/svm": "2.21.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "dependency": "solana-rpc",
+  "sequence": [
+    { "source": "primary", "status": 503 },
+    {
+      "source": "fallback",
+      "status": 200,
+      "confirmationStatus": "finalized",
+      "err": null
+    }
+  ],
+  "expected": {
+    "paymentState": "finalized",
+    "definitiveFailure": false,
+    "duplicateProtectedExecutions": 0
+  }
+}

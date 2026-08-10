@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "dependency": "x402-facilitator",
+  "sequence": [
+    { "operation": "verify", "status": 503 },
+    { "operation": "retry", "status": 200 }
+  ],
+  "expected": {
+    "initialHttpStatus": 503,
+    "retryable": true,
+    "proofConsumedBeforeSettlement": false,
+    "duplicateProtectedExecutions": 0
+  }
+}

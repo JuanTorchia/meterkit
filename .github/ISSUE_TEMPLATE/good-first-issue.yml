@@ -1,0 +1,40 @@
+name: Contributor starter task
+description: Propose or claim a bounded, reproducible MeterKit contribution.
+title: "[Starter] "
+labels: ["good first issue", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Reproducible problem
+      description: Describe one bounded defect, documentation gap or missing test and how to observe it.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance check
+      description: Give the smallest command or observable result that proves completion.
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Expected scope
+      options:
+        - Tests or documentation only
+        - One package or example
+        - One UI component
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety boundaries
+      options:
+        - label: The work needs no mainnet funds or private wallet material.
+          required: true
+        - label: The work preserves direct non-custodial settlement.
+          required: true
+        - label: The reproduction contains no secrets or personal data.
+          required: true

@@ -3,21 +3,32 @@ import bs58 from "bs58";
 import type { WalletChallengeRecord } from "@usemeterkit/database";
 
 export interface WalletChallengeStore {
-  saveWalletChallenge(challenge: WalletChallengeRecord, maxActive: number): Promise<void>;
-  consumeWalletChallenge(nonceHash: string): Promise<WalletChallengeRecord | null>;
+  saveWalletChallenge(
+    challenge: WalletChallengeRecord,
+    maxActive: number,
+  ): Promise<void>;
+  consumeWalletChallenge(
+    nonceHash: string,
+  ): Promise<WalletChallengeRecord | null>;
 }
 
 export class MemoryWalletChallengeStore implements WalletChallengeStore {
   readonly #challenges = new Map<string, WalletChallengeRecord>();
 
-  async saveWalletChallenge(challenge: WalletChallengeRecord, maxActive: number) {
+  async saveWalletChallenge(
+    challenge: WalletChallengeRecord,
+    maxActive: number,
+  ) {
     const now = Date.now();
     for (const [key, value] of this.#challenges) {
       if (value.expiresAt.getTime() <= now) this.#challenges.delete(key);
     }
-    const active = [...this.#challenges.values()]
-      .filter((value) => value.wallet === challenge.wallet && value.expiresAt.getTime() > now);
-    if (active.length >= maxActive) throw new Error("TOO_MANY_ACTIVE_CHALLENGES");
+    const active = [...this.#challenges.values()].filter(
+      (value) =>
+        value.wallet === challenge.wallet && value.expiresAt.getTime() > now,
+    );
+    if (active.length >= maxActive)
+      throw new Error("TOO_MANY_ACTIVE_CHALLENGES");
     this.#challenges.set(challenge.nonceHash, challenge);
   }
 
@@ -26,7 +37,7 @@ export class MemoryWalletChallengeStore implements WalletChallengeStore {
     this.#challenges.delete(nonceHash);
     return challenge;
   }
-};
+}
 
 export class WalletChallenges {
   constructor(
@@ -34,14 +45,17 @@ export class WalletChallenges {
     private readonly maxActivePerWallet = 5,
   ) {}
 
-  async issue(input: {
-    wallet: string;
-    requestHash: string;
-    idempotencyKey: string;
-    audience: string;
-    method: "POST";
-    path: string;
-  }, now = Date.now()) {
+  async issue(
+    input: {
+      wallet: string;
+      requestHash: string;
+      idempotencyKey: string;
+      audience: string;
+      method: "POST";
+      path: string;
+    },
+    now = Date.now(),
+  ) {
     const nonce = randomBytes(24).toString("base64url");
     const expiresAt = now + 5 * 60_000;
     const message = [
@@ -55,35 +69,48 @@ export class WalletChallenges {
       `Nonce: ${nonce}`,
       `Expires: ${new Date(expiresAt).toISOString()}`,
     ].join("\n");
-    await this.store.saveWalletChallenge({
-      nonceHash: hashNonce(nonce),
-      wallet: input.wallet,
-      message,
-      expiresAt: new Date(expiresAt),
-      requestHash: input.requestHash,
-      idempotencyKey: input.idempotencyKey,
-    }, this.maxActivePerWallet);
+    await this.store.saveWalletChallenge(
+      {
+        nonceHash: hashNonce(nonce),
+        wallet: input.wallet,
+        message,
+        expiresAt: new Date(expiresAt),
+        requestHash: input.requestHash,
+        idempotencyKey: input.idempotencyKey,
+      },
+      this.maxActivePerWallet,
+    );
     return { nonce, message, expiresAt: new Date(expiresAt).toISOString() };
   }
 
-  async verify(input: {
-    wallet: string;
-    nonce: string;
-    signedMessage: string;
-    signature: string;
-    requestHash: string;
-    idempotencyKey: string;
-  }, now = Date.now()) {
-    const challenge = await this.store.consumeWalletChallenge(hashNonce(input.nonce));
+  async verify(
+    input: {
+      wallet: string;
+      nonce: string;
+      signedMessage: string;
+      signature: string;
+      requestHash: string;
+      idempotencyKey: string;
+    },
+    now = Date.now(),
+  ) {
+    const challenge = await this.store.consumeWalletChallenge(
+      hashNonce(input.nonce),
+    );
     // Consume before cryptographic verification so every challenge is single-use.
-    if (!challenge || challenge.wallet !== input.wallet ||
-        challenge.requestHash !== input.requestHash ||
-        challenge.idempotencyKey !== input.idempotencyKey ||
-        challenge.expiresAt.getTime() < now) return false;
+    if (
+      !challenge ||
+      challenge.wallet !== input.wallet ||
+      challenge.requestHash !== input.requestHash ||
+      challenge.idempotencyKey !== input.idempotencyKey ||
+      challenge.expiresAt.getTime() < now
+    )
+      return false;
 
     try {
       const signedMessage = Buffer.from(input.signedMessage, "base64");
-      if (!signedMessage.equals(Buffer.from(challenge.message, "utf8"))) return false;
+      if (!signedMessage.equals(Buffer.from(challenge.message, "utf8")))
+        return false;
       const publicKeyBytes = bs58.decode(input.wallet);
       if (publicKeyBytes.length !== 32) return false;
       const spki = Buffer.concat([

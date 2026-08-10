@@ -20,3 +20,10 @@ pnpm pilot:check
 Community support is best effort and has no SLA. Paid integration and dedicated
 support may be offered separately; payment never changes the security disclosure
 process or gives a customer authority over open-source governance.
+
+Only the latest stable package version receives security remediation. Breaking
+public API changes require a documented migration path and deprecation period;
+unsupported historical releases may be deprecated rather than patched. Release
+and rollback procedures are documented in [docs/releasing.md](docs/releasing.md),
+while suspected vulnerabilities always use the private channel in
+[SECURITY.md](SECURITY.md).

@@ -37,14 +37,14 @@ company-name search in the intended jurisdictions. Until then, treat MeterKit as
 
 Availability checked through Vercel Domains on 2026-08-04:
 
-| Domain | Status | First-year price | Recommendation |
-| --- | --- | ---: | --- |
-| `getmeterkit.com` | Available | USD 11.25 | Best low-cost bridge while the name is provisional |
-| `usemeterkit.com` | Available | USD 11.25 | Good alternative, slightly less natural verbally |
-| `meterkit.app` | Available | USD 9.99 | Best short product URL if the brand is cleared |
-| `meterkit.io` | Available | USD 37.99 | Familiar to developers, but expensive and does not solve name risk |
-| `meterkit.tools` | Available | USD 17.99 | Descriptive for APIs/MCP, weaker for hosted infrastructure |
-| `meterkit.tech` | Available | USD 7.99 | Cheap, but less credible than `.com` or `.app` |
+| Domain            | Status    | First-year price | Recommendation                                                     |
+| ----------------- | --------- | ---------------: | ------------------------------------------------------------------ |
+| `getmeterkit.com` | Available |        USD 11.25 | Best low-cost bridge while the name is provisional                 |
+| `usemeterkit.com` | Available |        USD 11.25 | Good alternative, slightly less natural verbally                   |
+| `meterkit.app`    | Available |         USD 9.99 | Best short product URL if the brand is cleared                     |
+| `meterkit.io`     | Available |        USD 37.99 | Familiar to developers, but expensive and does not solve name risk |
+| `meterkit.tools`  | Available |        USD 17.99 | Descriptive for APIs/MCP, weaker for hosted infrastructure         |
+| `meterkit.tech`   | Available |         USD 7.99 | Cheap, but less credible than `.com` or `.app`                     |
 
 ## Decision
 

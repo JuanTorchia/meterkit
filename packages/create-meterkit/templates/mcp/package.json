@@ -1,0 +1,17 @@
+{
+  "name": "meterkit-paid-mcp",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "check:unpaid": "tsx src/server.ts --unpaid"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "@usemeterkit/sdk": "0.2.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.9",
+    "typescript": "^5.9.3"
+  }
+}

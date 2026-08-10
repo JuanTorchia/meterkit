@@ -1,0 +1,17 @@
+---
+title: Operations and troubleshooting
+description: Diagnose configuration, facilitator, RPC, finality and replay outcomes safely.
+section: Operations
+order: 3
+lastReviewedAt: 2026-08-10
+productVersionRange: ">=0.1.0 <0.2.0"
+surface: general
+maturity: supported
+claimKeys: ["sanitized-logs", "rpc-recovery", "rollback-documented"]
+---
+
+# Operations and troubleshooting
+
+Validate network, mint, amount, recipient and normalized resource before signing. Keep wallet material outside logs and repositories. Treat dependency outages as recoverable unknown states and retry with bounded backoff.
+
+Release rollback never overwrites an npm version. Consult the [trust model](./trust) before operating a hosted gateway.

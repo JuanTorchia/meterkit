@@ -16,4 +16,11 @@ artifacts/grant-upload/
 artifacts/*-Grant-*.zip
 artifacts/*-Grant-*.zip.sha256
 artifacts/aaa-evidence/
+artifacts/world-class-evidence/
+artifacts/benchmarks/
+artifacts/release-manifests/
+artifacts/docs-parity/
 activation-report*.json
+.meterkit-clean-*/
+.meterkit/
+**/.source/

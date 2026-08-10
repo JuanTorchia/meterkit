@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-08-10T00:00:00.000Z",
+  "packages": [
+    {
+      "name": "@usemeterkit/core",
+      "version": "0.1.0",
+      "integrity": "sha512-CDr7QQfZa+wN8VIj82cVlPD6Pn/WJz24gIk1f/VI5VWUDg4ORDrZftFwtoZA6n3+x7R8KHCg/QVpF7s09aZ3+g==",
+      "provenance": "unavailable"
+    },
+    {
+      "name": "@usemeterkit/sdk",
+      "version": "0.1.0",
+      "integrity": "sha512-u5ci3IHRovZ3a5f19z0sepZeDGS+6CUVadkoKN+z3vqoQPWWYCHe5f3qzUpIvm2FTGjjTrhh6owHQRN67CnWWw==",
+      "provenance": "unavailable"
+    }
+  ]
+}

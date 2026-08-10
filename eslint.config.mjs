@@ -2,8 +2,15 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/.next/**", "**/node_modules/**"] },
+  {
+    ignores: [
+      "**/dist/**",
+      "**/.next/**",
+      "**/.source/**",
+      "**/node_modules/**",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  { rules: { "@typescript-eslint/no-explicit-any": "off" } }
+  { rules: { "@typescript-eslint/no-explicit-any": "off" } },
 );

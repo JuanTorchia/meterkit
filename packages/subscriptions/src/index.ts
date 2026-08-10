@@ -19,6 +19,7 @@ import {
   getCreateRecurringDelegationOverlayInstructionAsync,
   getCreatePlanOverlayInstructionAsync,
   getSubscribeOverlayInstructionAsync,
+  getTransferFixedOverlayInstructionAsync,
   getTransferSubscriptionOverlayInstructionAsync,
   getCancelSubscriptionOverlayInstructionAsync,
   getRevokeAbandonedSubscriptionInstruction,
@@ -26,6 +27,9 @@ import {
   getRevokeSubscriptionOverlayInstruction,
   getRevokeSubscriptionAuthorityOverlayInstructionAsync,
 } from "@solana/subscriptions";
+
+export * from "./authorization.js";
+export * from "./policy.js";
 
 /** Native plans use fixed hours; 720 hours is a 30-day billing period, not a calendar month. */
 export const THIRTY_DAY_PERIOD_HOURS = 720n;
@@ -54,15 +58,20 @@ export function assertAllowancePolicy(
   constraints = DEFAULT_AGENT_ALLOWANCE_CONSTRAINTS,
 ) {
   if (policy.maxAtomic <= 0n) throw new Error("ALLOWANCE_AMOUNT_INVALID");
-  if (policy.maxAtomic > constraints.maxAtomic) throw new Error("ALLOWANCE_AMOUNT_EXCEEDS_POLICY");
+  if (policy.maxAtomic > constraints.maxAtomic)
+    throw new Error("ALLOWANCE_AMOUNT_EXCEEDS_POLICY");
   if (policy.expiresAt <= now) throw new Error("ALLOWANCE_EXPIRED");
-  const durationSeconds = BigInt(Math.ceil((policy.expiresAt.getTime() - now.getTime()) / 1_000));
+  const durationSeconds = BigInt(
+    Math.ceil((policy.expiresAt.getTime() - now.getTime()) / 1_000),
+  );
   if (durationSeconds > constraints.maxDurationSeconds) {
     throw new Error("ALLOWANCE_DURATION_EXCEEDS_POLICY");
   }
   if (policy.periodSeconds !== undefined) {
-    if (policy.periodSeconds < constraints.minPeriodSeconds ||
-        policy.periodSeconds > durationSeconds) {
+    if (
+      policy.periodSeconds < constraints.minPeriodSeconds ||
+      policy.periodSeconds > durationSeconds
+    ) {
       throw new Error("ALLOWANCE_PERIOD_INVALID");
     }
   }
@@ -109,7 +118,10 @@ export async function buildFixedAllowance(input: {
   nonce: bigint;
   authorityInitId: bigint;
 }): Promise<Instruction> {
-  assertAllowancePolicy({ maxAtomic: input.maxAtomic, expiresAt: input.expiresAt });
+  assertAllowancePolicy({
+    maxAtomic: input.maxAtomic,
+    expiresAt: input.expiresAt,
+  });
   return getCreateFixedDelegationOverlayInstructionAsync({
     delegator: input.owner,
     ...(input.payer ? { payer: input.payer } : {}),
@@ -139,7 +151,8 @@ export async function buildRecurringAllowance(input: {
     expiresAt: input.expiresAt,
     periodSeconds: input.periodSeconds,
   });
-  if (input.startsAt >= input.expiresAt) throw new Error("ALLOWANCE_START_AFTER_EXPIRY");
+  if (input.startsAt >= input.expiresAt)
+    throw new Error("ALLOWANCE_START_AFTER_EXPIRY");
   return getCreateRecurringDelegationOverlayInstructionAsync({
     delegator: input.owner,
     ...(input.payer ? { payer: input.payer } : {}),
@@ -151,6 +164,29 @@ export async function buildRecurringAllowance(input: {
     expiryTs: toUnixSeconds(input.expiresAt),
     nonce: input.nonce,
     expectedSubscriptionAuthorityInitId: input.authorityInitId,
+  });
+}
+
+export async function buildTransferFixedAllowance(input: {
+  delegationAccount: Address;
+  owner: Address;
+  ownerAta: Address;
+  receiverAta: Address;
+  mint: Address;
+  tokenProgram: Address;
+  delegate: TransactionSigner;
+  amountAtomic: bigint;
+}) {
+  if (input.amountAtomic <= 0n) throw new Error("TRANSFER_AMOUNT_INVALID");
+  return getTransferFixedOverlayInstructionAsync({
+    delegationPda: input.delegationAccount,
+    delegator: input.owner,
+    delegatorAta: input.ownerAta,
+    receiverAta: input.receiverAta,
+    tokenMint: input.mint,
+    tokenProgram: input.tokenProgram,
+    delegatee: input.delegate,
+    amount: input.amountAtomic,
   });
 }
 
@@ -373,7 +409,8 @@ export async function buildTransferSubscription(input: {
   tokenProgram: Address;
   amountAtomic: bigint;
 }) {
-  if (input.amountAtomic <= 0n) throw new Error("SUBSCRIPTION_TRANSFER_AMOUNT_INVALID");
+  if (input.amountAtomic <= 0n)
+    throw new Error("SUBSCRIPTION_TRANSFER_AMOUNT_INVALID");
   return getTransferSubscriptionOverlayInstructionAsync({
     caller: input.caller,
     delegator: input.subscriber,
@@ -443,7 +480,10 @@ function compileWalletInstruction(
         blockhash: blockhash(lifetime.recentBlockhash),
         lastValidBlockHeight: lifetime.lastValidBlockHeight,
       },
-      setTransactionMessageFeePayer(feePayer, createTransactionMessage({ version: 0 })),
+      setTransactionMessageFeePayer(
+        feePayer,
+        createTransactionMessage({ version: 0 }),
+      ),
     ),
   );
   return getTransactionEncoder().encode(compileTransaction(message));

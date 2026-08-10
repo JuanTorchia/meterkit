@@ -36,4 +36,3 @@ Liquidación rápida y económica en USDC, x402 v2 oficial en SVM y programa nat
 5 pilotos; 3 integraciones activas; 100 pagos devnet; 10 estrellas/instalaciones verificables; 1 caso público; cero custodia.
 
 > Confirmar residencia argentina, entidad, KYC, cronograma e importes antes de enviar.
-

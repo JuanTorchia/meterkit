@@ -1,0 +1,40 @@
+---
+title: Agent budgets
+description: Bound an autonomous client's USDC spending with official Solana allowances that remain wallet-controlled.
+section: Agent budgets
+order: 2
+lastReviewedAt: 2026-08-10
+productVersionRange: ">=0.1.0 <0.2.0"
+surface: agent-budget
+maturity: experimental
+claimKeys:
+  [
+    "official-allowance",
+    "bounded-spend",
+    "atomic-reservation",
+    "wallet-revocation",
+    "hosted-metadata-only",
+  ]
+---
+
+# Agent budgets
+
+MeterKit uses `@solana/subscriptions` 0.4.0 and the canonical Subscriptions program. The wallet creates and revokes the authorization directly; MeterKit never receives a private key and its hosted database cannot grant spending authority.
+
+## Fixed allowance
+
+A fixed allowance caps total spend until an exact expiry. MeterKit additionally binds one delegate, devnet, test-USDC mint, recipient, exact resource URLs and a per-request maximum. Before x402 settlement it reserves capacity atomically in PostgreSQL. Settlement consumes the reservation; a confirmed failure or cancellation releases it. An ambiguous result stays reserved until reconciliation or expiry.
+
+## Recurring allowance
+
+A recurring allowance resets its protocol limit after a fixed period. It is useful for bounded operational budgets, but it is not a bank debit or a guarantee of service. MeterKit validates each request and the current onchain authorization again. Recurring dashboard consumption is experimental until fresh devnet evidence is recorded.
+
+## Subscription plan
+
+Native plans use fixed hours. MeterKit's “monthly” example is 720 hours (30 days), not a calendar month. The subscriber approves the official plan terms and can cancel through the wallet-controlled program instruction.
+
+## Inspection and revocation
+
+The payer dashboard shows aggregate, spent, reserved, remaining, expiry, delegate, finality and Explorer evidence. `unknown` is recoverable and blocks new spending; it is not reported as an onchain failure. Revocation moves through `revocation_pending` and is shown as `revoked` only after the finalized transaction is independently observed.
+
+Deleting hosted metadata does not revoke an allowance. If MeterKit is unavailable, the owner can still inspect and revoke through compatible Solana tooling. The protocol account remains the authority.

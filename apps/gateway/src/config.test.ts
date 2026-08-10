@@ -22,23 +22,31 @@ describe("hosted gateway configuration", () => {
   });
 
   it("fails closed for mainnet, unsafe public HTTP and invalid ports", () => {
-    expect(() => loadGatewayConfig({ METERKIT_NETWORK: "solana-mainnet" }))
-      .toThrow(/only supports solana-devnet/);
-    expect(() => loadGatewayConfig({
-      PUBLIC_GATEWAY_URL: "http://api.demo.meterkit.dev",
-    })).toThrow(/must use HTTPS/);
+    expect(() =>
+      loadGatewayConfig({ METERKIT_NETWORK: "solana-mainnet" }),
+    ).toThrow(/only supports solana-devnet/);
+    expect(() =>
+      loadGatewayConfig({
+        PUBLIC_GATEWAY_URL: "http://api.demo.meterkit.dev",
+      }),
+    ).toThrow(/must use HTTPS/);
     expect(() => loadGatewayConfig({ PORT: "70000" })).toThrow(/PORT/);
-    expect(() => loadGatewayConfig({ TRUST_PROXY_HOPS: "many" }))
-      .toThrow(/TRUST_PROXY_HOPS/);
+    expect(() => loadGatewayConfig({ TRUST_PROXY_HOPS: "many" })).toThrow(
+      /TRUST_PROXY_HOPS/,
+    );
   });
 
   it("requires an explicit provider wallet when persistence is enabled", () => {
-    expect(() => requirePersistentMerchant({
-      DATABASE_URL: "postgresql://example",
-    })).toThrow(/MERCHANT_WALLET/);
-    expect(() => requirePersistentMerchant({
-      DATABASE_URL: "postgresql://example",
-      MERCHANT_WALLET: merchant,
-    })).not.toThrow();
+    expect(() =>
+      requirePersistentMerchant({
+        DATABASE_URL: "postgresql://example",
+      }),
+    ).toThrow(/MERCHANT_WALLET/);
+    expect(() =>
+      requirePersistentMerchant({
+        DATABASE_URL: "postgresql://example",
+        MERCHANT_WALLET: merchant,
+      }),
+    ).not.toThrow();
   });
 });

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://usemeterkit.dev/schemas/benchmark-evidence-v1.json",
+  "title": "MeterKit Benchmark Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "sourceCommit",
+    "startedAt",
+    "environment",
+    "workload",
+    "latency",
+    "outcomes",
+    "protectedExecutions",
+    "duplicateExecutions",
+    "limitations"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "runId": { "type": "string", "format": "uuid" },
+    "sourceCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "environment": { "type": "object", "minProperties": 4 },
+    "workload": {
+      "type": "object",
+      "required": ["scenario", "concurrency", "requests", "timeoutMs"],
+      "properties": {
+        "scenario": {
+          "enum": [
+            "unpaid",
+            "policy",
+            "paid-retry",
+            "replay",
+            "dependency-outage"
+          ]
+        },
+        "concurrency": { "type": "integer", "minimum": 1 },
+        "requests": { "type": "integer", "minimum": 1 },
+        "timeoutMs": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "latency": {
+      "type": "object",
+      "required": ["local", "external"],
+      "properties": {
+        "local": { "$ref": "#/$defs/percentiles" },
+        "external": { "$ref": "#/$defs/percentiles" }
+      }
+    },
+    "outcomes": { "type": "object", "minProperties": 4 },
+    "protectedExecutions": { "type": "integer", "minimum": 0 },
+    "duplicateExecutions": { "type": "integer", "const": 0 },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "artifacts": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "percentiles": {
+      "type": "object",
+      "required": ["p50Ms", "p95Ms", "p99Ms"],
+      "properties": {
+        "p50Ms": { "type": "number", "minimum": 0 },
+        "p95Ms": { "type": "number", "minimum": 0 },
+        "p99Ms": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

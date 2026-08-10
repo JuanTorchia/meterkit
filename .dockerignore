@@ -17,3 +17,10 @@ coverage
 *keypair*.json
 activation-report*.json
 specs/**/evidence/
+artifacts/world-class-evidence
+artifacts/benchmarks
+artifacts/release-manifests
+artifacts/docs-parity
+.meterkit-clean-*/
+.meterkit/
+**/.source/

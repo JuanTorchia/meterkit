@@ -13,4 +13,3 @@ La demo “Solana Project Scout” genera reportes factuales con fuentes públic
 El MVP combina x402 v2 sobre Solana, USDC, recibos verificables y las nuevas primitivas nativas de Subscriptions & Allowances para planes mensuales y límites de gasto de agentes. El objetivo de cuatro semanas: pago devnet, 3–5 pilotos, suscripción revocable, dashboard e implementación alojada.
 
 Éxito inicial: 10 pagos devnet sin replay, cinco instalaciones externas y el primer cliente de integración.
-

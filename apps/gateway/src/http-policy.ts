@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import { randomUUID } from "node:crypto";
 import type { Express } from "express";
 import { rateLimit } from "express-rate-limit";
 
@@ -22,6 +23,15 @@ export function installHttpPolicy(app: Express, trustProxyHops: number) {
     }
     next();
   });
+  app.use((request, response, next) => {
+    const supplied = request.header("x-request-id");
+    const correlationId =
+      supplied && /^[A-Za-z0-9._:-]{8,64}$/.test(supplied)
+        ? supplied
+        : randomUUID();
+    response.set("X-Request-Id", correlationId);
+    next();
+  });
   app.use(
     cors({
       origin: (
@@ -38,6 +48,18 @@ export function installHttpPolicy(app: Express, trustProxyHops: number) {
     rateLimit({
       windowMs: 60_000,
       limit: Number(process.env.RATE_LIMIT_PER_MINUTE ?? 60),
+      standardHeaders: "draft-7",
+      legacyHeaders: false,
+      handler: (_request, response, _next, options) => {
+        response
+          .status(options.statusCode)
+          .set("Cache-Control", "no-store")
+          .json({
+            error: "rate_limit_exceeded",
+            retryable: true,
+            retryAfterSeconds: 60,
+          });
+      },
     }),
   );
 }

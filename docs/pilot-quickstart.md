@@ -26,17 +26,17 @@ The public GitHub report cannot make your GitHub identity anonymous. If your
 endpoint is private, report only its SHA-256 fingerprint as described in
 [`pilot-evidence.md`](pilot-evidence.md).
 
-## 1. Install a pinned release or workspace commit
+## 1. Choose a released-SDK or generated-project path
 
-After `v0.1.0` is published, install the exact SDK release in the participant's
-existing service:
+The SDK 0.1.0 release is publicly visible on npm. Install that exact immutable
+version in the participant's existing service:
 
 ```bash
 pnpm add @usemeterkit/sdk@0.1.0
 ```
 
-Until the package is publicly visible on npm, use a full commit SHA so the
-integration remains reproducible:
+For a new generated project, use a full commit SHA so the initializer candidate
+and its templates remain reproducible:
 
 ```bash
 git clone https://github.com/JuanTorchia/meterkit.git
@@ -44,9 +44,18 @@ cd meterkit
 git rev-parse HEAD
 corepack enable
 pnpm install --frozen-lockfile
-pnpm --filter @usemeterkit/sdk build
-pnpm --filter @usemeterkit/pilot build
+pnpm create:meterkit ../meterkit-pilot \
+  --surface express \
+  --package-manager pnpm \
+  --yes
 ```
+
+Choose `next-route`, `hono` or `mcp` instead of `express` when that is the
+participant's actual surface. Run the generated project's install and unpaid
+challenge instructions without maintainer edits. `create-meterkit` and
+`@usemeterkit/pilot` are not npm releases as of 2026-08-10; this path evaluates
+the checked-out source candidate and must be reported by commit, not as package
+adoption.
 
 Save the exact package version or full commit SHA. It is the SDK identifier in
 the pilot report.
@@ -78,7 +87,7 @@ Acceptance: the response is HTTP `402` and contains `PAYMENT-REQUIRED`. Delete
 `pilot-402.headers` after calculating the challenge fingerprint; never attach
 that file to a GitHub issue.
 
-## 3. Enforce the endpoint policy with `pilot:verify`
+## 3. Enforce the endpoint policy with the workspace verifier
 
 Create a verifier configuration for the participant's endpoint:
 

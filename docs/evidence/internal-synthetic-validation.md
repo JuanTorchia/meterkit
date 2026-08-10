@@ -28,11 +28,11 @@ Three independently generated devnet wallets executed the same bounded 0.01
 test-USDC purchase against the public deployment. The x402 facilitator sponsored
 gas, so the agents did not require SOL.
 
-| Persona | Public payer | Provider balance delta | Replay | Finalized transaction |
-|---|---|---:|---:|---|
-| `api-builder` | `7kXGw6v1rty7nLnENYHCLNaXkWDuk2V2TTSoaPeThFdv` | +10,000 atomic | HTTP 402 | [`3GqzMp…Li3bq`](https://explorer.solana.com/tx/3GqzMpPZb4LmAutC2fUv7cEUkZfQPCqB1jzRbp2GszNc7vaLX66yRohf8KStdPwm2JVpogMDA5wZDKM6HBwLi3bq?cluster=devnet) |
-| `mcp-builder` | `21ciqy3LSsGWXaKCg7ziqWq9LvGzXWypxJWc9rNTtWAh` | +10,000 atomic | HTTP 402 | [`xhQuJn…cuTifq`](https://explorer.solana.com/tx/xhQuJn5sLF2e5qqkrTofY72iMyk1EbBTh68tq8KYrq1jcAfAvAHaBSkmApwPLhsBwCF3NVmSWSvJJA7R6cuTifq?cluster=devnet) |
-| `latam-builder` | `GxdPzmJtr7qqcnS3speYQaRFsq83hPk9nWkvMFPioPnx` | +10,000 atomic | HTTP 402 | [`9EQSGT…AwU7X`](https://explorer.solana.com/tx/9EQSGTgeXsia5JJ2GAjuh6tjVsUnvBbNWnYhAS74HvBG4u1kewwxgbo3dXmwtPTdwtekuksZkimjivDwwTAwU7X?cluster=devnet) |
+| Persona         | Public payer                                   | Provider balance delta |   Replay | Finalized transaction                                                                                                                                    |
+| --------------- | ---------------------------------------------- | ---------------------: | -------: | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api-builder`   | `7kXGw6v1rty7nLnENYHCLNaXkWDuk2V2TTSoaPeThFdv` |         +10,000 atomic | HTTP 402 | [`3GqzMp…Li3bq`](https://explorer.solana.com/tx/3GqzMpPZb4LmAutC2fUv7cEUkZfQPCqB1jzRbp2GszNc7vaLX66yRohf8KStdPwm2JVpogMDA5wZDKM6HBwLi3bq?cluster=devnet) |
+| `mcp-builder`   | `21ciqy3LSsGWXaKCg7ziqWq9LvGzXWypxJWc9rNTtWAh` |         +10,000 atomic | HTTP 402 | [`xhQuJn…cuTifq`](https://explorer.solana.com/tx/xhQuJn5sLF2e5qqkrTofY72iMyk1EbBTh68tq8KYrq1jcAfAvAHaBSkmApwPLhsBwCF3NVmSWSvJJA7R6cuTifq?cluster=devnet) |
+| `latam-builder` | `GxdPzmJtr7qqcnS3speYQaRFsq83hPk9nWkvMFPioPnx` |         +10,000 atomic | HTTP 402 | [`9EQSGT…AwU7X`](https://explorer.solana.com/tx/9EQSGTgeXsia5JJ2GAjuh6tjVsUnvBbNWnYhAS74HvBG4u1kewwxgbo3dXmwtPTdwtekuksZkimjivDwwTAwU7X?cluster=devnet)  |
 
 Aggregate assertions:
 

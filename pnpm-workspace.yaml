@@ -7,6 +7,11 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - hono@4.13.0
+  - fumadocs-core@16.14.3
+  - fumadocs-mdx@15.2.3
+peerDependencyRules:
+  allowedVersions:
+    "@solana-program/token-2022>@solana/sysvars": ">=5 <7"
 overrides:
   hono: 4.13.0
   nanoid@<3.3.17: 3.3.17

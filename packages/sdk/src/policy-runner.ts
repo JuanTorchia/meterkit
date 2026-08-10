@@ -10,7 +10,8 @@ import {
 
 export type ConfiguredPaymentPolicy = {
   evaluator: PaymentPolicyEvaluator;
-  configuration: Partial<PaymentPolicyConfiguration> & Pick<PaymentPolicyConfiguration, "id">;
+  configuration: Partial<PaymentPolicyConfiguration> &
+    Pick<PaymentPolicyConfiguration, "id">;
 };
 
 export async function runPaymentPolicies(
@@ -22,7 +23,9 @@ export async function runPaymentPolicies(
   let allowed = true;
 
   for (const item of policies) {
-    const configuration = paymentPolicyConfigurationSchema.parse(item.configuration);
+    const configuration = paymentPolicyConfigurationSchema.parse(
+      item.configuration,
+    );
     const controller = new AbortController();
     const timeout = setTimeout(
       () => controller.abort(new Error("POLICY_TIMEOUT")),
@@ -33,13 +36,17 @@ export async function runPaymentPolicies(
       decision = policyDecisionSchema.parse(
         await item.evaluator.evaluate(input, controller.signal),
       );
-      if (decision.policyId !== configuration.id || item.evaluator.id !== configuration.id) {
+      if (
+        decision.policyId !== configuration.id ||
+        item.evaluator.id !== configuration.id
+      ) {
         throw new Error("POLICY_ID_MISMATCH");
       }
     } catch (cause) {
-      const code = cause instanceof Error && cause.message === "POLICY_TIMEOUT"
-        ? "POLICY_TIMEOUT"
-        : "POLICY_UNAVAILABLE";
+      const code =
+        cause instanceof Error && cause.message === "POLICY_TIMEOUT"
+          ? "POLICY_TIMEOUT"
+          : "POLICY_UNAVAILABLE";
       decision = policyDecisionSchema.parse({
         policyId: configuration.id,
         provider: item.evaluator.id,
@@ -53,8 +60,10 @@ export async function runPaymentPolicies(
     }
     decisions.push(decision);
     if (configuration.mode === "enforce") {
-      if (decision.outcome === "deny" || decision.outcome === "warn") allowed = false;
-      if (decision.outcome === "error" && configuration.onError === "deny") allowed = false;
+      if (decision.outcome === "deny" || decision.outcome === "warn")
+        allowed = false;
+      if (decision.outcome === "error" && configuration.onError === "deny")
+        allowed = false;
     }
   }
   return { allowed, decisions } as const;
