@@ -26,10 +26,17 @@ The public GitHub report cannot make your GitHub identity anonymous. If your
 endpoint is private, report only its SHA-256 fingerprint as described in
 [`pilot-evidence.md`](pilot-evidence.md).
 
-## 1. Obtain and build the pinned workspace
+## 1. Install a pinned release or workspace commit
 
-Until the pilot CLI and SDK have a public package release, use a full commit SHA
-so the integration is reproducible:
+After `v0.1.0` is published, install the exact SDK release in the participant's
+existing service:
+
+```bash
+pnpm add @meterkit/sdk@0.1.0
+```
+
+Until the package is publicly visible on npm, use a full commit SHA so the
+integration remains reproducible:
 
 ```bash
 git clone https://github.com/JuanTorchia/meterkit.git
@@ -41,7 +48,8 @@ pnpm --filter @meterkit/sdk build
 pnpm --filter @meterkit/pilot build
 ```
 
-Save the full commit SHA. It is the SDK identifier in the pilot report.
+Save the exact package version or full commit SHA. It is the SDK identifier in
+the pilot report.
 
 ## 2. Protect one developer-owned test endpoint
 

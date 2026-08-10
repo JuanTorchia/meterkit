@@ -21,6 +21,8 @@ USDC budget for paid APIs and MCP tools over standard HTTP.
 - [Contributor guide](CONTRIBUTING.md)
 - [Community plan](docs/community.md)
 - [External pilot quickstart](docs/pilot-quickstart.md)
+- [SDK quickstart — first HTTP 402](docs/sdk-quickstart.md)
+- [Release procedure](docs/releasing.md)
 - [Security policy](SECURITY.md)
 - [Roadmap](docs/roadmap.md)
 

@@ -25,6 +25,7 @@
     "demo:record": "node scripts/record-demo.mjs",
     "demo:institutional": "node scripts/record-institutional-demo.mjs",
     "evidence:grant": "node scripts/grant-evidence.mjs",
+    "release:verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm --filter @meterkit/core pack --pack-destination /tmp && pnpm --filter @meterkit/sdk pack --pack-destination /tmp",
     "format": "prettier --write ."
   },
   "devDependencies": {
