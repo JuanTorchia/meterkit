@@ -49,9 +49,9 @@
     "@meterkit/core": "workspace:*",
     "@solana/kit": "5.5.1",
     "@solana/sysvars": "5.5.1",
-    "@x402/core": "2.20.0",
-    "@x402/express": "2.20.0",
-    "@x402/svm": "2.20.0",
+    "@x402/core": "2.21.0",
+    "@x402/express": "2.21.0",
+    "@x402/svm": "2.21.0",
     "express": "^5.1.0",
     "zod": "^4.0.17"
   },
