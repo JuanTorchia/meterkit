@@ -18,6 +18,7 @@ USDC budget for paid APIs and MCP tools over standard HTTP.
 
 - [Public devnet dashboard](https://meterkit.juanchi.dev)
 - [Gateway health](https://meterkit-api.juanchi.dev/health)
+- Documentation: **[English](docs/en/README.md)** · **[Español](docs/es/README.md)**
 - [Contributor guide](CONTRIBUTING.md)
 - [Community plan](docs/community.md)
 - [External pilot quickstart](docs/pilot-quickstart.md)
