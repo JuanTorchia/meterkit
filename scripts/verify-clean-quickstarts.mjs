@@ -181,11 +181,14 @@ try {
         "@usemeterkit/sdk": `file:${sdkPack}`,
       };
       manifest.overrides = { "@usemeterkit/core": `file:${corePack}` };
-      manifest.pnpm = {
-        overrides: { "@usemeterkit/core": `file:${corePack}` },
-      };
       manifest.resolutions = { "@usemeterkit/core": `file:${corePack}` };
       writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+      if (manager === "pnpm") {
+        writeFileSync(
+          join(project, "pnpm-workspace.yaml"),
+          `overrides:\n  '@usemeterkit/core': 'file:${corePack}'\n`,
+        );
+      }
       for (const generatedInstallArtifact of [
         "node_modules",
         "pnpm-lock.yaml",
