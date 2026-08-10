@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@meterkit/core": "workspace:*",
-    "@solana/kit": "5.5.1",
+    "@solana/kit": "7.0.0",
     "@solana/sysvars": "5.5.1",
     "@x402/core": "2.20.0",
     "@x402/express": "2.20.0",
