@@ -8,7 +8,7 @@
 
 **Input**: Make MeterKit an AAA-quality, competitive, open-source product that developers can adopt independently; complete the paid x402 journey, expose bounded and revocable agent spending, build trust and distribution, and add an optional Webacy risk-policy integration without making the core dependent on a proprietary service.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Complete a Paid Endpoint Independently (Priority: P1)
 
@@ -142,7 +142,18 @@ changes by the maintainer, and all friction and outcomes are recorded truthfully
   signatures.
 - A pilot participant does not consent to analytics or abandons before payment.
 
-## Requirements *(mandatory)*
+## Clarifications
+
+### Session 2026-08-10
+
+- Q: Does the ban on full signatures also prohibit the public transaction
+  identifier required for a Solana Explorer link? → A: No. A finalized onchain
+  transaction signature may appear only as an intentional public receipt or
+  Explorer identifier. Wallet-auth signatures, signed challenges, x402 payment
+  payloads, private keys, seed phrases, and bearer credentials remain prohibited
+  from logs and evidence artifacts.
+
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -189,7 +200,7 @@ changes by the maintainer, and all friction and outcomes are recorded truthfully
 - **Release Evidence**: Exact revision, packages, provenance, security checks,
   migrations, deployment health, and rollback metadata for a release.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -203,7 +214,7 @@ changes by the maintainer, and all friction and outcomes are recorded truthfully
 - **SC-008**: Existing supported consumers have a documented non-breaking path or migration guide before the recommended interface becomes generally available.
 - **SC-009**: Disabling or removing the optional risk adapter changes no core payment acceptance result for equivalent input.
 - **SC-010**: Allow, warn, deny, timeout, malformed-response, rate-limit, and provider-unavailable risk scenarios all produce the declared decision and sanitized receipt evidence.
-- **SC-011**: No automated log, receipt, evidence bundle, test artifact, or pilot record contains private keys, seed phrases, bearer credentials, full signatures, or unapproved personal data.
+- **SC-011**: No automated log, receipt, evidence bundle, test artifact, or pilot record contains private keys, seed phrases, bearer credentials, wallet-auth signatures, signed challenge or x402 payment payloads, or unapproved personal data. A finalized onchain transaction signature MAY appear only as an intentional public receipt or Solana Explorer identifier.
 - **SC-012**: A release reviewer can reproduce all mandatory quality gates and trace the deployed artifact to one exact approved revision.
 - **SC-013**: All primary product journeys pass desktop and mobile visual review, keyboard navigation, basic contrast review, console inspection, and reduced-motion behavior.
 - **SC-014**: A public product or funding update can be reconciled to evidence for every adoption, revenue, funding, security, and compatibility claim.
