@@ -13,6 +13,6 @@
     "@solana/subscriptions": "0.4.0"
   },
   "devDependencies": {
-    "tsx": "^4.23.9"
+    "tsx": "^4.23.10"
   }
 }
