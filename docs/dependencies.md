@@ -11,6 +11,12 @@ oficial, con paquetes acoplados en una sola rama y toda la matriz CI. Esto evita
 PRs incompatibles como `@solana/kit` 7 separado de `@solana/sysvars` 7 y no
 equivale a ignorar vulnerabilidades.
 
+Las actualizaciones productivas tampoco se mezclan indiscriminadamente. x402,
+runtime web/Wallet Standard y runtime del gateway forman grupos independientes;
+el resto usa un grupo residual. Así, un fallo de Next/React no bloquea ni oculta
+una actualización de x402, y cada cambio conserva una superficie de regresión
+revisable.
+
 Cadencia: revisar alertas de seguridad de inmediato y revisar versiones major al
 menos una vez por mes o cuando una dependencia soportada anuncie fin de vida.
 

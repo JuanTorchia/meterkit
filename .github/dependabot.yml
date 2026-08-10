@@ -12,7 +12,35 @@ updates:
     commit-message:
       prefix: deps
     groups:
-      production:
+      x402:
+        dependency-type: production
+        patterns:
+          - "@x402/*"
+        update-types:
+          - minor
+          - patch
+      web-runtime:
+        dependency-type: production
+        patterns:
+          - next
+          - react
+          - react-dom
+          - "@wallet-standard/*"
+        update-types:
+          - minor
+          - patch
+      gateway-runtime:
+        dependency-type: production
+        patterns:
+          - express
+          - express-rate-limit
+          - cors
+          - zod
+          - bs58
+        update-types:
+          - minor
+          - patch
+      production-other:
         dependency-type: production
         update-types:
           - minor

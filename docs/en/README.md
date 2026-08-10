@@ -35,3 +35,7 @@ report security alerts. Major versions are deliberate migration work: maintainer
 review official release notes, upgrade coupled packages together and run the full
 CI matrix. This keeps incompatible majors out of automatic PR churn without
 hiding vulnerabilities.
+
+Production updates are split by risk surface: x402, web/Wallet Standard, gateway
+runtime and a residual group. A regression in one surface therefore cannot hide
+inside an unrelated dependency bundle.
