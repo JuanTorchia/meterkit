@@ -14,9 +14,12 @@ privadas. El gateway, el dashboard y PostgreSQL son servicios separados.
 6. Para rollback, seleccionar el deployment sano inmediatamente anterior en
    Coolify y repetir el smoke público.
 
-La protección recomendada de `main` exige PR, una aprobación, resolución de
-conversaciones, checks actualizados y bloquea force-push/eliminación. Se activa
-después de que los nombres reales de los checks aparezcan en el primer run.
+La protección vigente de `main` exige PR, resolución de conversaciones, historial
+lineal y los checks actualizados `verify`, `analyze` y `dependency-review`; además
+bloquea force-push y eliminación. Mientras existe un único mantenedor, el contador
+de aprobaciones permanece en cero y la aprobación del último pusher está
+desactivada. Debe volver a exigirse una revisión independiente cuando exista un
+segundo mantenedor confiable.
 
 ## Invariantes
 

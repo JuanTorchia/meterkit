@@ -1,19 +1,26 @@
 # Matriz de financiación
 
-Fecha de consulta: **2026-08-05**. Los importes y estados pueden cambiar; verificar antes de enviar.
+Última revisión parcial: **2026-08-10**. Los importes y estados pueden cambiar;
+verificar cada convocatoria antes de enviar o solicitar un tramo.
 
 ## 1. Agentic Engineering Grant
 
 - Enlace: [Superteam Earn](https://superteam.fun/earn/grants/agentic-engineering)
-- Estado: abierto/listado; 270 receptores visibles al consultar. MeterKit fue
-  enviado por el solicitante el **2026-08-04** y está pendiente de revisión.
+- Estado de la convocatoria, consultado el **2026-08-10**: abierta/listada.
+- Estado de MeterKit: enviado el **2026-08-04** y **aprobado por 200 USDG**
+  según el email de Superteam recibido por el solicitante el **2026-08-10**.
+  La aprobación todavía no se registra como pago: KYC, recepción del primer
+  tramo y transacción permanecen pendientes de confirmación.
 - Importe: 200 USDG; 50% tras aprobación/KYC y 50% al entregar.
 - Requisitos: alcance práctico, integración Solana, producto funcional; KYC. Si el repo es privado debe darse acceso al revisor.
 - Entregables: URL viva, repositorio GitHub y recibos de suscripción de herramientas de IA por un total de $200.
 - Encaje: MeterKit es un producto Solana acotado y demostrable; el dinero cubre herramientas para terminar x402 devnet.
-- Acción: conservar la respuesta enviada como snapshot histórico y preparar el
-  cierre únicamente si se aprueba. La identidad, KYC y recibo de IA siguen
-  siendo responsabilidad del solicitante.
+- Acción: completar o confirmar KYC en el flujo oficial, verificar inmediatamente
+  que la wallet presentada sea controlada por el solicitante y compatible con
+  USDG sobre Solana, conservar el primer pago como evidencia privada y preparar
+  el segundo tramo con URL viva, GitHub y recibos elegibles por un total de $200.
+  La identidad, KYC, wallet y recibo de IA siguen siendo responsabilidad del
+  solicitante.
 
 ## 2. Solana Foundation Argentina
 

@@ -2,7 +2,8 @@
 
 Originally prepared on **2026-08-03** for the Superteam Agentic Engineering
 Grant. Files `01`–`06` preserve that application snapshot. Files `07`–`10`
-contain the separately dated post-submission closeout.
+contain the separately dated post-submission closeout. File `11` records the
+later approval and tranche state without rewriting either historical snapshot.
 
 ## Recommended reading order
 
@@ -16,12 +17,15 @@ contain the separately dated post-submission closeout.
 8. `08-POST-SUBMISSION-ADDENDUM.md` — facts completed after submission.
 9. `09-CLOSEOUT-CHECKLIST.md` — technical and applicant-controlled closeout.
 10. `10-FINAL-HANDOFF.md` — concise sponsor handoff for the final tranche.
+11. `11-APPROVAL-AND-TRANCHES.md` — approval notice and remaining applicant-controlled steps.
 
 ## Important scope statement
 
 The submitted snapshot documented a working local and devnet MVP. The dated
-closeout now documents a public devnet release. It does **not** claim production
-users, revenue, mainnet operation, external pilots or an approved grant.
+closeout now documents a public devnet release. Those historical files correctly
+did **not** claim production users, revenue, mainnet operation, external pilots or
+an approved grant at their capture dates. MeterKit was later reported approved;
+file `11` records that new event separately.
 
 ## Primary links
 
