@@ -26,6 +26,7 @@ function run(command, args, cwd) {
 }
 
 function pack(filter, destination) {
+  run("pnpm", ["--filter", filter, "build"], root);
   run(
     "pnpm",
     ["--filter", filter, "pack", "--pack-destination", destination],

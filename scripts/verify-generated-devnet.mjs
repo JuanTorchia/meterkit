@@ -84,6 +84,7 @@ try {
     "@usemeterkit/sdk",
     "create-meterkit",
   ]) {
+    command("pnpm", ["--filter", filter, "build"]);
     command("pnpm", ["--filter", filter, "pack", "--pack-destination", packs]);
   }
   const corePack = join(packs, "usemeterkit-core-0.1.0.tgz");
