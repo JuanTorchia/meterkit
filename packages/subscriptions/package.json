@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/subscriptions",
+  "name": "@usemeterkit/subscriptions",
   "version": "0.1.0",
   "description": "Wallet-controlled Solana allowance and subscription transaction builders for MeterKit",
   "license": "Apache-2.0",
@@ -45,7 +45,7 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
-    "@meterkit/core": "workspace:*",
+    "@usemeterkit/core": "workspace:*",
     "@solana/kit": "6.10.0",
     "@solana/subscriptions": "0.4.0",
     "@solana/sysvars": "5.5.1"

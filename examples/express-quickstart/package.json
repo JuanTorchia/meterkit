@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/example-express-quickstart",
+  "name": "@usemeterkit/example-express-quickstart",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "start": "tsx src/server.ts"
   },
   "dependencies": {
-    "@meterkit/sdk": "workspace:*",
+    "@usemeterkit/sdk": "workspace:*",
     "express": "^5.1.0"
   },
   "devDependencies": {

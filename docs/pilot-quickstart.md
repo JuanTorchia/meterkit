@@ -32,7 +32,7 @@ After `v0.1.0` is published, install the exact SDK release in the participant's
 existing service:
 
 ```bash
-pnpm add @meterkit/sdk@0.1.0
+pnpm add @usemeterkit/sdk@0.1.0
 ```
 
 Until the package is publicly visible on npm, use a full commit SHA so the
@@ -44,8 +44,8 @@ cd meterkit
 git rev-parse HEAD
 corepack enable
 pnpm install --frozen-lockfile
-pnpm --filter @meterkit/sdk build
-pnpm --filter @meterkit/pilot build
+pnpm --filter @usemeterkit/sdk build
+pnpm --filter @usemeterkit/pilot build
 ```
 
 Save the exact package version or full commit SHA. It is the SDK identifier in

@@ -3,7 +3,7 @@ import {
   MemoryPaymentStore,
   SOLANA_DEVNET,
   productSchema,
-} from "@meterkit/core";
+} from "@usemeterkit/core";
 import {
   createMeterKitMiddleware,
   parseProductScope,

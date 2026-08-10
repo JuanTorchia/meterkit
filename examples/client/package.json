@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/example-client",
+  "name": "@usemeterkit/example-client",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "verify:devnet": "tsx src/verify-devnet.ts"
   },
   "dependencies": {
-    "@meterkit/core": "workspace:*",
+    "@usemeterkit/core": "workspace:*",
     "@solana/kit": "^5.5.1",
     "@solana/sysvars": "5.5.1",
     "@x402/fetch": "2.20.0",

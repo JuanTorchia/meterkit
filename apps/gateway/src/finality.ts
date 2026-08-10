@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { FinalityStore } from "@meterkit/database";
+import type { FinalityStore } from "@usemeterkit/database";
 
 const responseSchema = z.object({
   result: z.object({

@@ -4,7 +4,7 @@ This is the smallest provider integration in the repository. After the public
 package release, copy this directory and replace the workspace dependency with:
 
 ```bash
-pnpm add @meterkit/sdk express
+pnpm add @usemeterkit/sdk express
 ```
 
 Run it with a disposable devnet recipient:

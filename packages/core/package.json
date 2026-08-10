@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/core",
+  "name": "@usemeterkit/core",
   "version": "0.1.0",
   "description": "Strict payment, product and receipt contracts shared by MeterKit packages",
   "license": "Apache-2.0",

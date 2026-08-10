@@ -219,7 +219,7 @@ export default function Home() {
         </div>
         <pre tabIndex={0}>
           <span>import</span> {"{ createX402Middleware }"} <span>from</span>{" "}
-          <b>&quot;@meterkit/sdk&quot;</b>;{"\n\n"}app.get(
+          <b>&quot;@usemeterkit/sdk&quot;</b>;{"\n\n"}app.get(
           <b>&quot;/premium&quot;</b>, createX402Middleware({"{\n  "}product,
           store{"\n}"}), handler);
         </pre>

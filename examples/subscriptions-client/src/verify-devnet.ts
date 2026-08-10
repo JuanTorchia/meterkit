@@ -25,7 +25,7 @@ import {
   buildInitSubscriptionAuthority,
   buildRevokeAllForMint,
   buildRevokeDelegation,
-} from "@meterkit/subscriptions";
+} from "@usemeterkit/subscriptions";
 
 const rpcUrl = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
 const wsUrl = process.env.SOLANA_WS_URL ?? "wss://api.devnet.solana.com";

@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/subscriptions-client",
+  "name": "@usemeterkit/subscriptions-client",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@meterkit/subscriptions": "workspace:*",
+    "@usemeterkit/subscriptions": "workspace:*",
     "@solana/kit": "6.10.0",
     "@solana/subscriptions": "0.4.0"
   },

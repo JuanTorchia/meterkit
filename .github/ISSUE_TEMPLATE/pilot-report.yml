@@ -73,7 +73,7 @@ body:
     attributes:
       label: MeterKit SDK version or commit
       description: Package version, packed artifact version, or full Git commit used by the host project.
-      placeholder: "@meterkit/sdk 0.1.0 or full commit SHA"
+      placeholder: "@usemeterkit/sdk 0.1.0 or full commit SHA"
     validations:
       required: true
   - type: input

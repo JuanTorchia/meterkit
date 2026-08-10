@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/gateway",
+  "name": "@usemeterkit/gateway",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -9,9 +9,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@meterkit/core": "workspace:*",
-    "@meterkit/database": "workspace:*",
-    "@meterkit/sdk": "workspace:*",
+    "@usemeterkit/core": "workspace:*",
+    "@usemeterkit/database": "workspace:*",
+    "@usemeterkit/sdk": "workspace:*",
     "bs58": "6.0.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",

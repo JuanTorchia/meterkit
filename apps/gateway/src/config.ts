@@ -1,4 +1,4 @@
-import { SOLANA_DEVNET, productSchema, type Product } from "@meterkit/core";
+import { SOLANA_DEVNET, productSchema, type Product } from "@usemeterkit/core";
 
 const DEFAULT_USDC_DEVNET_MINT = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 const DEFAULT_LOCAL_GATEWAY = "http://localhost:3402";

@@ -7,7 +7,7 @@ Fecha de decisión: 2026-08-03.
 MeterKit es un plano de control no custodial. El cliente firma; el facilitador x402 verifica y liquida; USDC viaja directamente a la cuenta token del proveedor. MeterKit conserva solamente configuración, índices y recibos públicos.
 
 ```text
-Cliente/agente ──HTTP──> Gateway + @meterkit/sdk ──verify/settle──> facilitador x402
+Cliente/agente ──HTTP──> Gateway + @usemeterkit/sdk ──verify/settle──> facilitador x402
       │                         │                                      │
       │ firma local             └── metadata/recibos ──> PostgreSQL    │
       └──────────────────── USDC/Solana devnet ────────────────────────┘

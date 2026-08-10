@@ -178,7 +178,7 @@ Para probar el cobro MCP real con una keypair desechable:
 ```bash
 SOLANA_KEYPAIR_PATH=/ruta/segura/comprador.json \
 MERCHANT_WALLET=<wallet-proveedor> \
-pnpm --filter @meterkit/mcp-scout pay:devnet anza-xyz/kit
+pnpm --filter @usemeterkit/mcp-scout pay:devnet anza-xyz/kit
 ```
 
 El cliente sólo aprueba 0,02 USDC devnet, valida red, mint y receptor, y no
@@ -206,7 +206,7 @@ Con gateway y PostgreSQL activos, el verificador automatiza saldo antes/después
 ```bash
 SOLANA_PRIVATE_KEY='[...64 bytes...]' \
 MERCHANT_WALLET='<wallet pública del proveedor>' \
-pnpm --filter @meterkit/example-client verify:devnet
+pnpm --filter @usemeterkit/example-client verify:devnet
 ```
 
 El comando sólo imprime evidencia JSON y nunca escribe la clave en disco.

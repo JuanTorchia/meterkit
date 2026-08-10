@@ -75,7 +75,7 @@ independientes puedan evaluar sin asistencia constante.
 
 ### Entregables
 
-- Publicar `@meterkit/sdk` y `@meterkit/core` con versiones reproducibles
+- Publicar `@usemeterkit/sdk` y `@usemeterkit/core` con versiones reproducibles
   (empaquetado y trusted-publishing implementados; publicación npm pendiente).
 - [x] Incorporar UUID interno y namespace `owner/slug` antes del alta pública abierta.
 - [x] Crear un quickstart que llegue al primer HTTP 402 en menos de 10 minutos.

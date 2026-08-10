@@ -1,13 +1,13 @@
-# @meterkit/sdk
+# @usemeterkit/sdk
 
 Express middleware for non-custodial x402 v2 payments in USDC on Solana.
 
 ```bash
-pnpm add @meterkit/sdk express
+pnpm add @usemeterkit/sdk express
 ```
 
 ```ts
-import { createX402Middleware, MemoryPaymentStore } from "@meterkit/sdk";
+import { createX402Middleware, MemoryPaymentStore } from "@usemeterkit/sdk";
 
 const store = new MemoryPaymentStore(); // quickstart only; production must be durable
 
