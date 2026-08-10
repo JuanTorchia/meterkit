@@ -8,6 +8,8 @@ import {
   verifyEndpoint,
   type PilotPolicy,
 } from "./index.js";
+import { validateSettlementEvidence } from "./evidence.js";
+import { activationReportSchema } from "./activation.js";
 
 const [, , command, ...args] = process.argv;
 
@@ -29,7 +31,7 @@ if (command === "init") {
   };
   await writeFile(path, `${JSON.stringify(template, null, 2)}\n`, { flag: "wx" });
   process.stdout.write(`Created ${path}. Replace the recipient and run: meterkit-pilot verify --config ${path}\n`);
-} else if (command === "verify") {
+} else if (command === "verify" || command === "diagnose") {
   const configPath = option(args, "--config");
   const positional = positionalArgs(args, new Set(["--config", "--out"]));
   if (positional.length) throw new Error("verify requires --config so every policy value is enforced; run init first");
@@ -48,6 +50,24 @@ if (command === "init") {
   if (output) await writeFile(output, rendered, { flag: "wx" });
   process.stdout.write(rendered);
   if (!report.passed) process.exitCode = 1;
+} else if (command === "evidence") {
+  const receiptPath = option(args, "--receipt");
+  const output = option(args, "--out");
+  const positional = positionalArgs(args, new Set(["--receipt", "--out"]));
+  if (positional.length || !receiptPath || !output) {
+    throw new Error("evidence requires --receipt <path> and --out <path>");
+  }
+  const evidence = validateSettlementEvidence(JSON.parse(await readFile(receiptPath, "utf8")));
+  await writeFile(output, `${JSON.stringify(evidence, null, 2)}\n`, { flag: "wx" });
+  process.stdout.write(`Validated settlement evidence and created ${output}\n`);
+} else if (command === "activation") {
+  const input = option(args, "--input");
+  const output = option(args, "--out");
+  const positional = positionalArgs(args, new Set(["--input", "--out"]));
+  if (positional.length || !input || !output) throw new Error("activation requires --input <path> and --out <path>");
+  const report = activationReportSchema.parse(JSON.parse(await readFile(input, "utf8")));
+  await writeFile(output, `${JSON.stringify(report, null, 2)}\n`, { flag: "wx" });
+  process.stdout.write(`Validated consented activation report and created ${output}\n`);
 } else {
   usage(command ? 1 : 0);
 }
@@ -89,7 +109,10 @@ function usage(code: number): never {
 
 Usage:
   meterkit-pilot init [endpoint] [--out meterkit-pilot.json]
+  meterkit-pilot diagnose --config meterkit-pilot.json [--out diagnose-report.json]
   meterkit-pilot verify --config meterkit-pilot.json [--out pilot-report.json]
+  meterkit-pilot evidence --receipt settlement.json --out pilot-evidence.json
+  meterkit-pilot activation --input activation.json --out activation-report.json
 `);
   process.exit(code);
 }

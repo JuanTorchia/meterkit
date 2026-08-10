@@ -1,5 +1,10 @@
 # Backlog y roadmap de MeterKit
 
+> Estado 2026-08-10: completados `protect()`, ejemplo Next.js, recibos/eventos,
+> CLI de activación y adaptador Webacy probado. Próximo gate: publicar paquetes
+> versionados y obtener tres integraciones externas consentidas; agentes
+> sintéticos y dogfooding no cuentan como pilotos.
+
 MeterKit se construye en dos velocidades:
 
 1. un compromiso inmediato, acotado y verificable para el Agentic Engineering Grant;

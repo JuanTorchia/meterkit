@@ -3,10 +3,12 @@ import { fileURLToPath } from "node:url";
 import pg from "pg";
 import {
   paymentRecordSchema,
+  publicPaymentReceiptSchema,
   persistedProductSchema,
   productSchema,
   type PaymentRecord,
   type PaymentStore,
+  type PublicPaymentReceipt,
   type PersistedProduct,
   type Product,
 } from "@usemeterkit/core";
@@ -81,8 +83,13 @@ export interface FinalityStore {
   markFailed(signature: string): Promise<boolean>;
 }
 
+export interface ReceiptStore {
+  savePublicReceipt(receipt: PublicPaymentReceipt): Promise<void>;
+  getPublicReceipt(receiptId: string): Promise<PublicPaymentReceipt | null>;
+}
+
 export class PostgresStore
-  implements PaymentStore, ProductStore, FinalityStore
+  implements PaymentStore, ProductStore, FinalityStore, ReceiptStore
 {
   constructor(readonly pool: pg.Pool) {}
 
@@ -98,7 +105,11 @@ export class PostgresStore
   }
 
   async migrate() {
-    for (const name of ["001_init.sql", "002_product_tenant_identity.sql"]) {
+    for (const name of [
+      "001_init.sql",
+      "002_product_tenant_identity.sql",
+      "003_policy_receipts.sql",
+    ]) {
       const migration = await readFile(
         fileURLToPath(new URL(`../migrations/${name}`, import.meta.url)),
         "utf8",
@@ -178,6 +189,61 @@ export class PostgresStore
       [SOLANA_DEVNET_NETWORK, signature],
     );
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async savePublicReceipt(receipt: PublicPaymentReceipt) {
+    const value = publicPaymentReceiptSchema.parse(receipt);
+    const result = await this.pool.query(
+      `INSERT INTO public_payment_receipts
+        (receipt_id, product_id, network, asset_mint, amount_atomic, recipient,
+         payer, resource_url, decision, settlement, signature_fingerprint,
+         explorer_url, policy_decisions, reason_code, created_at, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16)
+       ON CONFLICT (receipt_id) DO UPDATE SET
+         decision=EXCLUDED.decision, settlement=EXCLUDED.settlement,
+         signature_fingerprint=EXCLUDED.signature_fingerprint,
+         explorer_url=EXCLUDED.explorer_url,
+         policy_decisions=EXCLUDED.policy_decisions,
+         reason_code=EXCLUDED.reason_code, updated_at=EXCLUDED.updated_at
+       WHERE public_payment_receipts.product_id=EXCLUDED.product_id
+         AND public_payment_receipts.network=EXCLUDED.network
+         AND public_payment_receipts.asset_mint=EXCLUDED.asset_mint
+         AND public_payment_receipts.amount_atomic=EXCLUDED.amount_atomic
+         AND public_payment_receipts.recipient=EXCLUDED.recipient
+         AND public_payment_receipts.resource_url=EXCLUDED.resource_url
+         AND (public_payment_receipts.settlement NOT IN ('finalized','failed')
+              OR public_payment_receipts.settlement=EXCLUDED.settlement)
+         AND (public_payment_receipts.settlement NOT IN ('confirmed')
+              OR EXCLUDED.settlement IN ('confirmed','finalized','failed'))
+         AND public_payment_receipts.updated_at <= EXCLUDED.updated_at`,
+      [
+        value.receiptId,
+        value.productId,
+        value.network,
+        value.assetMint,
+        value.amountAtomic,
+        value.recipient,
+        value.payer ?? null,
+        value.resource,
+        value.decision,
+        value.settlement,
+        value.signatureFingerprint ?? null,
+        value.explorerUrl ?? null,
+        JSON.stringify(value.policyDecisions),
+        value.reasonCode,
+        value.createdAt,
+        value.updatedAt,
+      ],
+    );
+    if ((result.rowCount ?? 0) !== 1) throw new Error("RECEIPT_TRANSITION_REJECTED");
+  }
+
+  async getPublicReceipt(receiptId: string) {
+    const result = await this.pool.query(
+      `SELECT * FROM public_payment_receipts WHERE receipt_id=$1`,
+      [receiptId],
+    );
+    return result.rows[0] ? mapPublicReceipt(result.rows[0]) : null;
   }
 
   async create(product: Product) {
@@ -510,6 +576,30 @@ function mapPayment(row: Record<string, unknown>): PaymentRecord {
     signature: row.signature,
     settledAt: new Date(row.settled_at as string | Date).toISOString(),
     status: row.status,
+  });
+}
+
+function mapPublicReceipt(row: Record<string, unknown>): PublicPaymentReceipt {
+  return publicPaymentReceiptSchema.parse({
+    schemaVersion: 1,
+    receiptId: row.receipt_id,
+    productId: row.product_id,
+    network: row.network,
+    assetMint: row.asset_mint,
+    amountAtomic: String(row.amount_atomic),
+    recipient: row.recipient,
+    ...(row.payer ? { payer: row.payer } : {}),
+    resource: row.resource_url,
+    decision: row.decision,
+    settlement: row.settlement,
+    ...(row.signature_fingerprint
+      ? { signatureFingerprint: row.signature_fingerprint }
+      : {}),
+    ...(row.explorer_url ? { explorerUrl: row.explorer_url } : {}),
+    policyDecisions: row.policy_decisions,
+    createdAt: new Date(row.created_at as string | Date).toISOString(),
+    updatedAt: new Date(row.updated_at as string | Date).toISOString(),
+    reasonCode: row.reason_code,
   });
 }
 

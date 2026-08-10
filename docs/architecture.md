@@ -1,5 +1,10 @@
 # Arquitectura de MeterKit
 
+> Sincronizado 2026-08-10: la API pública recomendada es `protect()`. Express y
+> Next.js comparten `createMeterKitResourceServer()`; MCP comparte contratos de
+> recibo/fingerprint. Las políticas opcionales se ejecutan después de verificar
+> el payer y antes de liquidar.
+
 Fecha de decisión: 2026-08-03.
 
 ## Resumen

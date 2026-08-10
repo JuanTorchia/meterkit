@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add canonical `protect()` middleware, versioned public receipts and sanitized lifecycle events.
+- Add maintained Next.js App Router and clean-package activation examples.
+- Add generic bounded payment policies and removable Webacy Solana payer-risk adapter.
+- Add consented pilot activation evidence, compatibility reporting and exact-commit AAA evidence tooling.
+
 All notable MeterKit changes will be documented here.
 
 The project uses [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and

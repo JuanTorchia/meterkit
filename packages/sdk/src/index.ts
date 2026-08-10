@@ -1,9 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import {
   SOLANA_DEVNET,
+  fingerprintSignature,
   paymentRecordSchema,
+  publicPaymentReceiptSchema,
   type PaymentStore,
   type Product,
+  type PublicPaymentReceipt,
+  type PolicyDecision,
 } from "@usemeterkit/core";
 import { z } from "zod";
 import {
@@ -13,6 +17,13 @@ import {
 } from "@x402/core/server";
 import { paymentMiddleware } from "@x402/express";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
+import { emitSafely, type PaymentEventSink } from "./events.js";
+import { runPaymentPolicies, type ConfiguredPaymentPolicy } from "./policy-runner.js";
+
+export { protect } from "./protect.js";
+export type { ProtectOptions } from "./protect.js";
+export * from "./events.js";
+export * from "./policy-runner.js";
 
 export { MemoryPaymentStore, SOLANA_DEVNET } from "@usemeterkit/core";
 export type { PaymentStore, Product } from "@usemeterkit/core";
@@ -274,6 +285,43 @@ export function createX402Middleware(options: {
   facilitatorClient?: FacilitatorClient;
   rpcUrl?: string | false;
   settlementValidator?: SolanaSettlementValidator | false;
+  policies?: readonly ConfiguredPaymentPolicy[];
+  onEvent?: PaymentEventSink;
+  onReceipt?: (receipt: PublicPaymentReceipt) => void | Promise<void>;
+}) {
+  const server = createMeterKitResourceServer(options);
+  return paymentMiddleware(
+    {
+      [`GET ${new URL(options.product.resource).pathname}`]: {
+        accepts: {
+          scheme: "exact",
+          price: {
+            amount: options.product.priceAtomic,
+            asset: options.product.assetMint,
+          },
+          network: SOLANA_DEVNET,
+          payTo: options.product.payTo,
+          maxTimeoutSeconds: 300,
+        },
+        description: options.product.description,
+        mimeType: "application/json",
+      },
+    },
+    server,
+  );
+}
+
+/** Build the protocol server shared by Express and framework-native adapters. */
+export function createMeterKitResourceServer(options: {
+  product: Product;
+  store: PaymentStore;
+  facilitatorUrl?: string;
+  facilitatorClient?: FacilitatorClient;
+  rpcUrl?: string | false;
+  settlementValidator?: SolanaSettlementValidator | false;
+  policies?: readonly ConfiguredPaymentPolicy[];
+  onEvent?: PaymentEventSink;
+  onReceipt?: (receipt: PublicPaymentReceipt) => void | Promise<void>;
 }) {
   const rpcUrl =
     options.rpcUrl === false
@@ -288,13 +336,34 @@ export function createX402Middleware(options: {
     new HTTPFacilitatorClient({
       url: options.facilitatorUrl ?? "https://x402.org/facilitator",
     });
+  const policyResults = new WeakMap<object, PolicyDecision[]>();
   const server = new x402ResourceServer(facilitator)
     // Do not embed a volatile recentBlockhash in route requirements. The
     // middleware rebuilds requirements on the paid retry; a new blockhash would
     // make an otherwise identical payload fail requirement matching. The SVM
     // client obtains its own blockhash and we still validate settlement via RPC.
     .register(SOLANA_DEVNET, new ExactSvmScheme({}))
-    .onAfterSettle(async ({ result, requirements }) => {
+    .onAfterVerify(async ({ result, requirements, paymentPayload }) => {
+      if (!result.isValid || !result.payer || !options.policies?.length) return;
+      const evaluated = await runPaymentPolicies({
+        network: SOLANA_DEVNET,
+        assetMint: requirements.asset,
+        amountAtomic: requirements.amount,
+        recipient: requirements.payTo,
+        payer: result.payer,
+        resource: options.product.resource,
+      }, options.policies);
+      policyResults.set(paymentPayload, evaluated.decisions);
+      await emitSafely(options.onEvent, {
+        schemaVersion: 1,
+        type: "policy_evaluated",
+        occurredAt: new Date().toISOString(),
+        productId: options.product.id,
+        reasonCode: evaluated.allowed ? "POLICY_ALLOWED" : "POLICY_DENIED",
+      });
+      if (!evaluated.allowed) return { abort: true as const, reason: "POLICY_DENIED", message: "Payment policy denied this request" };
+    })
+    .onAfterSettle(async ({ result, requirements, paymentPayload }) => {
       if (!result.success || !result.payer || !result.transaction) return;
       await settlementValidator?.validate({
         signature: result.transaction,
@@ -319,27 +388,39 @@ export function createX402Middleware(options: {
       // the protected handler, even if a facilitator incorrectly accepts a
       // previously settled payload.
       await options.store.save(record);
+      const receipt = publicPaymentReceiptSchema.parse({
+        schemaVersion: 1,
+        receiptId: crypto.randomUUID(),
+        productId: options.product.id,
+        network: SOLANA_DEVNET,
+        assetMint: requirements.asset,
+        amountAtomic: requirements.amount,
+        recipient: requirements.payTo,
+        payer: result.payer,
+        resource: options.product.resource,
+        decision: "accepted",
+        settlement: "confirmed",
+        signatureFingerprint: fingerprintSignature(result.transaction),
+        explorerUrl: `https://explorer.solana.com/tx/${result.transaction}?cluster=devnet`,
+        policyDecisions: policyResults.get(paymentPayload) ?? [],
+        createdAt: record.settledAt,
+        updatedAt: record.settledAt,
+        reasonCode: "SETTLEMENT_CONFIRMED",
+      });
+      await options.onReceipt?.(receipt);
+      await emitSafely(options.onEvent, {
+        schemaVersion: 1,
+        type: "settled",
+        occurredAt: record.settledAt,
+        productId: options.product.id,
+        reasonCode: "SETTLEMENT_CONFIRMED",
+        receiptId: receipt.receiptId,
+        signatureFingerprint: receipt.signatureFingerprint,
+      });
+      policyResults.delete(paymentPayload);
     });
 
-  return paymentMiddleware(
-    {
-      [`GET ${new URL(options.product.resource).pathname}`]: {
-        accepts: {
-          scheme: "exact",
-          price: {
-            amount: options.product.priceAtomic,
-            asset: options.product.assetMint,
-          },
-          network: SOLANA_DEVNET,
-          payTo: options.product.payTo,
-          maxTimeoutSeconds: 300,
-        },
-        description: options.product.description,
-        mimeType: "application/json",
-      },
-    },
-    server,
-  );
+  return server;
 }
 
 export function createDynamicX402Middleware(options: {

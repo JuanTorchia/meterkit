@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { publicPaymentReceiptSchema } from "@usemeterkit/core";
 
 const payTo = "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE";
 let facilitator: ReturnType<typeof createServer>;
@@ -36,6 +37,16 @@ afterAll(async () => new Promise<void>((resolve, reject) =>
   facilitator.close((error) => error ? reject(error) : resolve())));
 
 describe("MCP Scout stdio contract", () => {
+  it("shares the canonical sanitized receipt contract", () => {
+    const now = new Date().toISOString();
+    expect(publicPaymentReceiptSchema.parse({
+      schemaVersion: 1, receiptId: crypto.randomUUID(), productId: "solana-project-scout",
+      network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", assetMint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+      amountAtomic: "20000", recipient: payTo, resource: "mcp://tool/scout_project",
+      decision: "accepted", settlement: "confirmed", signatureFingerprint: "sha256:0123456789abcdef",
+      policyDecisions: [], createdAt: now, updatedAt: now, reasonCode: "SETTLEMENT_CONFIRMED",
+    }).amountAtomic).toBe("20000");
+  });
   it("advertises the useful tools and challenges an unpaid full report", async () => {
     const inheritedEnv = Object.fromEntries(
       Object.entries(process.env).filter(

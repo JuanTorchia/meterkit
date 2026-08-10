@@ -7,8 +7,8 @@ import { z } from "zod";
 import { SolanaSettlementValidator } from "@usemeterkit/sdk";
 import { fetchProject, renderReport } from "./scout.js";
 import { FileReceiptGuard } from "./receipt-guard.js";
+import { fingerprintSignature, publicPaymentReceiptSchema, SOLANA_DEVNET } from "@usemeterkit/core";
 
-const SOLANA_DEVNET = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 const USDC_DEVNET = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 const payTo = process.env.MERCHANT_WALLET;
 if (!payTo) throw new Error("MERCHANT_WALLET is required for paid MCP tools");
@@ -35,6 +35,26 @@ const resourceServer = new x402ResourceServer(facilitator)
       amountAtomic: requirements.amount,
     });
     await receiptGuard.claim(result.transaction);
+    const now = new Date().toISOString();
+    await receiptGuard.savePublicReceipt(publicPaymentReceiptSchema.parse({
+      schemaVersion: 1,
+      receiptId: crypto.randomUUID(),
+      productId: "solana-project-scout",
+      network: SOLANA_DEVNET,
+      assetMint: requirements.asset,
+      amountAtomic: requirements.amount,
+      recipient: requirements.payTo,
+      payer: result.payer,
+      resource: "mcp://tool/scout_project",
+      decision: "accepted",
+      settlement: "confirmed",
+      signatureFingerprint: fingerprintSignature(result.transaction),
+      explorerUrl: `https://explorer.solana.com/tx/${result.transaction}?cluster=devnet`,
+      policyDecisions: [],
+      createdAt: now,
+      updatedAt: now,
+      reasonCode: "SETTLEMENT_CONFIRMED",
+    }));
   });
 await resourceServer.initialize();
 const accepts = await resourceServer.buildPaymentRequirements({

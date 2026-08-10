@@ -167,6 +167,7 @@ const dashboardCopy = {
     recent: "Recent payments",
     refresh: "Refresh ↻",
     empty: "No settled payments yet.",
+    loading: "Loading receipts…",
     payerControl: "PAYER CONTROL",
     revokeTitle: "Revoke an authorization.",
     revokeBody:
@@ -192,6 +193,7 @@ const dashboardCopy = {
     recent: "Pagos recientes",
     refresh: "Actualizar ↻",
     empty: "Aún no hay pagos liquidados.",
+    loading: "Cargando recibos…",
     payerControl: "CONTROL DEL PAGADOR",
     revokeTitle: "Revoca una autorización.",
     revokeBody:
@@ -217,6 +219,7 @@ const dashboardCopy = {
     recent: "Pagamentos recentes",
     refresh: "Atualizar ↻",
     empty: "Ainda não há pagamentos liquidados.",
+    loading: "Carregando recibos…",
     payerControl: "CONTROLE DO PAGADOR",
     revokeTitle: "Revogue uma autorização.",
     revokeBody:
@@ -233,6 +236,7 @@ export function DashboardClient({ locale }: { locale: Locale }) {
   const [connection, setConnection] = useState<ConnectedWallet>();
   const [sessionToken, setSessionToken] = useState<string>();
   const [creating, setCreating] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
   const refreshSequence = useRef(0);
 
@@ -275,6 +279,8 @@ export function DashboardClient({ locale }: { locale: Locale }) {
                 ? "No se pudo leer el gateway"
                 : "Não foi possível acessar o gateway",
         );
+      } finally {
+        if (sequence === refreshSequence.current && !signal?.aborted) setLoading(false);
       }
     },
     [locale, sessionToken],
@@ -338,7 +344,7 @@ export function DashboardClient({ locale }: { locale: Locale }) {
             </button>
           </div>
         </header>
-        {error && <p className="errorBanner">{error}</p>}
+        {error && <p className="errorBanner" role="alert">{error}</p>}
         {!connection && (
           <p className="evidenceBanner">{text.internalEvidence}</p>
         )}
@@ -435,8 +441,9 @@ export function DashboardClient({ locale }: { locale: Locale }) {
           </div>
           <button onClick={() => void refresh()}>{text.refresh}</button>
         </div>
-        <div className="table">
-          {!payments.length && <p className="empty">{text.empty}</p>}
+        <div className="table" aria-live="polite" aria-busy={loading}>
+          {loading && <p className="empty">{text.loading}</p>}
+          {!loading && !payments.length && <p className="empty">{text.empty}</p>}
           {payments.map((payment) => (
             <div className="row" key={payment.id}>
               <span className="tx">↗</span>
@@ -452,7 +459,9 @@ export function DashboardClient({ locale }: { locale: Locale }) {
               <strong>
                 {formatUsdc(BigInt(payment.amountAtomic), locale)} USDC
               </strong>
-              <span className="final">✓ {payment.status}</span>
+              <span className={`receiptStatus receiptStatus-${payment.status}`}>
+                {payment.status === "finalized" ? "✓" : payment.status === "failed" ? "×" : "…"} {payment.status}
+              </span>
               <a href={payment.explorerUrl} target="_blank" rel="noreferrer">
                 Explorer ↗
               </a>

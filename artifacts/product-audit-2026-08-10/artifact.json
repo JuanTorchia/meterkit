@@ -1,0 +1,194 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "MeterKit: auditoría de producto y estrategia de adopción",
+    "description": "Diagnóstico competitivo y plan de foco para convertir una base técnica sólida en adopción real por desarrolladores.",
+    "generatedAt": "2026-08-10T00:00:00Z",
+    "cards": [
+      {
+        "id": "public_packages",
+        "description": "Paquetes públicos disponibles en npm al momento de la auditoría.",
+        "dataset": "current_state",
+        "sourceId": "npm_packages",
+        "metrics": [{ "label": "Paquetes npm públicos", "field": "packages", "format": "number" }]
+      },
+      {
+        "id": "external_integrations",
+        "description": "Integraciones externas verificadas; el dogfooding interno no se cuenta como tracción.",
+        "dataset": "current_state",
+        "sourceId": "meterkit_repo",
+        "metrics": [{ "label": "Integraciones externas", "field": "external_integrations", "format": "number" }]
+      },
+      {
+        "id": "github_stars",
+        "description": "Señal pública de distribución, no de calidad técnica.",
+        "dataset": "current_state",
+        "sourceId": "meterkit_repo",
+        "metrics": [{ "label": "GitHub stars", "field": "github_stars", "format": "number" }]
+      }
+    ],
+    "charts": [
+      {
+        "id": "activation_target",
+        "title": "Embudo objetivo de validación externa",
+        "subtitle": "Cantidad mínima de desarrolladores por etapa durante las próximas cuatro semanas; son metas, no resultados actuales.",
+        "type": "bar",
+        "dataset": "activation_target",
+        "sourceId": "meterkit_roadmap",
+        "valueFormat": "number",
+        "encodings": {
+          "x": { "field": "stage", "type": "nominal", "label": "Etapa" },
+          "y": { "field": "developers", "type": "quantitative", "label": "Desarrolladores" }
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "competitive_map",
+        "title": "Mapa competitivo: dónde no conviene pelear",
+        "subtitle": "La oportunidad está en una capa de política y auditabilidad, no en otro gateway genérico.",
+        "dataset": "competitors",
+        "sourceId": "solana_x402_guide",
+        "columns": [
+          { "field": "product", "label": "Producto", "type": "text" },
+          { "field": "job", "label": "Trabajo principal", "type": "text" },
+          { "field": "strength", "label": "Fortaleza", "type": "text" },
+          { "field": "implication", "label": "Implicación para MeterKit", "type": "text" }
+        ]
+      },
+      {
+        "id": "friction_audit",
+        "title": "Fricciones que hoy frenan la adopción",
+        "subtitle": "Ordenadas por impacto sobre el primer éxito de un desarrollador externo.",
+        "dataset": "frictions",
+        "sourceId": "meterkit_repo",
+        "columns": [
+          { "field": "priority", "label": "Prioridad", "type": "text" },
+          { "field": "finding", "label": "Hallazgo", "type": "text" },
+          { "field": "impact", "label": "Impacto", "type": "text" },
+          { "field": "acceptance", "label": "Condición de cierre", "type": "text" }
+        ]
+      },
+      {
+        "id": "kpi_framework",
+        "title": "Métricas que deben gobernar el próximo ciclo",
+        "subtitle": "Miden activación real; descargas, visitas y challenges 402 aislados son diagnósticos secundarios.",
+        "dataset": "kpis",
+        "sourceId": "meterkit_roadmap",
+        "columns": [
+          { "field": "metric", "label": "Métrica", "type": "text" },
+          { "field": "definition", "label": "Definición", "type": "text" },
+          { "field": "target", "label": "Meta 4 semanas", "type": "text" },
+          { "field": "role", "label": "Rol", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      { "id": "meterkit_repo", "label": "Repositorio público de MeterKit", "path": "https://github.com/JuanTorchia/meterkit", "query": { "engine": "Reviewed public snapshot", "language": "sql", "sql": "SELECT 0 AS external_integrations, 0 AS github_stars", "description": "Valores revisados contra el repositorio y el programa público de pilotos.", "executed_at": "2026-08-10T00:00:00Z" } },
+      { "id": "meterkit_roadmap", "label": "Roadmap público de MeterKit", "path": "https://github.com/JuanTorchia/meterkit/blob/main/docs/roadmap.md", "query": { "engine": "Reviewed planning snapshot", "language": "sql", "sql": "SELECT * FROM (VALUES ('Candidatos observados', 5), ('Integraciones activadas', 3), ('Sin asistencia', 2), ('Uso repetido', 1)) AS targets(stage, developers)", "description": "Metas de validación derivadas del roadmap y normalizadas para el informe.", "executed_at": "2026-08-10T00:00:00Z" } },
+      { "id": "npm_packages", "label": "Paquetes públicos de MeterKit en npm", "path": "https://www.npmjs.com/org/usemeterkit", "query": { "engine": "Reviewed npm snapshot", "language": "sql", "sql": "SELECT 2 AS packages", "description": "Recuento revisado de paquetes públicos bajo la organización npm.", "executed_at": "2026-08-10T00:00:00Z" } },
+      { "id": "solana_x402_guide", "label": "Guía oficial de x402 en Solana", "path": "https://solana.com/developers/guides/getstarted/intro-to-x402", "query": { "engine": "Reviewed documentation snapshot", "language": "sql", "sql": "SELECT * FROM (VALUES ('SDK oficial x402'), ('Corbits'), ('MCPay'), ('pay.sh'), ('DIY con @x402/svm')) AS competitors(product)", "description": "Lista revisada contra documentación oficial; la implicación estratégica es análisis de MeterKit.", "executed_at": "2026-08-10T00:00:00Z" } },
+      { "id": "paysh", "label": "Anuncio oficial de pay.sh", "path": "https://solana.com/news/solana-foundation-launches-pay-sh-in-collaboration-with-google-cloud" },
+      { "id": "x402_official", "label": "SDK oficial x402", "path": "https://github.com/x402-foundation/x402" },
+      { "id": "mcpay", "label": "Documentación oficial MCPay", "path": "https://docs.mcpay.tech/" }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# MeterKit: auditoría de producto y estrategia de adopción\n\n**Fecha de corte:** 10 de agosto de 2026 · **Audiencia:** producto, ingeniería y posibles colaboradores"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Resumen ejecutivo\n\n**Recomendación: continuar, pero reducir el frente de batalla.** MeterKit tiene una base técnica y de seguridad muy superior a su señal pública de adopción. El problema inmediato no es agregar más primitivas: es lograr que un desarrollador externo pase de `npm install` a una respuesta pagada y finalizada en devnet sin asistencia.\n\nLa categoría genérica —middleware o gateway x402 para APIs y MCP— ya tiene competidores reconocidos por Solana, un SDK oficial cada vez más completo y pay.sh como canal de discovery. La posición defendible para MeterKit es más específica: **la capa TypeScript open source de políticas de pago para agentes sobre Solana**, con presupuestos acotados y revocables, alcance exacto de recursos, recibos durables, protección contra replay y liquidación directa.\n\nDurante las próximas cuatro semanas, la prioridad debe ser una única experiencia canónica, tres integraciones externas verificadas y evidencia de que al menos dos desarrolladores pueden completarla sin ayuda. No construiría todavía un SaaS amplio ni otro marketplace."
+      },
+      { "id": "baseline", "type": "metric-strip", "cardIds": ["public_packages", "external_integrations", "github_stars"] },
+      { "id": "activation", "type": "chart", "chartId": "activation_target" },
+      {
+        "id": "positioning",
+        "type": "markdown",
+        "body": "## La posición que MeterKit puede ganar\n\n**Categoría propuesta:** policy-enforced payments for AI agents on Solana.\n\n**Promesa:** “Dale a tu agente un presupuesto USDC limitado y revocable para pagar APIs y herramientas MCP; el proveedor cobra directamente y cada uso deja un recibo verificable.”\n\n**Cliente inicial:** creador TypeScript de una API o herramienta MCP que necesita monetización por uso y no quiere custodiar fondos ni construir verificación, replay protection, finality y controles de gasto.\n\n**Diferenciador verificable:** no sólo emite un 402. Restringe qué origen, puerto y ruta puede pagarse; valida red, mint, monto y receptor; persiste recibos e idempotencia; y combina x402 con allowances nativas. Ese conjunto debe convertirse en una API mínima y una demo reproducible, no quedar escondido en documentación de arquitectura."
+      },
+      { "id": "competition", "type": "table", "tableId": "competitive_map" },
+      {
+        "id": "findings",
+        "type": "markdown",
+        "body": "## Hallazgos principales\n\n1. **La ingeniería está adelantada a la distribución.** Hay paquetes públicos, despliegue, pruebas de seguridad y evidencia devnet, pero ninguna integración externa verificada y ninguna señal pública de comunidad.\n2. **El primer contacto exige demasiado contexto.** El README principal comienza con clonar el monorepo, pnpm y Docker; la documentación npm del SDK muestra `app` y `handler` sin definir. Un evaluador entiende la arquitectura, pero un usuario no puede copiar, pegar y obtener éxito.\n3. **Hay tres superficies de middleware.** `createMeterKitMiddleware`, `createX402Middleware` y `createDynamicX402Middleware` exponen decisiones internas antes de que el usuario aprenda el camino recomendado.\n4. **El quickstart prueba el challenge, no el valor completo.** Llegar a HTTP 402 es diagnóstico; la activación real es pagar, reintentar, obtener el recurso y ver el recibo finalizado.\n5. **La narrativa competitiva está desactualizada.** La documentación local no destaca suficientemente a Corbits y MCPay, aunque la guía oficial de Solana los lista directamente.\n6. **El moat posible es confianza operacional.** La seguridad, los receipts y las allowances son más difíciles de copiar bien que una pantalla de precios, pero sólo generan ventaja si están empaquetados en una integración claramente más segura y rápida."
+      },
+      { "id": "frictions", "type": "table", "tableId": "friction_audit" },
+      {
+        "id": "aaa_bar",
+        "type": "markdown",
+        "body": "## Qué significa calidad AAA para MeterKit\n\n- **API impecable:** un camino recomendado, TypeScript estricto, tipos inferidos, errores accionables y cero configuración ambigua.\n- **Compatibilidad como producto:** contract tests contra x402 oficial, Solana RPC y facilitators soportados; matriz de versiones y política de deprecación.\n- **Seguridad observable:** threat model vivo, receipt verificable, replay e idempotencia durables, scopes exactos y fallos de finality que nunca se disfrazan de éxito o rechazo definitivo.\n- **Experiencia premium:** quickstart completo en menos de veinte minutos hasta settlement, mensajes claros, UI accesible y responsive, y una demo institucional que muestra valor antes que infraestructura.\n- **Operación profesional:** OpenTelemetry, métricas SLO, logs sanitizados, runbooks, migraciones seguras, SBOM, provenance, releases firmadas y rollback probado.\n- **Open source serio:** API stability, changelog, RFCs breves, issues reproducibles, contribution guide, security policy, good-first-issues y mantenimiento predecible.\n\nEl estándar AAA debe aplicarse al recorrido principal antes de extender superficie. Una sola integración excepcional gana más confianza que seis adaptadores incompletos."
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## Próximos pasos recomendados\n\n### Semana 1 — activar en vez de explicar\n\n- Publicar un quickstart canónico instalable desde npm, completo y ejecutable, que termine en un pago devnet finalizado.\n- Elegir una sola API pública recomendada, por ejemplo `protect()`, y marcar las variantes avanzadas como tales.\n- Cambiar el primer CTA de landing y README a “Protect an endpoint” y dejar el despliegue completo del monorepo como opción de self-hosting.\n- Crear un comando de diagnóstico que verifique wallet, RPC, mint, receptor y facilitator antes del primer pago.\n\n### Semana 2 — reducir el riesgo percibido\n\n- Tres ejemplos con paridad de tests: Express, Next.js Route Handler y MCP.\n- Una matriz pública de compatibilidad con x402, facilitators y redes soportadas.\n- Un recibo legible por humanos y máquinas como salida estándar del ejemplo.\n- GitHub Release y changelog coherentes con las versiones npm.\n\n### Semanas 3 y 4 — distribución manual de alta calidad\n\n- Reclutar cinco candidatos muy concretos y acompañar sólo la observación; no editar su integración.\n- Convertir cada bloqueo en una corrección del quickstart o SDK.\n- Lograr tres integraciones independientes, dos sin asistencia y una con diez pagos devnet en siete días.\n- Publicar una contribución upstream pequeña que demuestre interoperabilidad con el ecosistema x402/MCP.\n- Vender primero una integración asistida con precio fijo; posponer el SaaS alojado hasta observar trabajo repetible."
+      },
+      { "id": "kpis", "type": "table", "tableId": "kpi_framework" },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "body": "## Preguntas que debe responder el piloto\n\n- ¿El comprador principal quiere monetizar una API HTTP, una herramienta MCP o ambas?\n- ¿Qué parte causa más abandono: wallet/test-USDC, facilitator, configuración del producto o interpretación del recibo?\n- ¿La allowance nativa resuelve un requisito real del agente o agrega complejidad antes de la primera transacción?\n- ¿Quién pagaría primero: el proveedor por integración y soporte, o el consumidor por infraestructura alojada?\n- ¿El usuario valora más self-hosting, compatibilidad con pay.sh o un dashboard administrado?"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "body": "## Limitaciones y supuestos\n\n- Esta auditoría usa el repositorio público, los paquetes npm, la landing pública y documentación oficial disponible al 10 de agosto de 2026.\n- No se dispuso de analítica privada de tráfico, funnels ni entrevistas externas; por eso no se estiman tasas de conversión actuales.\n- Cero stars o pilotos en una publicación reciente no implica falta de demanda; sí implica que todavía no existe evidencia pública de distribución.\n- Las comparaciones describen posicionamiento observable, no una evaluación exhaustiva de seguridad interna de terceros.\n- No se recomienda mainnet ni gasto de fondos reales para validar este plan."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-08-10T00:00:00Z",
+    "status": "ready",
+    "datasets": {
+      "current_state": [{ "packages": 2, "external_integrations": 0, "github_stars": 0 }],
+      "activation_target": [
+        { "stage": "Candidatos observados", "developers": 5 },
+        { "stage": "Integraciones activadas", "developers": 3 },
+        { "stage": "Sin asistencia", "developers": 2 },
+        { "stage": "Uso repetido", "developers": 1 }
+      ],
+      "competitors": [
+        { "product": "SDK oficial x402", "job": "Protocolo y middleware multired", "strength": "Estándar, múltiples frameworks y MCP", "implication": "No reimplementar el protocolo; añadir política y operación sobre él" },
+        { "product": "Corbits", "job": "SDK y acceso x402 sobre Solana", "strength": "Reconocimiento del ecosistema y experiencia multired", "implication": "Evitar competir sólo por conveniencia del middleware" },
+        { "product": "MCPay", "job": "Monetización y discovery de servidores MCP", "strength": "SDK, CLI, proxy, registry y pricing", "implication": "No posicionarse sólo como paywall para MCP" },
+        { "product": "pay.sh", "job": "Discovery y pago de APIs por agentes", "strength": "Solana Foundation, Google Cloud y catálogo", "implication": "Buscar interoperabilidad y ser la capa segura del proveedor/cliente" },
+        { "product": "DIY con @x402/svm", "job": "Integración directa del estándar", "strength": "Menos dependencias y control total", "implication": "MeterKit debe ahorrar seguridad y operación, no sólo líneas de código" }
+      ],
+      "frictions": [
+        { "priority": "P0", "finding": "Snippet npm no es ejecutable tal como está", "impact": "Rompe confianza antes del primer request", "acceptance": "Copiar, pegar, ejecutar y recibir 402 en menos de 5 minutos" },
+        { "priority": "P0", "finding": "Quickstart termina en challenge, no en pago", "impact": "No demuestra el resultado comprado", "acceptance": "Pago devnet finalizado, retry exitoso y receipt con un comando" },
+        { "priority": "P0", "finding": "Tres middlewares públicos sin camino único", "impact": "Aumenta carga cognitiva y soporte", "acceptance": "Una API recomendada; variantes avanzadas documentadas aparte" },
+        { "priority": "P1", "finding": "README prioriza operar el monorepo", "impact": "Confunde usuario del SDK con maintainer", "acceptance": "npm quickstart primero; self-hosting después" },
+        { "priority": "P1", "finding": "Sin integraciones externas verificadas", "impact": "No prueba usabilidad ni demanda", "acceptance": "3 integraciones; 2 completadas sin asistencia" },
+        { "priority": "P1", "finding": "Competencia directa subrepresentada", "impact": "Debilita estrategia y credibilidad", "acceptance": "Matriz viva con Corbits, MCPay, pay.sh y SDK oficial" },
+        { "priority": "P2", "finding": "Release npm y GitHub no forman un ciclo único", "impact": "Reduce trazabilidad para adopción", "acceptance": "Tag, release notes, provenance y paquetes enlazados" }
+      ],
+      "kpis": [
+        { "metric": "Integraciones externas activadas", "definition": "Repositorios/proveedores externos que completan un pago devnet finalizado a su propia wallet", "target": "3", "role": "KPI principal" },
+        { "metric": "Tiempo a primer 402", "definition": "Mediana desde npm install hasta challenge válido", "target": "<5 min", "role": "Driver" },
+        { "metric": "Tiempo a primera respuesta pagada", "definition": "Mediana hasta settlement, retry y receipt", "target": "<20 min", "role": "Driver" },
+        { "metric": "Activaciones sin asistencia", "definition": "Integraciones completadas sin cambios directos del equipo", "target": "2 de 3", "role": "Calidad UX" },
+        { "metric": "Uso repetido", "definition": "Integración con al menos diez pagos en siete días", "target": "1", "role": "Retención temprana" },
+        { "metric": "Replay aceptado", "definition": "Comprobantes reutilizados que liberan el recurso", "target": "0", "role": "Guardrail" },
+        { "metric": "Colisión o pago fuera de scope", "definition": "Pago aceptado para origen, puerto o ruta no autorizados", "target": "0", "role": "Guardrail" }
+      ]
+    },
+    "accessIssues": []
+  },
+  "sources": [
+    { "id": "meterkit_repo", "path": "https://github.com/JuanTorchia/meterkit", "description": "Código, documentación, issues y métricas públicas observadas el 10 de agosto de 2026.", "query": { "engine": "Reviewed public snapshot", "language": "sql", "sql": "SELECT 0 AS external_integrations, 0 AS github_stars", "description": "Valores revisados contra el repositorio y el programa público de pilotos.", "executed_at": "2026-08-10T00:00:00Z" } },
+    { "id": "meterkit_roadmap", "path": "https://github.com/JuanTorchia/meterkit/blob/main/docs/roadmap.md", "description": "Roadmap vigente usado para reconciliar objetivos y métricas propuestas.", "query": { "engine": "Reviewed planning snapshot", "language": "sql", "sql": "SELECT * FROM (VALUES ('Candidatos observados', 5), ('Integraciones activadas', 3), ('Sin asistencia', 2), ('Uso repetido', 1)) AS targets(stage, developers)", "description": "Metas de validación derivadas del roadmap y normalizadas para el informe.", "executed_at": "2026-08-10T00:00:00Z" } },
+    { "id": "npm_packages", "path": "https://www.npmjs.com/org/usemeterkit", "description": "Organización npm con los paquetes core y sdk versión 0.1.0.", "query": { "engine": "Reviewed npm snapshot", "language": "sql", "sql": "SELECT 2 AS packages", "description": "Recuento revisado de paquetes públicos bajo la organización npm.", "executed_at": "2026-08-10T00:00:00Z" } },
+    { "id": "solana_x402_guide", "path": "https://solana.com/developers/guides/getstarted/intro-to-x402", "description": "Guía oficial que enumera SDKs y proyectos x402 con soporte Solana.", "query": { "engine": "Reviewed documentation snapshot", "language": "sql", "sql": "SELECT * FROM (VALUES ('SDK oficial x402'), ('Corbits'), ('MCPay'), ('pay.sh'), ('DIY con @x402/svm')) AS competitors(product)", "description": "Lista revisada contra documentación oficial; la implicación estratégica es análisis de MeterKit.", "executed_at": "2026-08-10T00:00:00Z" } },
+    { "id": "paysh", "path": "https://solana.com/news/solana-foundation-launches-pay-sh-in-collaboration-with-google-cloud", "description": "Anuncio oficial y alcance de pay.sh como gateway y catálogo para agentes.", "query": { "engine": "Official announcement review", "language": "text", "sql": "Review the official pay.sh launch announcement for product scope, provider model and agent workflow.", "description": "Revisión manual del anuncio oficial.", "executed_at": "2026-08-10T00:00:00Z" } },
+    { "id": "x402_official", "path": "https://github.com/x402-foundation/x402", "description": "Repositorio oficial del protocolo y paquetes de referencia.", "query": { "engine": "GitHub documentation review", "language": "text", "sql": "Review the official x402 repository for supported frameworks, networks and MCP packages.", "description": "Revisión manual de capacidades oficiales.", "executed_at": "2026-08-10T00:00:00Z" } },
+    { "id": "mcpay", "path": "https://docs.mcpay.tech/", "description": "Documentación oficial de MCPay sobre SDK, proxy, registry y pagos MCP.", "query": { "engine": "Official documentation review", "language": "text", "sql": "Review MCPay official documentation for SDK, CLI, proxy, registry, pricing and supported workflows.", "description": "Revisión manual del posicionamiento público de MCPay.", "executed_at": "2026-08-10T00:00:00Z" } }
+  ]
+}

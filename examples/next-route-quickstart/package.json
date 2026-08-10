@@ -1,0 +1,25 @@
+{
+  "name": "@usemeterkit/example-next-route",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter @usemeterkit/sdk build && next build",
+    "dev": "next dev",
+    "typecheck": "pnpm --filter @usemeterkit/sdk build && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@usemeterkit/sdk": "workspace:*",
+    "@x402/next": "2.20.0",
+    "next": "16.2.12",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

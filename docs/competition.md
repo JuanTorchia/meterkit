@@ -1,5 +1,9 @@
 # Competencia y posicionamiento
 
+> Posicionamiento actualizado 2026-08-10: MeterKit no reemplaza x402. Compite en
+> adopción endurecida para Solana: middleware, recibos durables, replay/finality,
+> MCP, allowances, evidencia y operación reproducible. Webacy es complementario.
+
 Consulta: 2026-08-03.
 
 | Alternativa | Fortaleza | Hueco para MeterKit |
@@ -12,4 +16,3 @@ Consulta: 2026-08-03.
 | Gateway casero | Control total | Mayor coste de seguridad, replay, recibos, indexación y suscripciones |
 
 La diferenciación defendible es el flujo integrado x402 + allowances de agente + MCP, con liquidación directa y una experiencia de cinco minutos. No se afirma exclusividad: las primitivas son abiertas y pay.sh es un competidor directo relevante.
-
