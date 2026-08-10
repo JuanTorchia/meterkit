@@ -11,7 +11,7 @@ The public report must contain:
 
 1. **Endpoint ownership:** the participant confirms that MeterKit was integrated
    into an endpoint or MCP tool they control.
-2. **SDK identity:** the `@meterkit/sdk` version or full MeterKit Git commit used
+2. **SDK identity:** the `@usemeterkit/sdk` version or full MeterKit Git commit used
    by the host project.
 3. **Endpoint fingerprint:** SHA-256 of the canonical endpoint URL.
 4. **Policy report:** local `pilot:verify` passed with network, mint, recipient

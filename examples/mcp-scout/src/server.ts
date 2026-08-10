@@ -4,7 +4,7 @@ import { createPaymentWrapper, x402ResourceServer } from "@x402/mcp";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 import { z } from "zod";
-import { SolanaSettlementValidator } from "@meterkit/sdk";
+import { SolanaSettlementValidator } from "@usemeterkit/sdk";
 import { fetchProject, renderReport } from "./scout.js";
 import { FileReceiptGuard } from "./receipt-guard.js";
 

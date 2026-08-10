@@ -67,7 +67,7 @@ run("public devnet health and x402 challenge", "pnpm", ["pilot:check"]);
 
 if (process.env.SOLANA_PRIVATE_KEY && process.env.MERCHANT_WALLET) {
   run("live x402 devnet settlement and replay", "pnpm", [
-    "--filter", "@meterkit/example-client", "verify:devnet",
+    "--filter", "@usemeterkit/example-client", "verify:devnet",
   ], {
     env: {
       GATEWAY_URL: process.env.GATEWAY_URL ??
@@ -85,7 +85,7 @@ if (process.env.SOLANA_PRIVATE_KEY && process.env.MERCHANT_WALLET) {
 
 if (process.env.SOLANA_KEYPAIR_PATH && process.env.MERCHANT_WALLET) {
   run("live paid MCP devnet report", "pnpm", [
-    "--filter", "@meterkit/mcp-scout", "pay:devnet", "anza-xyz/kit",
+    "--filter", "@usemeterkit/mcp-scout", "pay:devnet", "anza-xyz/kit",
   ]);
 } else {
   checks.push({

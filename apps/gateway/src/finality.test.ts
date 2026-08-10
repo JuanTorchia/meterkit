@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { FinalityStore } from "@meterkit/database";
+import type { FinalityStore } from "@usemeterkit/database";
 import { SolanaFinalityReconciler } from "./finality.js";
 
 describe("SolanaFinalityReconciler", () => {

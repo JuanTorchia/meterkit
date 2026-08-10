@@ -48,8 +48,8 @@ jobs:
 
       - name: Publish core
         if: github.event_name == 'release' && github.event.release.prerelease == false
-        run: pnpm --filter @meterkit/core publish --access public --provenance --no-git-checks
+        run: pnpm --filter @usemeterkit/core publish --access public --provenance --no-git-checks
 
       - name: Publish SDK
         if: github.event_name == 'release' && github.event.release.prerelease == false
-        run: pnpm --filter @meterkit/sdk publish --access public --provenance --no-git-checks
+        run: pnpm --filter @usemeterkit/sdk publish --access public --provenance --no-git-checks

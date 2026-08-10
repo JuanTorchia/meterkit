@@ -2,7 +2,7 @@ import { x402Client } from "@x402/fetch";
 import { wrapFetchWithPayment, decodePaymentResponseHeader } from "@x402/fetch";
 import { ExactSvmScheme } from "@x402/svm";
 import { createKeyPairSignerFromBytes } from "@solana/kit";
-import { SOLANA_DEVNET } from "@meterkit/core";
+import { SOLANA_DEVNET } from "@usemeterkit/core";
 
 export async function callPaidWeather(
   fetchWithPayment: typeof fetch,

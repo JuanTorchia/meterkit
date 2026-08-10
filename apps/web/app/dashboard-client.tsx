@@ -18,7 +18,7 @@ import {
 import {
   buildRevokeDelegationTransaction,
   prepareFixedAllowanceTransaction,
-} from "@meterkit/subscriptions";
+} from "@usemeterkit/subscriptions";
 import bs58 from "bs58";
 import { dateLocales, type Locale } from "./locale";
 import { waitForFinalizedSignature } from "./solana-finality";

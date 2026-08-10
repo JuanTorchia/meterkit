@@ -1,6 +1,6 @@
 import { createHash, createPublicKey, randomBytes, verify } from "node:crypto";
 import bs58 from "bs58";
-import type { WalletChallengeRecord } from "@meterkit/database";
+import type { WalletChallengeRecord } from "@usemeterkit/database";
 
 export interface WalletChallengeStore {
   saveWalletChallenge(challenge: WalletChallengeRecord, maxActive: number): Promise<void>;

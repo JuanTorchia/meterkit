@@ -1,4 +1,4 @@
-# @meterkit/pilot
+# @usemeterkit/pilot
 
 Read-only verifier for an x402 endpoint. It checks HTTP 402, decodes
 `PAYMENT-REQUIRED`, and requires an explicit network, mint, maximum amount and

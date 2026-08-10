@@ -1,4 +1,4 @@
-# `@meterkit/core`
+# `@usemeterkit/core`
 
 Strict shared contracts for MeterKit products, x402 payment requirements,
 receipts and validation.
@@ -8,7 +8,7 @@ the SDK, PostgreSQL store and subscription builders to keep network, mint,
 amount, recipient and status handling consistent.
 
 ```bash
-pnpm add @meterkit/core
+pnpm add @usemeterkit/core
 ```
 
 MeterKit is currently devnet only. See the

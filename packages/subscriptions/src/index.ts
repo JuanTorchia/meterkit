@@ -1,4 +1,4 @@
-import { SUBSCRIPTIONS_PROGRAM } from "@meterkit/core";
+import { SUBSCRIPTIONS_PROGRAM } from "@usemeterkit/core";
 import {
   address,
   appendTransactionMessageInstruction,

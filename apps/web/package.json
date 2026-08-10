@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/web",
+  "name": "@usemeterkit/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@meterkit/subscriptions": "workspace:*",
+    "@usemeterkit/subscriptions": "workspace:*",
     "@solana/kit": "5.5.1",
     "@solana/wallet-standard-features": "1.4.0",
     "@wallet-standard/app": "1.1.0",

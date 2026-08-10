@@ -3,7 +3,7 @@ import {
   createX402Middleware,
   MemoryPaymentStore,
   SOLANA_DEVNET,
-} from "@meterkit/sdk";
+} from "@usemeterkit/sdk";
 
 const merchantWallet = process.env.MERCHANT_WALLET;
 if (!merchantWallet) {

@@ -8,12 +8,12 @@ import {
   explorerUrl,
   productSchema,
   type PaymentStore,
-} from "@meterkit/core";
-import { PostgresStore, type ProductStore } from "@meterkit/database";
+} from "@usemeterkit/core";
+import { PostgresStore, type ProductStore } from "@usemeterkit/database";
 import {
   createDynamicX402Middleware,
   createX402Middleware,
-} from "@meterkit/sdk";
+} from "@usemeterkit/sdk";
 import { WalletChallenges } from "./wallet-auth.js";
 import { SolanaFinalityReconciler } from "./finality.js";
 import { loadGatewayConfig, requirePersistentMerchant } from "./config.js";

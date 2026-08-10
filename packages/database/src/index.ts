@@ -9,7 +9,7 @@ import {
   type PaymentStore,
   type PersistedProduct,
   type Product,
-} from "@meterkit/core";
+} from "@usemeterkit/core";
 
 const { Pool } = pg;
 

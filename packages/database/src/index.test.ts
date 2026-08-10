@@ -3,7 +3,7 @@ import {
   SOLANA_DEVNET,
   paymentRecordSchema,
   productSchema,
-} from "@meterkit/core";
+} from "@usemeterkit/core";
 import { PostgresStore } from "./index.js";
 
 const url = process.env.DATABASE_TEST_URL;

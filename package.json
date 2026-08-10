@@ -7,9 +7,9 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "build:packages": "pnpm --filter @meterkit/core build && pnpm --filter @meterkit/database build && pnpm --filter @meterkit/sdk build && pnpm --filter @meterkit/subscriptions build",
+    "build:packages": "pnpm --filter @usemeterkit/core build && pnpm --filter @usemeterkit/database build && pnpm --filter @usemeterkit/sdk build && pnpm --filter @usemeterkit/subscriptions build",
     "predev": "pnpm build:packages",
-    "dev": "pnpm --parallel --filter @meterkit/gateway --filter @meterkit/web dev",
+    "dev": "pnpm --parallel --filter @usemeterkit/gateway --filter @usemeterkit/web dev",
     "lint": "eslint .",
     "pretypecheck": "pnpm build:packages",
     "typecheck": "pnpm -r typecheck",
@@ -19,13 +19,13 @@
     "test:e2e": "playwright test",
     "wallet:devnet": "tsx scripts/create-devnet-wallet.ts",
     "pilot:check": "node scripts/pilot-check.mjs",
-    "pilot:init": "pnpm --filter @meterkit/pilot build && node packages/pilot/dist/cli.js init",
-    "pilot:verify": "pnpm --filter @meterkit/pilot build && node packages/pilot/dist/cli.js verify",
+    "pilot:init": "pnpm --filter @usemeterkit/pilot build && node packages/pilot/dist/cli.js init",
+    "pilot:verify": "pnpm --filter @usemeterkit/pilot build && node packages/pilot/dist/cli.js verify",
     "demo:verify": "node scripts/verify-public-dashboard.mjs",
     "demo:record": "node scripts/record-demo.mjs",
     "demo:institutional": "node scripts/record-institutional-demo.mjs",
     "evidence:grant": "node scripts/grant-evidence.mjs",
-    "release:verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm --filter @meterkit/core pack --pack-destination /tmp && pnpm --filter @meterkit/sdk pack --pack-destination /tmp",
+    "release:verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm --filter @usemeterkit/core pack --pack-destination /tmp && pnpm --filter @usemeterkit/sdk pack --pack-destination /tmp",
     "format": "prettier --write ."
   },
   "devDependencies": {

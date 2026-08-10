@@ -4,7 +4,7 @@ import {
   paymentRecordSchema,
   type PaymentStore,
   type Product,
-} from "@meterkit/core";
+} from "@usemeterkit/core";
 import { z } from "zod";
 import {
   HTTPFacilitatorClient,
@@ -14,8 +14,8 @@ import {
 import { paymentMiddleware } from "@x402/express";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 
-export { MemoryPaymentStore, SOLANA_DEVNET } from "@meterkit/core";
-export type { PaymentStore, Product } from "@meterkit/core";
+export { MemoryPaymentStore, SOLANA_DEVNET } from "@usemeterkit/core";
+export type { PaymentStore, Product } from "@usemeterkit/core";
 
 export interface Settlement {
   success: boolean;

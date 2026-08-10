@@ -1,9 +1,9 @@
-# `@meterkit/subscriptions`
+# `@usemeterkit/subscriptions`
 
 Wallet-controlled transaction builders for Solana Subscriptions & Allowances.
 
 ```bash
-pnpm add @meterkit/subscriptions
+pnpm add @usemeterkit/subscriptions
 ```
 
 The package builds fixed allowances, recurring delegations, subscription plans

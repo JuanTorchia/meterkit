@@ -8,7 +8,7 @@ not require cloning the MeterKit monorepo, PostgreSQL or Docker.
 ```bash
 mkdir meterkit-provider && cd meterkit-provider
 pnpm init
-pnpm add @meterkit/sdk express
+pnpm add @usemeterkit/sdk express
 pnpm add -D tsx typescript @types/express
 ```
 

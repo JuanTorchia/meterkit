@@ -50,13 +50,13 @@ importers:
 
   apps/gateway:
     dependencies:
-      '@meterkit/core':
+      '@usemeterkit/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@meterkit/database':
+      '@usemeterkit/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@meterkit/sdk':
+      '@usemeterkit/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       bs58:
@@ -87,15 +87,15 @@ importers:
 
   apps/web:
     dependencies:
-      '@meterkit/subscriptions':
-        specifier: workspace:*
-        version: link:../../packages/subscriptions
       '@solana/kit':
         specifier: 5.5.1
         version: 5.5.1(typescript@5.9.3)
       '@solana/wallet-standard-features':
         specifier: 1.4.0
         version: 1.4.0
+      '@usemeterkit/subscriptions':
+        specifier: workspace:*
+        version: link:../../packages/subscriptions
       '@wallet-standard/app':
         specifier: 1.1.0
         version: 1.1.0
@@ -127,15 +127,15 @@ importers:
 
   examples/client:
     dependencies:
-      '@meterkit/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@solana/kit':
         specifier: ^5.5.1
         version: 5.5.1(typescript@5.9.3)
       '@solana/sysvars':
         specifier: 5.5.1
         version: 5.5.1(typescript@5.9.3)
+      '@usemeterkit/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@x402/fetch':
         specifier: 2.20.0
         version: 2.20.0
@@ -149,7 +149,7 @@ importers:
 
   examples/express-quickstart:
     dependencies:
-      '@meterkit/sdk':
+      '@usemeterkit/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       express:
@@ -168,9 +168,6 @@ importers:
 
   examples/mcp-scout:
     dependencies:
-      '@meterkit/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
       '@modelcontextprotocol/sdk':
         specifier: 1.30.0
         version: 1.30.0(zod@4.4.3)
@@ -180,6 +177,9 @@ importers:
       '@solana/sysvars':
         specifier: 5.5.1
         version: 5.5.1(typescript@5.9.3)
+      '@usemeterkit/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@x402/core':
         specifier: 2.20.0
         version: 2.20.0
@@ -199,15 +199,15 @@ importers:
 
   examples/subscriptions-client:
     dependencies:
-      '@meterkit/subscriptions':
-        specifier: workspace:*
-        version: link:../../packages/subscriptions
       '@solana/kit':
         specifier: 6.10.0
         version: 6.10.0(typescript@5.9.3)
       '@solana/subscriptions':
         specifier: 0.4.0
         version: 0.4.0(@solana/kit@6.10.0(typescript@5.9.3))(@solana/sysvars@6.10.0(typescript@5.9.3))(typescript@5.9.3)
+      '@usemeterkit/subscriptions':
+        specifier: workspace:*
+        version: link:../../packages/subscriptions
     devDependencies:
       tsx:
         specifier: ^4.23.9
@@ -221,7 +221,7 @@ importers:
 
   packages/database:
     dependencies:
-      '@meterkit/core':
+      '@usemeterkit/core':
         specifier: workspace:*
         version: link:../core
       pg:
@@ -246,15 +246,15 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@meterkit/core':
-        specifier: workspace:*
-        version: link:../core
       '@solana/kit':
         specifier: 5.5.1
         version: 5.5.1(typescript@5.9.3)
       '@solana/sysvars':
         specifier: 5.5.1
         version: 5.5.1(typescript@5.9.3)
+      '@usemeterkit/core':
+        specifier: workspace:*
+        version: link:../core
       '@x402/core':
         specifier: 2.20.0
         version: 2.20.0
@@ -277,9 +277,6 @@ importers:
 
   packages/subscriptions:
     dependencies:
-      '@meterkit/core':
-        specifier: workspace:*
-        version: link:../core
       '@solana/kit':
         specifier: 6.10.0
         version: 6.10.0(typescript@5.9.3)
@@ -289,6 +286,9 @@ importers:
       '@solana/sysvars':
         specifier: 5.5.1
         version: 5.5.1(typescript@5.9.3)
+      '@usemeterkit/core':
+        specifier: workspace:*
+        version: link:../core
 
 packages:
 

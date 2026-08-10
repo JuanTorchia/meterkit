@@ -9,7 +9,7 @@ verifies and settles; USDC moves directly to the provider. MeterKit stores only
 configuration, indexes and public receipts.
 
 ```text
-Client/agent ──HTTP──> Gateway + @meterkit/sdk ──verify/settle──> x402 facilitator
+Client/agent ──HTTP──> Gateway + @usemeterkit/sdk ──verify/settle──> x402 facilitator
      │                         │                                      │
      │ local signature         └── metadata/receipts ──> PostgreSQL   │
      └────────────────── Solana devnet USDC ──────────────────────────┘

@@ -5,11 +5,11 @@ acepta guardar un token npm de larga duración en el repositorio.
 
 ## Preparación única
 
-1. Crear o confirmar el scope público `@meterkit` en npm.
+1. Confirmar la organización pública `@usemeterkit` en npm.
 2. En npm, agregar un trusted publisher para este repositorio, workflow
    `.github/workflows/release.yml` y environment `npm`.
 3. En GitHub, crear el environment `npm`; opcionalmente exigir un reviewer.
-4. Confirmar que `@meterkit/core` y `@meterkit/sdk` continúan en la misma versión.
+4. Confirmar que `@usemeterkit/core` y `@usemeterkit/sdk` continúan en la misma versión.
 
 ## Verificación y publicación
 
@@ -26,8 +26,8 @@ paquetes y publica primero core y luego SDK con provenance.
 Confirmar la publicación desde un directorio vacío:
 
 ```bash
-npm view @meterkit/core@0.1.0 version
-npm view @meterkit/sdk@0.1.0 version
+npm view @usemeterkit/core@0.1.0 version
+npm view @usemeterkit/sdk@0.1.0 version
 ```
 
 Si falla la publicación, no reutilizar ni mover el tag. Corregir la configuración,

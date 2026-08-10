@@ -1,10 +1,10 @@
-# `@meterkit/database`
+# `@usemeterkit/database`
 
 PostgreSQL persistence for MeterKit products, wallet challenges, receipts,
 idempotency keys and atomic payment-proof consumption.
 
 ```bash
-pnpm add @meterkit/database pg
+pnpm add @usemeterkit/database pg
 ```
 
 Run the versioned migrations before starting the gateway. The package stores

@@ -1,5 +1,5 @@
 {
-  "name": "@meterkit/pilot",
+  "name": "@usemeterkit/pilot",
   "version": "0.1.0",
   "description": "Self-service x402 endpoint verifier for MeterKit pilots",
   "license": "Apache-2.0",
