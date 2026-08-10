@@ -1,0 +1,18 @@
+---
+title: Integration surfaces
+description: Choose the maintained Express, Next route, Hono or MCP integration.
+section: Integrations
+order: 2
+lastReviewedAt: 2026-08-10
+productVersionRange: ">=0.1.0 <0.2.0"
+surface: general
+maturity: supported
+claimKeys:
+  ["express-supported", "next-supported", "hono-experimental", "mcp-supported"]
+---
+
+# Integration surfaces
+
+Express is the recommended middleware path. Next route handlers and MCP tools are supported. Hono uses the official x402 adapter and remains experimental until its external pilot evidence matches Express.
+
+All surfaces must preserve the same Solana devnet terms, receipt semantics and replay boundary. Review the [reference](./reference) before selecting versions.

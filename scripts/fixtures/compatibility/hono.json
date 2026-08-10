@@ -1,0 +1,6 @@
+{
+  "surface": "hono",
+  "adapter": "@x402/hono",
+  "candidateVersion": "2.21.0",
+  "acceptance": ["challenge", "settlement", "receipt", "replay"]
+}

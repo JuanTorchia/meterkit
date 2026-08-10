@@ -44,6 +44,12 @@ type Payment = {
   status: string;
   explorerUrl: string;
 };
+type GitHubIdentity = {
+  subject: string;
+  login: string;
+  avatarUrl: string | null;
+  linkedAt: string;
+};
 
 const gateway = process.env.NEXT_PUBLIC_GATEWAY_URL ?? "http://localhost:3402";
 const usdcMint = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
@@ -238,7 +244,55 @@ export function DashboardClient({ locale }: { locale: Locale }) {
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
+  const [githubIdentity, setGitHubIdentity] = useState<GitHubIdentity | null>();
+  const [githubConfigured, setGitHubConfigured] = useState(false);
+  const [githubPending, setGitHubPending] = useState(false);
   const refreshSequence = useRef(0);
+
+  const refreshGitHub = useCallback(async () => {
+    if (!sessionToken) {
+      setGitHubIdentity(undefined);
+      return;
+    }
+    const response = await fetch(`${gateway}/v1/auth/github`, {
+      headers: { authorization: `Bearer ${sessionToken}` },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) throw new Error(`GitHub identity: ${response.status}`);
+    const result = (await response.json()) as {
+      configured: boolean;
+      identity: GitHubIdentity | null;
+    };
+    setGitHubConfigured(result.configured);
+    setGitHubIdentity(result.identity);
+  }, [sessionToken]);
+
+  useEffect(() => {
+    if (
+      new URLSearchParams(globalThis.location.search).get("github") &&
+      globalThis.opener
+    ) {
+      globalThis.opener.postMessage(
+        { type: "meterkit:github-linked" },
+        globalThis.location.origin,
+      );
+      globalThis.close();
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshGitHub().catch(() => setGitHubIdentity(undefined));
+    const linked = (event: MessageEvent) => {
+      if (
+        event.origin === globalThis.location.origin &&
+        (event.data as { type?: string } | null)?.type ===
+          "meterkit:github-linked"
+      )
+        void refreshGitHub();
+    };
+    globalThis.addEventListener("message", linked);
+    return () => globalThis.removeEventListener("message", linked);
+  }, [refreshGitHub]);
 
   const refresh = useCallback(
     async (signal?: AbortSignal) => {
@@ -280,7 +334,8 @@ export function DashboardClient({ locale }: { locale: Locale }) {
                 : "Não foi possível acessar o gateway",
         );
       } finally {
-        if (sequence === refreshSequence.current && !signal?.aborted) setLoading(false);
+        if (sequence === refreshSequence.current && !signal?.aborted)
+          setLoading(false);
       }
     },
     [locale, sessionToken],
@@ -344,7 +399,83 @@ export function DashboardClient({ locale }: { locale: Locale }) {
             </button>
           </div>
         </header>
-        {error && <p className="errorBanner" role="alert">{error}</p>}
+        {error && (
+          <p className="errorBanner" role="alert">
+            {error}
+          </p>
+        )}
+        {sessionToken && (
+          <aside
+            className="identityCard"
+            aria-label="Linked developer identity"
+          >
+            <div>
+              <span className="kicker">DEVELOPER IDENTITY · OPTIONAL</span>
+              <strong>
+                {githubIdentity
+                  ? `GitHub · @${githubIdentity.login}`
+                  : locale === "es"
+                    ? "Vincula GitHub al mismo workspace"
+                    : locale === "pt-BR"
+                      ? "Vincule o GitHub ao mesmo workspace"
+                      : "Link GitHub to the same workspace"}
+              </strong>
+              <small>
+                {locale === "es"
+                  ? "GitHub identifica al desarrollador; tu wallet conserva pagos y autorizaciones."
+                  : locale === "pt-BR"
+                    ? "O GitHub identifica o desenvolvedor; sua carteira mantém pagamentos e autorizações."
+                    : "GitHub identifies the developer; your wallet keeps payments and authorizations."}
+              </small>
+            </div>
+            {!githubIdentity && (
+              <button
+                type="button"
+                disabled={!githubConfigured || githubPending}
+                onClick={async () => {
+                  if (!sessionToken || githubPending) return;
+                  const popup = globalThis.open(
+                    "about:blank",
+                    "meterkit-github",
+                    "popup,width=720,height=760",
+                  );
+                  setGitHubPending(true);
+                  try {
+                    const response = await fetch(
+                      `${gateway}/v1/auth/github/link`,
+                      {
+                        method: "POST",
+                        headers: { authorization: `Bearer ${sessionToken}` },
+                      },
+                    );
+                    if (!response.ok)
+                      throw new Error(`GitHub OAuth: ${response.status}`);
+                    const body = (await response.json()) as {
+                      authorizationUrl: string;
+                    };
+                    if (popup) popup.location.href = body.authorizationUrl;
+                    else globalThis.location.href = body.authorizationUrl;
+                  } catch (cause) {
+                    popup?.close();
+                    setError(
+                      cause instanceof Error
+                        ? cause.message
+                        : "GitHub OAuth failed",
+                    );
+                  } finally {
+                    setGitHubPending(false);
+                  }
+                }}
+              >
+                {githubPending
+                  ? "GitHub…"
+                  : githubConfigured
+                    ? "Connect GitHub"
+                    : "GitHub not configured"}
+              </button>
+            )}
+          </aside>
+        )}
         {!connection && (
           <p className="evidenceBanner">{text.internalEvidence}</p>
         )}
@@ -443,7 +574,9 @@ export function DashboardClient({ locale }: { locale: Locale }) {
         </div>
         <div className="table" aria-live="polite" aria-busy={loading}>
           {loading && <p className="empty">{text.loading}</p>}
-          {!loading && !payments.length && <p className="empty">{text.empty}</p>}
+          {!loading && !payments.length && (
+            <p className="empty">{text.empty}</p>
+          )}
           {payments.map((payment) => (
             <div className="row" key={payment.id}>
               <span className="tx">↗</span>
@@ -460,7 +593,12 @@ export function DashboardClient({ locale }: { locale: Locale }) {
                 {formatUsdc(BigInt(payment.amountAtomic), locale)} USDC
               </strong>
               <span className={`receiptStatus receiptStatus-${payment.status}`}>
-                {payment.status === "finalized" ? "✓" : payment.status === "failed" ? "×" : "…"} {payment.status}
+                {payment.status === "finalized"
+                  ? "✓"
+                  : payment.status === "failed"
+                    ? "×"
+                    : "…"}{" "}
+                {payment.status}
               </span>
               <a href={payment.explorerUrl} target="_blank" rel="noreferrer">
                 Explorer ↗
@@ -474,14 +612,20 @@ export function DashboardClient({ locale }: { locale: Locale }) {
 }
 
 type Allowance = {
-  address: string;
-  ownerWallet: string;
-  delegateWallet: string;
-  mint: string;
-  maxAtomic: string;
+  authorizationAddress: string;
+  owner: string;
+  delegate: string;
+  assetMint: string;
+  perRequestLimitAtomic: string;
+  aggregateLimitAtomic: string;
+  spentAtomic: string;
+  reservedAtomic: string;
+  remainingCapacityAtomic: string;
   expiresAt: string;
-  revokedAt: string | null;
-  signature: string | null;
+  status: string;
+  observedCommitment: string;
+  creationTransaction?: string;
+  revocationTransaction?: string;
 };
 
 export function AllowancePanel({
@@ -497,17 +641,30 @@ export function AllowancePanel({
   const [allowances, setAllowances] = useState<Allowance[]>([]);
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
+  const [allowancesLoading, setAllowancesLoading] = useState(false);
+  const [allowancesError, setAllowancesError] = useState("");
   const refreshAllowances = useCallback(async () => {
     if (!sessionToken) {
       setAllowances([]);
       return;
     }
-    const response = await fetch(`${gateway}/v1/allowances`, {
-      headers: { authorization: `Bearer ${sessionToken}` },
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!response.ok) throw new Error(`Error ${response.status}`);
-    setAllowances((await response.json()) as Allowance[]);
+    setAllowancesLoading(true);
+    try {
+      const response = await fetch(`${gateway}/v1/allowances`, {
+        headers: { authorization: `Bearer ${sessionToken}` },
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!response.ok) throw new Error(`Error ${response.status}`);
+      setAllowances((await response.json()) as Allowance[]);
+      setAllowancesError("");
+    } catch (cause) {
+      setAllowancesError(
+        cause instanceof Error ? cause.message : "Allowance refresh failed",
+      );
+      throw cause;
+    } finally {
+      setAllowancesLoading(false);
+    }
   }, [sessionToken]);
   useEffect(() => {
     void refreshAllowances().catch(() => setAllowances([]));
@@ -525,6 +682,22 @@ export function AllowancePanel({
               : "Crie, consulte e revogue allowances."}
         </h2>
         <p>{text.revokeBody}</p>
+        <button
+          type="button"
+          className="textButton"
+          disabled={!sessionToken || allowancesLoading}
+          onClick={() => void refreshAllowances().catch(() => undefined)}
+        >
+          {allowancesLoading
+            ? locale === "es"
+              ? "Actualizando…"
+              : "Refreshing…"
+            : locale === "es"
+              ? "Actualizar allowances"
+              : "Refresh allowances"}
+        </button>
+        {allowancesLoading && <p role="status">Loading authorizations…</p>}
+        {allowancesError && <p role="alert">{allowancesError}</p>}
         <div className="allowanceList">
           {!allowances.length && (
             <p>
@@ -536,43 +709,55 @@ export function AllowancePanel({
             </p>
           )}
           {allowances.map((allowance) => (
-            <article key={allowance.address}>
-              <strong>{short(allowance.delegateWallet)}</strong>
+            <article key={allowance.authorizationAddress}>
+              <strong>{short(allowance.delegate)}</strong>
               <span>
-                {formatUsdc(BigInt(allowance.maxAtomic), locale)} USDC ·{" "}
+                {formatUsdc(BigInt(allowance.remainingCapacityAtomic), locale)}{" "}
+                / {formatUsdc(BigInt(allowance.aggregateLimitAtomic), locale)}{" "}
+                USDC ·{" "}
                 {new Date(allowance.expiresAt).toLocaleDateString(
                   dateLocales[locale],
                 )}
               </span>
-              <code>{short(allowance.address)}</code>
-              <span>
-                {allowance.revokedAt
-                  ? "Revoked"
-                  : new Date(allowance.expiresAt) <= new Date()
-                    ? "Expired"
-                    : "Active"}
+              <code>{short(allowance.authorizationAddress)}</code>
+              <span
+                className={`receiptStatus receiptStatus-${allowance.status}`}
+              >
+                {allowance.status} · {allowance.observedCommitment}
               </span>
-              {allowance.signature && (
+              {allowance.creationTransaction && (
                 <a
-                  href={`https://explorer.solana.com/tx/${encodeURIComponent(allowance.signature)}?cluster=devnet`}
+                  href={`https://explorer.solana.com/tx/${encodeURIComponent(allowance.creationTransaction)}?cluster=devnet`}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Explorer ↗
+                  Create ↗
                 </a>
               )}
-              {!allowance.revokedAt && (
-                <button
-                  disabled={pending}
-                  onClick={() => void revokeAllowance(allowance.address)}
+              {allowance.revocationTransaction && (
+                <a
+                  href={`https://explorer.solana.com/tx/${encodeURIComponent(allowance.revocationTransaction)}?cluster=devnet`}
+                  target="_blank"
+                  rel="noreferrer"
                 >
-                  {locale === "en"
-                    ? "Revoke"
-                    : locale === "es"
-                      ? "Revocar"
-                      : "Revogar"}
-                </button>
+                  Revoke ↗
+                </a>
               )}
+              {allowance.status !== "revoked" &&
+                allowance.status !== "revocation_pending" && (
+                  <button
+                    disabled={pending}
+                    onClick={() =>
+                      void revokeAllowance(allowance.authorizationAddress)
+                    }
+                  >
+                    {locale === "en"
+                      ? "Revoke"
+                      : locale === "es"
+                        ? "Revocar"
+                        : "Revogar"}
+                  </button>
+                )}
             </article>
           ))}
         </div>
@@ -815,12 +1000,27 @@ export function AllowancePanel({
       });
       if (!result) throw new Error("Wallet did not return a signature");
       const encoded = bs58.encode(result.signature);
+      const pendingResponse = await fetch(
+        `${gateway}/v1/allowances/${encodeURIComponent(delegationAccount)}/revocation-pending`,
+        {
+          method: "POST",
+          headers: { authorization: `Bearer ${sessionToken}` },
+        },
+      );
+      if (!pendingResponse.ok)
+        throw new Error(
+          `Could not begin revocation: ${pendingResponse.status}`,
+        );
       await waitForFinalizedSignature(encoded, rpcUrl);
       const response = await fetch(
         `${gateway}/v1/allowances/${encodeURIComponent(delegationAccount)}/revoked`,
         {
           method: "POST",
-          headers: { authorization: `Bearer ${sessionToken}` },
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify({ signature: encoded }),
         },
       );
       if (!response.ok)

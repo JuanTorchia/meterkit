@@ -3,13 +3,26 @@
   "version": "0.1.0",
   "description": "Optional Webacy risk-policy adapter for MeterKit agent payments",
   "license": "Apache-2.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
-  "files": ["dist", "README.md"],
-  "publishConfig": { "access": "public", "provenance": true },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/JuanTorchia/meterkit.git",
@@ -21,6 +34,12 @@
     "test": "vitest run",
     "prepack": "pnpm build"
   },
-  "dependencies": { "@usemeterkit/core": "workspace:*", "zod": "^4.0.17" },
-  "devDependencies": { "typescript": "^5.9.2", "vitest": "^3.2.4" }
+  "dependencies": {
+    "@usemeterkit/core": "workspace:*",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
 }

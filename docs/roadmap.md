@@ -1,9 +1,10 @@
 # Backlog y roadmap de MeterKit
 
 > Estado 2026-08-10: completados `protect()`, ejemplo Next.js, recibos/eventos,
-> CLI de activación y adaptador Webacy probado. Próximo gate: publicar paquetes
-> versionados y obtener tres integraciones externas consentidas; agentes
-> sintéticos y dogfooding no cuentan como pilotos.
+> CLI de activación, inicializador, Hono, documentación bilingüe, presupuesto de
+> agente y evidencia profesional completados. Core y SDK 0.1.0 están publicados.
+> Próximo gate: release compatible del candidato y tres integraciones externas
+> consentidas; agentes sintéticos y dogfooding no cuentan como pilotos.
 
 MeterKit se construye en dos velocidades:
 
@@ -51,7 +52,7 @@ transacciones del equipo como adopción externa.
 ## P2 — pilotos y operación
 
 - [ ] Exportación CSV/webhooks.
-- [ ] Observabilidad y reconciliación RPC.
+- [x] Observabilidad sanitizada, benchmarks y reconciliación RPC con fallback.
 - [ ] Kora opcional con límites.
 - [ ] Cinco pilotos y caso de estudio.
 
@@ -80,8 +81,10 @@ independientes puedan evaluar sin asistencia constante.
 
 ### Entregables
 
-- Publicar `@usemeterkit/sdk` y `@usemeterkit/core` con versiones reproducibles
-  (empaquetado y trusted-publishing implementados; publicación npm pendiente).
+- [x] Publicar `@usemeterkit/sdk@0.1.0` y `@usemeterkit/core@0.1.0`; preservar
+      que esa release histórica no tiene provenance observada.
+- Preparar la siguiente release mediante OIDC/staged publishing, manifest,
+  SBOM y aprobación humana del tag exacto.
 - [x] Incorporar UUID interno y namespace `owner/slug` antes del alta pública abierta.
 - [x] Crear un quickstart que llegue al primer HTTP 402 en menos de 10 minutos.
 - Integrar MeterKit en la aplicación privada que originó la necesidad, utilizando
@@ -91,6 +94,18 @@ independientes puedan evaluar sin asistencia constante.
 - Completar el cobro periódico mensual sólo si las primitivas oficiales vigentes
   permiten una implementación segura y revocable.
 - Publicar el video de 90 segundos y un caso de uso técnico reproducible.
+
+### Entregado adicionalmente
+
+- Cuatro superficies mantenidas: Express, Next route, Hono y MCP.
+- Inicializador determinista probado desde paquetes empacados en 16
+  combinaciones de superficie/package manager.
+- Allowance devnet de 15.000 atomic con carrera de dos gastos de 10.000:
+  exactamente uno finalizó; revocación y gasto posterior rechazado.
+- Harness 1/25/100, paid-retry 25, fixtures de outages y cero ejecución duplicada
+  en la validación interna.
+- Camino de contribución, evidencia consentida/minimizada y borrado local con
+  recibo. Los resultados externos continúan en cero hasta existir evidencia.
 
 ### Métricas de salida
 

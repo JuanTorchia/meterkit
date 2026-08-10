@@ -1,0 +1,24 @@
+---
+title: Start with MeterKit
+description: Install a protected Solana devnet API and inspect its first x402 challenge.
+section: Start
+order: 0
+lastReviewedAt: 2026-08-10
+productVersionRange: ">=0.1.0 <0.2.0"
+surface: general
+maturity: recommended
+claimKeys: ["devnet-only", "direct-settlement", "no-private-keys"]
+---
+
+# Start with MeterKit
+
+MeterKit adds non-custodial USDC payments to APIs and MCP tools. The provider receives settlement directly; MeterKit does not hold funds or private keys.
+
+Install the public SDK in an existing service, then choose an [integration](./integrations). Understand the [payment lifecycle](./concepts) before moving beyond the unpaid challenge.
+
+```bash
+pnpm add @usemeterkit/sdk@0.1.0 express
+```
+
+The initializer is not yet an npm release. From an exact repository commit, run
+`pnpm create:meterkit ../demo --surface express --package-manager pnpm --yes`.

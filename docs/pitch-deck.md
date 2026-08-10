@@ -59,4 +59,3 @@ OSS gratuito; hosted Starter; Pro $49/mes; integración desde $1.500; enterprise
 ## 10. Solicitud
 
 Financiar cuatro semanas para endurecer settlement, completar subscriptions, incorporar pilotos y desplegar testnet. Sin token, trading, custodia ni promesas financieras.
-

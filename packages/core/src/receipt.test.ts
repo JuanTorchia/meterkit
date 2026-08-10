@@ -3,7 +3,9 @@ import { fingerprintSignature, publicPaymentReceiptSchema } from "./receipt.js";
 
 describe("public payment receipts", () => {
   it("creates irreversible stable signature fingerprints", () => {
-    expect(fingerprintSignature("3yAbWL8VpRZ3FfPfQ2GduDcm8x9eewm1")).toMatch(/^sha256:[0-9a-f]{16}$/);
+    expect(fingerprintSignature("3yAbWL8VpRZ3FfPfQ2GduDcm8x9eewm1")).toMatch(
+      /^sha256:[0-9a-f]{16}$/,
+    );
     expect(fingerprintSignature("one")).not.toBe(fingerprintSignature("two"));
   });
 
@@ -25,10 +27,14 @@ describe("public payment receipts", () => {
       reasonCode: "PAYMENT_ACCEPTED",
     } as const;
     expect(publicPaymentReceiptSchema.parse(base)).toEqual(base);
-    expect(() => publicPaymentReceiptSchema.parse({ ...base, signature: "full" })).toThrow();
-    expect(() => publicPaymentReceiptSchema.parse({
-      ...base,
-      updatedAt: "2026-08-09T00:00:00.000Z",
-    })).toThrow();
+    expect(() =>
+      publicPaymentReceiptSchema.parse({ ...base, signature: "full" }),
+    ).toThrow();
+    expect(() =>
+      publicPaymentReceiptSchema.parse({
+        ...base,
+        updatedAt: "2026-08-09T00:00:00.000Z",
+      }),
+    ).toThrow();
   });
 });

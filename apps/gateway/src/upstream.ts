@@ -3,16 +3,29 @@ import { isIP } from "node:net";
 const MAX_UPSTREAM_BYTES = 1_000_000;
 
 export function parseUpstreamAllowlist(value: string) {
-  const hosts = value.split(",").map((host) => host.trim().toLowerCase()).filter(Boolean);
+  const hosts = value
+    .split(",")
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean);
   if (!hosts.length) throw new Error("UPSTREAM_HOST_ALLOWLIST_EMPTY");
   return new Set(hosts);
 }
 
-export function assertAllowedUpstream(rawUrl: string, allowedHosts: ReadonlySet<string>) {
+export function assertAllowedUpstream(
+  rawUrl: string,
+  allowedHosts: ReadonlySet<string>,
+) {
   const url = new URL(rawUrl);
   const hostname = url.hostname.toLowerCase();
-  if (url.protocol !== "https:" || url.username || url.password || url.hash ||
-      url.port || isIP(hostname) !== 0 || !allowedHosts.has(hostname)) {
+  if (
+    url.protocol !== "https:" ||
+    url.username ||
+    url.password ||
+    url.hash ||
+    url.port ||
+    isIP(hostname) !== 0 ||
+    !allowedHosts.has(hostname)
+  ) {
     throw new Error("UPSTREAM_NOT_ALLOWED");
   }
   return url;
@@ -26,17 +39,23 @@ export async function fetchAllowedUpstream(input: {
   timeoutMs?: number;
 }) {
   const url = assertAllowedUpstream(input.upstreamUrl, input.allowedHosts);
-  for (const [key, value] of input.clientQuery) url.searchParams.append(key, value);
+  for (const [key, value] of input.clientQuery)
+    url.searchParams.append(key, value);
   const response = await (input.request ?? fetch)(url, {
     method: "GET",
     redirect: "error",
     signal: AbortSignal.timeout(input.timeoutMs ?? 10_000),
     headers: { accept: "application/json" },
   });
-  const contentType = response.headers.get("content-type")?.split(";")[0]?.trim();
-  if (contentType !== "application/json") throw new Error("UPSTREAM_CONTENT_TYPE_REJECTED");
+  const contentType = response.headers
+    .get("content-type")
+    ?.split(";")[0]
+    ?.trim();
+  if (contentType !== "application/json")
+    throw new Error("UPSTREAM_CONTENT_TYPE_REJECTED");
   const declaredLength = Number(response.headers.get("content-length") ?? "0");
-  if (declaredLength > MAX_UPSTREAM_BYTES) throw new Error("UPSTREAM_RESPONSE_TOO_LARGE");
+  if (declaredLength > MAX_UPSTREAM_BYTES)
+    throw new Error("UPSTREAM_RESPONSE_TOO_LARGE");
   const body = await readBounded(response, MAX_UPSTREAM_BYTES);
   return {
     status: response.status,

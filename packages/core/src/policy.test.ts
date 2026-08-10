@@ -15,7 +15,9 @@ const input = {
 
 describe("payment policy contracts", () => {
   it("accepts bounded configuration and normalized inputs", () => {
-    expect(paymentPolicyConfigurationSchema.parse({ id: "wallet-risk" })).toMatchObject({
+    expect(
+      paymentPolicyConfigurationSchema.parse({ id: "wallet-risk" }),
+    ).toMatchObject({
       mode: "enforce",
       onError: "deny",
       timeoutMs: 2_000,
@@ -25,15 +27,21 @@ describe("payment policy contracts", () => {
   });
 
   it("rejects secret-like, unbounded, or arbitrary policy data", () => {
-    expect(() => policyEvaluationInputSchema.parse({ ...input, paymentProof: "secret" })).toThrow();
-    expect(() => paymentPolicyConfigurationSchema.parse({ id: "x", timeoutMs: 60_000 })).toThrow();
-    expect(() => policyDecisionSchema.parse({
-      policyId: "wallet-risk",
-      provider: "fixture",
-      outcome: "allow",
-      reasonCodes: ["OK"],
-      evaluatedAt: new Date().toISOString(),
-      metadata: { authorization: "Bearer value" },
-    })).toThrow();
+    expect(() =>
+      policyEvaluationInputSchema.parse({ ...input, paymentProof: "secret" }),
+    ).toThrow();
+    expect(() =>
+      paymentPolicyConfigurationSchema.parse({ id: "x", timeoutMs: 60_000 }),
+    ).toThrow();
+    expect(() =>
+      policyDecisionSchema.parse({
+        policyId: "wallet-risk",
+        provider: "fixture",
+        outcome: "allow",
+        reasonCodes: ["OK"],
+        evaluatedAt: new Date().toISOString(),
+        metadata: { authorization: "Bearer value" },
+      }),
+    ).toThrow();
   });
 });

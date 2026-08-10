@@ -34,4 +34,3 @@ GitHub, live devnet URL, Explorer receipt, 90-second demo, test report, five pil
 ## Weekly update template
 
 “This week we shipped __. Users can now __. Evidence: __. We learned __. Next week: __.”
-

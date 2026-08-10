@@ -7,8 +7,11 @@ import { FileReceiptGuard } from "./receipt-guard.js";
 const directories: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(directories.splice(0).map((directory) =>
-    rm(directory, { recursive: true, force: true })));
+  await Promise.all(
+    directories
+      .splice(0)
+      .map((directory) => rm(directory, { recursive: true, force: true })),
+  );
 });
 
 describe("FileReceiptGuard", () => {
@@ -20,7 +23,9 @@ describe("FileReceiptGuard", () => {
       guard.claim("same-transaction"),
       guard.claim("same-transaction"),
     ]);
-    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    expect(
+      results.filter((result) => result.status === "fulfilled"),
+    ).toHaveLength(1);
     const rejected = results.find((result) => result.status === "rejected");
     expect(rejected).toMatchObject({
       status: "rejected",
@@ -32,9 +37,11 @@ describe("FileReceiptGuard", () => {
     const directory = await mkdtemp(join(tmpdir(), "meterkit-previews-"));
     directories.push(directory);
     await new FileReceiptGuard(directory).claimPreview("installation-a");
-    await expect(new FileReceiptGuard(directory).claimPreview("installation-a"))
-      .rejects.toThrow("PREVIEW_ALREADY_USED");
-    await expect(new FileReceiptGuard(directory).claimPreview("installation-b"))
-      .resolves.toBeUndefined();
+    await expect(
+      new FileReceiptGuard(directory).claimPreview("installation-a"),
+    ).rejects.toThrow("PREVIEW_ALREADY_USED");
+    await expect(
+      new FileReceiptGuard(directory).claimPreview("installation-b"),
+    ).resolves.toBeUndefined();
   });
 });

@@ -1,9 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   SOLANA_DEVNET,
+  benchmarkRunSchema,
   publicPaymentReceiptSchema,
   paymentRecordSchema,
   productSchema,
+  publicReleaseSchema,
 } from "@usemeterkit/core";
 import { PostgresStore } from "./index.js";
 
@@ -16,12 +18,12 @@ suite("PostgresStore integration", () => {
     store = PostgresStore.connect(url!);
     await store.migrate();
     await store.pool.query(
-      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances CASCADE",
+      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances, release_manifests, benchmark_runs, hosted_metadata_requests, users CASCADE",
     );
   });
   afterAll(async () => {
     await store.pool.query(
-      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances CASCADE",
+      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances, release_manifests, benchmark_runs, hosted_metadata_requests, users CASCADE",
     );
     await store.close();
   });
@@ -167,7 +169,7 @@ suite("PostgresStore integration", () => {
     };
     await store.saveAllowance(allowance);
     expect(await store.listAllowancesForOwner(product.payTo)).toEqual([
-      allowance,
+      expect.objectContaining(allowance),
     ]);
     expect(
       await store.listAllowancesForOwner("11111111111111111111111111111111"),
@@ -184,6 +186,21 @@ suite("PostgresStore integration", () => {
     expect(
       (await store.listAllowancesForOwner(product.payTo))[0]?.revokedAt,
     ).not.toBeNull();
+    expect(
+      await store.getAllowanceForOwner(product.payTo, allowance.address),
+    ).toMatchObject({ address: allowance.address, ownerWallet: product.payTo });
+    expect(
+      await store.getAllowanceForOwner(
+        "11111111111111111111111111111111",
+        allowance.address,
+      ),
+    ).toBeNull();
+    expect(
+      await store.deleteAllowanceMetadata(
+        "11111111111111111111111111111111",
+        allowance.address,
+      ),
+    ).toBe(false);
 
     const timestamp = new Date().toISOString();
     const receipt = publicPaymentReceiptSchema.parse({
@@ -206,13 +223,243 @@ suite("PostgresStore integration", () => {
     });
     await store.savePublicReceipt(receipt);
     expect(await store.getPublicReceipt(receipt.receiptId)).toEqual(receipt);
-    const finalized = { ...receipt, settlement: "finalized" as const, updatedAt: new Date(Date.now() + 1_000).toISOString(), reasonCode: "SETTLEMENT_FINALIZED" };
+    const finalized = {
+      ...receipt,
+      settlement: "finalized" as const,
+      updatedAt: new Date(Date.now() + 1_000).toISOString(),
+      reasonCode: "SETTLEMENT_FINALIZED",
+    };
     await store.savePublicReceipt(finalized);
-    await expect(store.savePublicReceipt({ ...receipt, updatedAt: new Date(Date.now() + 2_000).toISOString() })).rejects.toThrow("RECEIPT_TRANSITION_REJECTED");
+    await expect(
+      store.savePublicReceipt({
+        ...receipt,
+        updatedAt: new Date(Date.now() + 2_000).toISOString(),
+      }),
+    ).rejects.toThrow("RECEIPT_TRANSITION_REJECTED");
     const concurrentReceipts = await Promise.allSettled([
-      store.savePublicReceipt({ ...finalized, updatedAt: new Date(Date.now() + 3_000).toISOString() }),
-      store.savePublicReceipt({ ...finalized, settlement: "failed", updatedAt: new Date(Date.now() + 4_000).toISOString(), reasonCode: "SETTLEMENT_FAILED" }),
+      store.savePublicReceipt({
+        ...finalized,
+        updatedAt: new Date(Date.now() + 3_000).toISOString(),
+      }),
+      store.savePublicReceipt({
+        ...finalized,
+        settlement: "failed",
+        updatedAt: new Date(Date.now() + 4_000).toISOString(),
+        reasonCode: "SETTLEMENT_FAILED",
+      }),
     ]);
-    expect(concurrentReceipts.filter((item) => item.status === "fulfilled")).toHaveLength(1);
+    expect(
+      concurrentReceipts.filter((item) => item.status === "fulfilled"),
+    ).toHaveLength(1);
+  });
+
+  it("keeps release and benchmark evidence immutable and metadata owner-isolated", async () => {
+    const artifact = {
+      name: "@usemeterkit/sdk",
+      version: "0.2.0",
+      registry: "https://registry.npmjs.org",
+      integrity: `sha512-${Buffer.from("integrity").toString("base64")}`,
+      tarballSize: 42_000,
+      runtimeFiles: ["dist/index.js"],
+      dependencies: {},
+      peerDependencies: { express: ">=5" },
+      engineRange: ">=22",
+      license: "Apache-2.0",
+      repository: "https://github.com/JuanTorchia/meterkit",
+      sourceDirectory: "packages/sdk",
+      supportStatus: "primary",
+    } as const;
+    const manifest = publicReleaseSchema.parse({
+      schemaVersion: 1,
+      version: "0.2.0",
+      sourceCommit: "a".repeat(40),
+      tag: "v0.2.0",
+      packages: [artifact],
+      compatibilityReport: "artifacts/compatibility.json",
+      sbomReferences: ["artifacts/source.spdx.json"],
+      provenanceStatus: "staged",
+      migrationImpact: "compatible",
+      rollback: "Reject the staged artifact before approval.",
+    });
+    await store.saveReleaseManifest(manifest);
+    expect(await store.getReleaseManifest(manifest.version)).toEqual(manifest);
+    await expect(store.saveReleaseManifest(manifest)).rejects.toThrow(
+      "RELEASE_MANIFEST_IMMUTABLE",
+    );
+
+    const benchmark = benchmarkRunSchema.parse({
+      schemaVersion: 1,
+      runId: crypto.randomUUID(),
+      sourceCommit: manifest.sourceCommit,
+      startedAt: new Date().toISOString(),
+      durationMs: 1_000,
+      environment: { node: "24", cpu: "test", memoryMb: 1024, os: "linux" },
+      workload: {
+        scenario: "unpaid",
+        concurrency: 10,
+        requests: 100,
+        timeoutMs: 5_000,
+      },
+      latency: {
+        local: { p50Ms: 1, p95Ms: 2, p99Ms: 3 },
+        external: { p50Ms: 0, p95Ms: 0, p99Ms: 0 },
+      },
+      outcomes: { rejected: 100, accepted: 0, unknown: 0, failed: 0 },
+      protectedExecutions: 0,
+      duplicateExecutions: 0,
+      limitations: ["integration fixture"],
+      artifacts: [],
+    });
+    await store.saveBenchmarkRun(benchmark);
+    expect(await store.listBenchmarkRuns(manifest.sourceCommit)).toEqual([
+      benchmark,
+    ]);
+    await expect(store.saveBenchmarkRun(benchmark)).rejects.toThrow(
+      "BENCHMARK_RUN_IMMUTABLE",
+    );
+
+    const owner = "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE";
+    const other = "6NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUD";
+    const request = await store.createHostedMetadataRequest(
+      owner,
+      "export",
+      new Date(Date.now() + 60_000),
+    );
+    expect(await store.listHostedMetadataRequests(owner)).toEqual([request]);
+    expect(await store.listHostedMetadataRequests(other)).toEqual([]);
+    await expect(
+      store.createHostedMetadataRequest(owner, "delete", new Date(0)),
+    ).rejects.toThrow("INVALID_METADATA_REQUEST_EXPIRY");
+
+    await store.createHostedMetadataRequest(
+      owner,
+      "delete",
+      new Date(Date.now() + 1_000),
+    );
+    const cleanup = await store.cleanupExpired(new Date(Date.now() + 120_000));
+    expect(cleanup.metadataRequests).toBe(2);
+    expect(await store.listHostedMetadataRequests(owner)).toEqual([]);
+  });
+
+  it("serializes allowance reservations, revocation and unknown recovery", async () => {
+    const owner = "5NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUC";
+    const allowance = {
+      address: "4NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUB",
+      ownerWallet: owner,
+      delegateWallet: "3NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUA",
+      mint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+      maxAtomic: "20000",
+      expiresAt: new Date(Date.now() + 86_400_000).toISOString(),
+      revokedAt: null,
+      signature: null,
+    };
+    await store.saveAllowance(allowance);
+    const reserve = (paymentKey: string) =>
+      store.reserveAllowanceSpend({
+        reservationId: crypto.randomUUID(),
+        allowanceAddress: allowance.address,
+        paymentKey,
+        amountAtomic: "15000",
+        expiresAt: new Date(Date.now() + 30_000),
+      });
+    const concurrent = await Promise.allSettled([
+      reserve("pay-a"),
+      reserve("pay-b"),
+    ]);
+    expect(
+      concurrent.filter((item) => item.status === "fulfilled"),
+    ).toHaveLength(1);
+    expect(
+      concurrent.filter((item) => item.status === "rejected"),
+    ).toHaveLength(1);
+    const accepted = concurrent.find(
+      (
+        item,
+      ): item is PromiseFulfilledResult<Awaited<ReturnType<typeof reserve>>> =>
+        item.status === "fulfilled",
+    );
+    expect(accepted).toBeDefined();
+    expect(
+      await store.consumeAllowanceSpend(accepted!.value.reservationId),
+    ).toBe(true);
+    expect(
+      await store.consumeAllowanceSpend(accepted!.value.reservationId),
+    ).toBe(false);
+    await expect(reserve(accepted!.value.paymentKey)).rejects.toThrow(
+      "ALLOWANCE_RESERVATION_REPLAYED",
+    );
+
+    expect(
+      await store.setAllowanceObservationStatus(allowance.address, "unknown"),
+    ).toBe(true);
+    await expect(reserve("rpc-unknown")).rejects.toThrow(
+      "ALLOWANCE_NOT_ACTIVE",
+    );
+    expect(
+      await store.setAllowanceObservationStatus(allowance.address, "active"),
+    ).toBe(true);
+    const finalReservation = await store.reserveAllowanceSpend({
+      reservationId: crypto.randomUUID(),
+      allowanceAddress: allowance.address,
+      paymentKey: "after-recovery",
+      amountAtomic: "5000",
+      expiresAt: new Date(Date.now() + 1_000),
+    });
+    const cleanup = await store.cleanupExpired(new Date(Date.now() + 2_000));
+    expect(cleanup.allowanceReservations).toBe(1);
+    expect(
+      await store.releaseAllowanceSpend(finalReservation.reservationId),
+    ).toBe(false);
+    const reopened = await store.reserveAllowanceSpend({
+      reservationId: crypto.randomUUID(),
+      allowanceAddress: allowance.address,
+      paymentKey: "after-expiry-cleanup",
+      amountAtomic: "5000",
+      expiresAt: new Date(Date.now() + 30_000),
+    });
+    expect(await store.releaseAllowanceSpend(reopened.reservationId)).toBe(
+      true,
+    );
+    expect(await store.beginAllowanceRevocation(owner, allowance.address)).toBe(
+      true,
+    );
+    await expect(reserve("after-revoke")).rejects.toThrow(
+      "ALLOWANCE_NOT_ACTIVE",
+    );
+  });
+
+  it("links GitHub once through a durable single-use OAuth state", async () => {
+    const wallet = "2NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZT9";
+    const otherWallet = "1NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZT8";
+    const stateHash = "a".repeat(64);
+    await store.createOAuthLinkState(
+      wallet,
+      stateHash,
+      new Date(Date.now() + 60_000),
+    );
+    expect(await store.consumeOAuthLinkState(stateHash)).toBe(wallet);
+    expect(await store.consumeOAuthLinkState(stateHash)).toBeNull();
+    const identity = {
+      subject: "12345678",
+      login: "meterkit-pilot",
+      avatarUrl: "https://avatars.githubusercontent.com/u/12345678?v=4",
+      linkedAt: new Date().toISOString(),
+    };
+    await store.linkGitHubIdentity(wallet, identity);
+    expect(await store.getGitHubIdentity(wallet)).toEqual(identity);
+    expect(await store.getGitHubIdentity(otherWallet)).toBeNull();
+    await expect(
+      store.linkGitHubIdentity(otherWallet, identity),
+    ).rejects.toThrow("GITHUB_IDENTITY_ALREADY_LINKED");
+
+    const expiredHash = "b".repeat(64);
+    await store.createOAuthLinkState(
+      wallet,
+      expiredHash,
+      new Date(Date.now() + 1_000),
+    );
+    const cleanup = await store.cleanupExpired(new Date(Date.now() + 2_000));
+    expect(cleanup.oauthLinkStates).toBe(1);
+    expect(await store.consumeOAuthLinkState(expiredHash)).toBeNull();
   });
 });

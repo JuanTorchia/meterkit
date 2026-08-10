@@ -4,13 +4,15 @@
   "type": "module",
   "scripts": {
     "verify:devnet": "tsx src/verify-devnet.ts",
+    "verify:agent-budget:devnet": "tsx src/verify-agent-budget-devnet.ts",
     "verify:plan:devnet": "tsx src/verify-plan-devnet.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@usemeterkit/subscriptions": "workspace:*",
     "@solana/kit": "6.10.0",
-    "@solana/subscriptions": "0.4.0"
+    "@solana/subscriptions": "0.4.0",
+    "@solana/sysvars": "5.5.1"
   },
   "devDependencies": {
     "tsx": "^4.23.9"

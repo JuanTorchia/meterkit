@@ -23,16 +23,27 @@ export async function waitForFinalizedSignature(
         params: [[signature], { searchTransactionHistory: true }],
       }),
     });
-    const body = await response.json() as {
-      result?: { value?: Array<{ confirmationStatus?: string | null; err?: unknown } | null> };
+    const body = (await response.json()) as {
+      result?: {
+        value?: Array<{
+          confirmationStatus?: string | null;
+          err?: unknown;
+        } | null>;
+      };
       error?: { message?: string };
     };
-    if (!response.ok || body.error) throw new Error(body.error?.message ?? "RPC could not confirm the revocation");
+    if (!response.ok || body.error)
+      throw new Error(
+        body.error?.message ?? "RPC could not confirm the revocation",
+      );
     const current = body.result?.value?.[0];
-    if (current?.err) throw new Error("The revocation transaction failed onchain");
+    if (current?.err)
+      throw new Error("The revocation transaction failed onchain");
     if (current?.confirmationStatus === "finalized") return;
     if (attempt + 1 < attempts) {
-      await new Promise((resolve) => globalThis.setTimeout(resolve, intervalMs));
+      await new Promise((resolve) =>
+        globalThis.setTimeout(resolve, intervalMs),
+      );
     }
   }
   throw new Error("Revocation submitted but finality was not reached in time");

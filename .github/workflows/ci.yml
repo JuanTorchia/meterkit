@@ -59,7 +59,13 @@ jobs:
           DATABASE_TEST_URL: postgresql://meterkit:meterkit@localhost:5432/meterkit
         run: pnpm test
 
-      - name: Build
+      - name: Verify bilingual documentation parity
+        run: pnpm docs:verify
+
+      - name: Verify contributor path
+        run: pnpm contributor:verify
+
+      - name: Production build
         run: pnpm build
 
       - name: Verify clean package quickstart
@@ -68,11 +74,29 @@ jobs:
       - name: Verify compatibility matrix
         run: pnpm compatibility:verify
 
+      - name: Verify benchmark and resilience evidence
+        run: pnpm benchmark
+
+      - name: Generate exact-commit professional evidence
+        run: pnpm world-class:evidence
+
+      - name: Verify all supported integration surfaces
+        run: pnpm --filter @usemeterkit/hono-quickstart test
+
       - name: End-to-end test
         run: pnpm test:e2e
 
       - name: Audit production dependencies
         run: pnpm audit --prod --audit-level=high
+
+      - name: Scan repository for secrets
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret
+          format: table
+          exit-code: "1"
 
       - name: Build gateway image
         run: docker build --file Dockerfile.gateway --tag meterkit-gateway:${{ github.sha }} .

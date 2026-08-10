@@ -4,6 +4,10 @@ MeterKit is devnet-only software for non-custodial USDC payments to API and MCP
 providers. This page is the maintained English entry point; Spanish remains a
 first-class documentation path for Latin American builders.
 
+Public registry baseline: `@usemeterkit/core@0.1.0` and
+`@usemeterkit/sdk@0.1.0`. The initializer, subscriptions and pilot CLI remain
+workspace candidates until a separately approved release.
+
 ## Start here
 
 1. [Get the first HTTP 402](../sdk-quickstart.md) without cloning the monorepo.
@@ -13,10 +17,16 @@ first-class documentation path for Latin American builders.
    participant-controlled devnet integration.
 5. Read [CONTRIBUTING.md](../../CONTRIBUTING.md) before changing the project.
 
-Express `protect()` is canonical. The maintained Next.js App Router and MCP
-examples share the versioned receipt contract. Join the
+Express `protect()` is canonical. Next.js App Router, Hono and MCP share the
+versioned receipt contract; Hono remains experimental pending external use.
+Join the
 [consented three-developer pilot](../pilots/README.md); internal tests do not
 count as external traction.
+
+For an existing service, install `@usemeterkit/sdk@0.1.0`. For a generated
+project, use `pnpm create:meterkit` only from an exact checked-out repository
+commit until the initializer is genuinely published. Never present the latter
+as registry adoption.
 
 ## Language structure
 

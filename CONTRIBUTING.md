@@ -18,6 +18,12 @@ secrets into issues, or commit `.env` files or keypairs.
 Issues labelled [`good first issue`](https://github.com/JuanTorchia/meterkit/labels/good%20first%20issue)
 are deliberately bounded for new contributors.
 
+A starter issue must name one affected surface, a reproducible pre-change
+failure, an acceptance command, explicit files or boundaries, and no dependency
+on private infrastructure. It should fit one focused pull request and remain
+solvable with local validation or devnet test assets. Run
+`pnpm contributor:verify` before claiming the contributor path is ready.
+
 ## Local setup
 
 Requirements: Node.js 22+, pnpm 11+, Docker and Git.
@@ -122,3 +128,7 @@ be safely reproduced.
 Accepted code, documentation, design, testing and issue-triage contributions are
 credited through Git history and release notes. See [GOVERNANCE.md](GOVERNANCE.md)
 for how project decisions and maintainer responsibilities work.
+
+General-purpose fixes may be proposed upstream only under the factual-status
+rules in [docs/upstream.md](docs/upstream.md). Opening a proposal never counts as
+acceptance or as independent MeterKit adoption.

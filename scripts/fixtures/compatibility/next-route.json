@@ -1,0 +1,6 @@
+{
+  "surface": "next-route",
+  "adapter": "@x402/next",
+  "candidateVersion": "2.21.0",
+  "acceptance": ["challenge", "settlement", "receipt", "replay"]
+}

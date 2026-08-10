@@ -18,12 +18,16 @@ import {
 import { paymentMiddleware } from "@x402/express";
 import { ExactSvmScheme } from "@x402/svm/exact/server";
 import { emitSafely, type PaymentEventSink } from "./events.js";
-import { runPaymentPolicies, type ConfiguredPaymentPolicy } from "./policy-runner.js";
+import {
+  runPaymentPolicies,
+  type ConfiguredPaymentPolicy,
+} from "./policy-runner.js";
 
 export { protect } from "./protect.js";
 export type { ProtectOptions } from "./protect.js";
 export * from "./events.js";
 export * from "./policy-runner.js";
+export * from "./agent-budget.js";
 
 export { MemoryPaymentStore, SOLANA_DEVNET } from "@usemeterkit/core";
 export type { PaymentStore, Product } from "@usemeterkit/core";
@@ -288,6 +292,7 @@ export function createX402Middleware(options: {
   policies?: readonly ConfiguredPaymentPolicy[];
   onEvent?: PaymentEventSink;
   onReceipt?: (receipt: PublicPaymentReceipt) => void | Promise<void>;
+  agentBudget?: import("./agent-budget.js").AgentBudgetGuard;
 }) {
   const server = createMeterKitResourceServer(options);
   return paymentMiddleware(
@@ -322,6 +327,7 @@ export function createMeterKitResourceServer(options: {
   policies?: readonly ConfiguredPaymentPolicy[];
   onEvent?: PaymentEventSink;
   onReceipt?: (receipt: PublicPaymentReceipt) => void | Promise<void>;
+  agentBudget?: import("./agent-budget.js").AgentBudgetGuard;
 }) {
   const rpcUrl =
     options.rpcUrl === false
@@ -337,6 +343,10 @@ export function createMeterKitResourceServer(options: {
       url: options.facilitatorUrl ?? "https://x402.org/facilitator",
     });
   const policyResults = new WeakMap<object, PolicyDecision[]>();
+  const budgetReservations = new WeakMap<
+    object,
+    import("./agent-budget.js").AgentBudgetReservation
+  >();
   const server = new x402ResourceServer(facilitator)
     // Do not embed a volatile recentBlockhash in route requirements. The
     // middleware rebuilds requirements on the paid retry; a new blockhash would
@@ -344,24 +354,56 @@ export function createMeterKitResourceServer(options: {
     // client obtains its own blockhash and we still validate settlement via RPC.
     .register(SOLANA_DEVNET, new ExactSvmScheme({}))
     .onAfterVerify(async ({ result, requirements, paymentPayload }) => {
-      if (!result.isValid || !result.payer || !options.policies?.length) return;
-      const evaluated = await runPaymentPolicies({
-        network: SOLANA_DEVNET,
-        assetMint: requirements.asset,
-        amountAtomic: requirements.amount,
-        recipient: requirements.payTo,
-        payer: result.payer,
-        resource: options.product.resource,
-      }, options.policies);
-      policyResults.set(paymentPayload, evaluated.decisions);
-      await emitSafely(options.onEvent, {
-        schemaVersion: 1,
-        type: "policy_evaluated",
-        occurredAt: new Date().toISOString(),
-        productId: options.product.id,
-        reasonCode: evaluated.allowed ? "POLICY_ALLOWED" : "POLICY_DENIED",
-      });
-      if (!evaluated.allowed) return { abort: true as const, reason: "POLICY_DENIED", message: "Payment policy denied this request" };
+      if (!result.isValid || !result.payer) return;
+      if (options.policies?.length) {
+        const evaluated = await runPaymentPolicies(
+          {
+            network: SOLANA_DEVNET,
+            assetMint: requirements.asset,
+            amountAtomic: requirements.amount,
+            recipient: requirements.payTo,
+            payer: result.payer,
+            resource: options.product.resource,
+          },
+          options.policies,
+        );
+        policyResults.set(paymentPayload, evaluated.decisions);
+        await emitSafely(options.onEvent, {
+          schemaVersion: 1,
+          type: "policy_evaluated",
+          occurredAt: new Date().toISOString(),
+          productId: options.product.id,
+          reasonCode: evaluated.allowed ? "POLICY_ALLOWED" : "POLICY_DENIED",
+        });
+        if (!evaluated.allowed)
+          return {
+            abort: true as const,
+            reason: "POLICY_DENIED",
+            message: "Payment policy denied this request",
+          };
+      }
+      if (options.agentBudget) {
+        try {
+          budgetReservations.set(
+            paymentPayload,
+            await options.agentBudget.reserve({
+              payer: result.payer,
+              network: SOLANA_DEVNET,
+              assetMint: requirements.asset,
+              recipient: requirements.payTo,
+              resource: options.product.resource,
+              amountAtomic: requirements.amount,
+              paymentPayload,
+            }),
+          );
+        } catch {
+          return {
+            abort: true as const,
+            reason: "AGENT_BUDGET_DENIED",
+            message: "Agent budget denied this request",
+          };
+        }
+      }
     })
     .onAfterSettle(async ({ result, requirements, paymentPayload }) => {
       if (!result.success || !result.payer || !result.transaction) return;
@@ -388,6 +430,9 @@ export function createMeterKitResourceServer(options: {
       // the protected handler, even if a facilitator incorrectly accepts a
       // previously settled payload.
       await options.store.save(record);
+      const budget = budgetReservations.get(paymentPayload);
+      if (budget && !(await options.agentBudget?.consume(budget.reservationId)))
+        throw new Error("AGENT_BUDGET_CONSUME_FAILED");
       const receipt = publicPaymentReceiptSchema.parse({
         schemaVersion: 1,
         receiptId: crypto.randomUUID(),
@@ -401,6 +446,12 @@ export function createMeterKitResourceServer(options: {
         decision: "accepted",
         settlement: "confirmed",
         signatureFingerprint: fingerprintSignature(result.transaction),
+        ...(budget
+          ? {
+              authorizationFingerprint: budget.authorizationFingerprint,
+              paymentFingerprint: budget.paymentFingerprint,
+            }
+          : {}),
         explorerUrl: `https://explorer.solana.com/tx/${result.transaction}?cluster=devnet`,
         policyDecisions: policyResults.get(paymentPayload) ?? [],
         createdAt: record.settledAt,
@@ -418,6 +469,17 @@ export function createMeterKitResourceServer(options: {
         signatureFingerprint: receipt.signatureFingerprint,
       });
       policyResults.delete(paymentPayload);
+      budgetReservations.delete(paymentPayload);
+    })
+    .onSettleFailure(async ({ paymentPayload }) => {
+      const budget = budgetReservations.get(paymentPayload);
+      if (budget) await options.agentBudget?.release(budget.reservationId);
+      budgetReservations.delete(paymentPayload);
+    })
+    .onVerifiedPaymentCanceled(async ({ paymentPayload }) => {
+      const budget = budgetReservations.get(paymentPayload);
+      if (budget) await options.agentBudget?.release(budget.reservationId);
+      budgetReservations.delete(paymentPayload);
     });
 
   return server;

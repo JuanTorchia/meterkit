@@ -1,0 +1,6 @@
+{
+  "surface": "express",
+  "adapter": "@x402/express",
+  "candidateVersion": "2.21.0",
+  "acceptance": ["challenge", "settlement", "receipt", "replay"]
+}

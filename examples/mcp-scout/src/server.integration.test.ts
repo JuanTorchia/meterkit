@@ -12,40 +12,63 @@ beforeAll(async () => {
   facilitator = createServer((request, response) => {
     if (request.url === "/supported") {
       response.setHeader("content-type", "application/json");
-      response.end(JSON.stringify({
-        kinds: [{
-          x402Version: 2,
-          scheme: "exact",
-          network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-          extra: { feePayer: payTo },
-        }],
-        extensions: [],
-        signers: {},
-      }));
+      response.end(
+        JSON.stringify({
+          kinds: [
+            {
+              x402Version: 2,
+              scheme: "exact",
+              network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              extra: { feePayer: payTo },
+            },
+          ],
+          extensions: [],
+          signers: {},
+        }),
+      );
       return;
     }
     response.statusCode = 500;
     response.end();
   });
-  await new Promise<void>((resolve) => facilitator.listen(0, "127.0.0.1", resolve));
+  await new Promise<void>((resolve) =>
+    facilitator.listen(0, "127.0.0.1", resolve),
+  );
   const address = facilitator.address();
-  if (!address || typeof address === "string") throw new Error("mock facilitator failed");
+  if (!address || typeof address === "string")
+    throw new Error("mock facilitator failed");
   facilitatorUrl = `http://127.0.0.1:${address.port}`;
 });
 
-afterAll(async () => new Promise<void>((resolve, reject) =>
-  facilitator.close((error) => error ? reject(error) : resolve())));
+afterAll(
+  async () =>
+    new Promise<void>((resolve, reject) =>
+      facilitator.close((error) => (error ? reject(error) : resolve())),
+    ),
+);
 
 describe("MCP Scout stdio contract", () => {
   it("shares the canonical sanitized receipt contract", () => {
     const now = new Date().toISOString();
-    expect(publicPaymentReceiptSchema.parse({
-      schemaVersion: 1, receiptId: crypto.randomUUID(), productId: "solana-project-scout",
-      network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1", assetMint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-      amountAtomic: "20000", recipient: payTo, resource: "mcp://tool/scout_project",
-      decision: "accepted", settlement: "confirmed", signatureFingerprint: "sha256:0123456789abcdef",
-      policyDecisions: [], createdAt: now, updatedAt: now, reasonCode: "SETTLEMENT_CONFIRMED",
-    }).amountAtomic).toBe("20000");
+    expect(
+      publicPaymentReceiptSchema.parse({
+        schemaVersion: 1,
+        receiptId: crypto.randomUUID(),
+        productId: "solana-project-scout",
+        network: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+        assetMint: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+        amountAtomic: "20000",
+        recipient: payTo,
+        resource: "mcp://tool/scout_project",
+        decision: "accepted",
+        settlement: "confirmed",
+        signatureFingerprint: "sha256:0123456789abcdef",
+        policyDecisions: [],
+        createdAt: now,
+        updatedAt: now,
+        reasonCode: "SETTLEMENT_CONFIRMED",
+      }).amountAtomic,
+    ).toBe("20000");
   });
   it("advertises the useful tools and challenges an unpaid full report", async () => {
     const inheritedEnv = Object.fromEntries(

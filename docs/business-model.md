@@ -2,8 +2,9 @@
 
 > Actualización 2026-08-10: el wedge es SDK OSS más integración pagada. El
 > hosted puede cobrar suscripción o comisión transparente/no custodial; no hay
-> token, rendimientos, trading ni ingresos afirmados. Créditos Webacy son apoyo
-> en especie, nunca efectivo.
+> token, rendimientos, trading ni ingresos afirmados. El Agentic Engineering
+> Grant fue aprobado por 200 USDG; aprobación no se presenta como ingreso de
+> clientes ni como pago recibido hasta verificar la liquidación.
 
 ## Propuesta
 
@@ -23,7 +24,16 @@ La comisión sólo se activa si el cliente ve y firma una transferencia adiciona
 
 ## Primer ingreso
 
-La vía más rápida no es construir una plataforma completa: integrar el middleware a un proveedor real y cobrar una tarifa fija de implementación. Paralelamente se solicita el microgrant de 200 USDG. Métrica de validación: 3–5 desarrolladores instalan el SDK, uno liquida ≥10 pagos devnet y uno acepta pagar una integración.
+La vía más rápida no es construir una plataforma completa: integrar el
+middleware a un proveedor real y cobrar una tarifa fija de implementación. El
+microgrant Agentic de 200 USDG ya fue aprobado. La siguiente validación no se
+infiere del grant: 3 desarrolladores independientes integran el SDK, uno liquida
+≥10 pagos devnet durante siete días y uno expresa disposición concreta a pagar
+una integración.
+
+Estado factual al 2026-08-10: dos paquetes públicos, validación interna completa
+en devnet, cero pilotos externos verificados, cero clientes y cero ingresos
+comerciales afirmados.
 
 ## Dogfooding y primer usuario
 

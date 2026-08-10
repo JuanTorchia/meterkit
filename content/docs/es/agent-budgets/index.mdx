@@ -1,0 +1,40 @@
+---
+title: Presupuestos para agentes
+description: Limita el gasto USDC de un cliente autónomo con allowances oficiales de Solana controladas por la wallet.
+section: Presupuestos para agentes
+order: 2
+lastReviewedAt: 2026-08-10
+productVersionRange: ">=0.1.0 <0.2.0"
+surface: agent-budget
+maturity: experimental
+claimKeys:
+  [
+    "official-allowance",
+    "bounded-spend",
+    "atomic-reservation",
+    "wallet-revocation",
+    "hosted-metadata-only",
+  ]
+---
+
+# Presupuestos para agentes
+
+MeterKit usa `@solana/subscriptions` 0.4.0 y el programa canónico Subscriptions. La wallet crea y revoca directamente la autorización; MeterKit nunca recibe una clave privada y su base alojada no puede conceder autoridad de gasto.
+
+## Allowance fija
+
+Una allowance fija limita el gasto total hasta un vencimiento exacto. MeterKit también vincula un delegate, devnet, mint test-USDC, destinatario, URLs de recurso exactas y un máximo por solicitud. Antes de liquidar x402 reserva capacidad atómicamente en PostgreSQL. La liquidación consume la reserva; un fallo confirmado o una cancelación la libera. Un resultado ambiguo permanece reservado hasta reconciliarse o vencer.
+
+## Allowance recurrente
+
+Una allowance recurrente restablece su límite de protocolo después de un período fijo. Sirve para presupuestos operativos limitados, pero no es un débito bancario ni garantiza el servicio. MeterKit vuelve a validar cada solicitud y la autorización onchain actual. El consumo recurrente del dashboard es experimental hasta registrar evidencia devnet nueva.
+
+## Plan de suscripción
+
+Los planes nativos usan horas fijas. El ejemplo “mensual” de MeterKit equivale a 720 horas (30 días), no a un mes calendario. El suscriptor aprueba los términos del plan oficial y puede cancelarlo mediante la instrucción del programa controlada por su wallet.
+
+## Inspección y revocación
+
+El dashboard del pagador muestra agregado, gastado, reservado, restante, vencimiento, delegate, finalidad y evidencia de Explorer. `unknown` es recuperable y bloquea gastos nuevos; no se presenta como fallo onchain. La revocación pasa por `revocation_pending` y sólo se muestra como `revoked` después de observar independientemente la transacción finalizada.
+
+Eliminar metadata alojada no revoca una allowance. Si MeterKit no está disponible, el propietario todavía puede inspeccionar y revocar mediante herramientas Solana compatibles. La cuenta del protocolo conserva la autoridad.

@@ -1,4 +1,4 @@
-name: Release packages
+name: Stage npm packages
 
 on:
   release:
@@ -11,13 +11,14 @@ on:
         default: true
 
 permissions:
+  checks: read
   contents: read
   id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: npm
+    environment: npm-stage
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -30,12 +31,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
-          cache: pnpm
+          node-version: 24
           registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install staged-publishing npm CLI
+        run: npm install --global npm@11.15.0
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Require successful CI for this exact commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs" --jq '[.check_runs[] | select(.name == "verify") | .conclusion] | last')"
+          test "$conclusion" = "success"
 
       - name: Verify release version
         if: github.event_name == 'release'
@@ -46,24 +57,32 @@ jobs:
       - name: Verify packages
         run: pnpm release:verify
 
+      - name: Generate exact-tag release manifest
+        if: github.event_name == 'release'
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: node scripts/generate-release-manifest.mjs "$RELEASE_TAG"
+
+      - name: Verify professional evidence for this revision
+        env:
+          RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || '' }}
+        run: pnpm world-class:evidence
+
+      - name: Pack the exact approved artifacts
+        run: |
+          mkdir -p artifacts/npm
+          pnpm --filter @usemeterkit/core pack --pack-destination "$GITHUB_WORKSPACE/artifacts/npm"
+          pnpm --filter @usemeterkit/sdk pack --pack-destination "$GITHUB_WORKSPACE/artifacts/npm"
+
       - name: Generate package SBOM
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           path: .
           artifact-name: meterkit-source-${{ github.sha }}.spdx.json
 
-      - name: Publish core
+      - name: Stage approved public packages through OIDC
         if: github.event_name == 'release' && github.event.release.prerelease == false
-        run: pnpm --filter @usemeterkit/core publish --access public --provenance --no-git-checks
-
-      - name: Publish SDK
-        if: github.event_name == 'release' && github.event.release.prerelease == false
-        run: pnpm --filter @usemeterkit/sdk publish --access public --provenance --no-git-checks
-
-      - name: Publish pilot CLI
-        if: github.event_name == 'release' && github.event.release.prerelease == false
-        run: pnpm --filter @usemeterkit/pilot publish --access public --provenance --no-git-checks
-
-      - name: Publish optional Webacy policy
-        if: github.event_name == 'release' && github.event.release.prerelease == false
-        run: pnpm --filter @usemeterkit/policy-webacy publish --access public --provenance --no-git-checks
+        run: |
+          for artifact in artifacts/npm/*.tgz; do
+            npm stage publish "$artifact" --access public
+          done

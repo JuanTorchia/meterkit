@@ -15,7 +15,14 @@ const product = {
 
 describe("protect", () => {
   it("validates configuration synchronously", () => {
-    expect(() => protect({ product: { ...product, resource: "javascript:alert(1)" }, store: new MemoryPaymentStore() })).toThrow("CONFIG_INVALID");
-    expect(() => protect({ product, store: new MemoryPaymentStore(), rpcUrl: false })).not.toThrow();
+    expect(() =>
+      protect({
+        product: { ...product, resource: "javascript:alert(1)" },
+        store: new MemoryPaymentStore(),
+      }),
+    ).toThrow("CONFIG_INVALID");
+    expect(() =>
+      protect({ product, store: new MemoryPaymentStore(), rpcUrl: false }),
+    ).not.toThrow();
   });
 });

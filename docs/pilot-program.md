@@ -122,9 +122,9 @@ Retention is reported only over participants who allowed follow-up, with
 
 The consented evidence table should use stable opaque pilot IDs:
 
-| Pilot ID | Category | Modality | First 402 | Settlement | Support | Outcome | Day 7 | Citation |
-|---|---|---|---:|---:|---:|---|---|---|
-| Not recruited | — | — | — | — | — | — | — | — |
+| Pilot ID      | Category | Modality | First 402 | Settlement | Support | Outcome | Day 7 | Citation |
+| ------------- | -------- | -------- | --------: | ---------: | ------: | ------- | ----- | -------- |
+| Not recruited | —        | —        |         — |          — |       — | —       | —     | —        |
 
 The resulting public issues are structured participant self-reports. Technical
 evidence (endpoint fingerprint, challenge fingerprint, SDK version,

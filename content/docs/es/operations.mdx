@@ -1,0 +1,17 @@
+---
+title: Operaciones y resolución de problemas
+description: Diagnostica configuración, facilitador, RPC, finalidad y replay de manera segura.
+section: Operaciones
+order: 3
+lastReviewedAt: 2026-08-10
+productVersionRange: ">=0.1.0 <0.2.0"
+surface: general
+maturity: supported
+claimKeys: ["sanitized-logs", "rpc-recovery", "rollback-documented"]
+---
+
+# Operaciones y resolución de problemas
+
+Valida red, mint, monto, destinatario y recurso normalizado antes de firmar. Mantén el material de wallet fuera de logs y repositorios. Trata caídas de dependencias como estados desconocidos recuperables y reintenta con espera acotada.
+
+El rollback nunca sobrescribe una versión npm. Consulta el [modelo de confianza](./trust) antes de operar un gateway alojado.

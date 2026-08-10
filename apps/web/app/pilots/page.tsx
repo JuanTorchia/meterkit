@@ -8,6 +8,10 @@ import { useLocale } from "../use-locale";
 import styles from "./pilots.module.css";
 
 const commands = {
+  released:
+    "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.1.0 express",
+  generated:
+    "git clone https://github.com/JuanTorchia/meterkit.git\ncd meterkit\npnpm install --frozen-lockfile\npnpm create:meterkit ../meterkit-pilot --surface express --package-manager pnpm --yes",
   install:
     "git clone https://github.com/JuanTorchia/meterkit.git\ncd meterkit\npnpm install --frozen-lockfile",
   configure: "pnpm pilot:init -- https://your-api.test/premium",
@@ -29,6 +33,14 @@ const copy = {
     prerequisites: "Prerequisites",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 and a test endpoint that returns an x402 challenge. Localhost is supported with an explicit development flag. No wallet is required for readiness.",
+    paths: "CHOOSE YOUR STARTING PATH",
+    pathsTitle: "Use the public SDK or generate a reviewable project.",
+    pathsBody:
+      "The SDK is publicly released. The initializer candidate is not published on npm; its repository path is shown explicitly and does not count as a registry release.",
+    released: "A · RELEASED SDK",
+    releasedTitle: "Add the immutable public 0.1.0 package.",
+    generated: "B · GENERATED PROJECT",
+    generatedTitle: "Generate from the checked-out candidate source.",
     readiness: "PHASE A · READINESS",
     readinessTitle: "Check the policy before moving funds.",
     readinessBody:
@@ -103,6 +115,14 @@ const copy = {
     prerequisites: "Requisitos",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 y un endpoint de prueba que devuelva un desafío x402. Localhost funciona con una opción explícita de desarrollo. La preparación no requiere wallet.",
+    paths: "ELIGE TU PUNTO DE PARTIDA",
+    pathsTitle: "Usa el SDK público o genera un proyecto revisable.",
+    pathsBody:
+      "El SDK está publicado. El inicializador candidato todavía no está publicado en npm; se muestra explícitamente la ruta desde el repositorio y no cuenta como release del registry.",
+    released: "A · SDK PUBLICADO",
+    releasedTitle: "Agrega el paquete público e inmutable 0.1.0.",
+    generated: "B · PROYECTO GENERADO",
+    generatedTitle: "Genera desde el código candidato descargado.",
     readiness: "FASE A · PREPARACIÓN",
     readinessTitle: "Verifica la política antes de mover fondos.",
     readinessBody:
@@ -178,6 +198,14 @@ const copy = {
     prerequisites: "Pré-requisitos",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 e um endpoint de teste que retorne um desafio x402. Localhost funciona com uma opção explícita de desenvolvimento. A preparação não requer carteira.",
+    paths: "ESCOLHA SEU PONTO DE PARTIDA",
+    pathsTitle: "Use o SDK público ou gere um projeto revisável.",
+    pathsBody:
+      "O SDK está publicado. O inicializador candidato ainda não está publicado no npm; o caminho pelo repositório é mostrado explicitamente e não conta como release do registry.",
+    released: "A · SDK PUBLICADO",
+    releasedTitle: "Adicione o pacote público e imutável 0.1.0.",
+    generated: "B · PROJETO GERADO",
+    generatedTitle: "Gere a partir do código candidato baixado.",
     readiness: "FASE A · PREPARAÇÃO",
     readinessTitle: "Confira a política antes de movimentar fundos.",
     readinessBody:
@@ -313,6 +341,33 @@ export default function PilotsPage() {
         <h2 id="prerequisites-title">{text.prerequisites}</h2>
         <p>{text.prerequisitesBody}</p>
       </section>
+
+      <section
+        className={styles.phaseIntro}
+        aria-labelledby="starting-path-title"
+      >
+        <span className="kicker">{text.paths}</span>
+        <h2 id="starting-path-title">{text.pathsTitle}</h2>
+        <p>{text.pathsBody}</p>
+      </section>
+      <ol className={`pilotCommands ${styles.commandList}`}>
+        <CommandStep
+          label={text.released}
+          title={text.releasedTitle}
+          command={commands.released}
+          copyLabel={text.copy}
+          copiedLabel={text.copied}
+          failedLabel={text.copyFailed}
+        />
+        <CommandStep
+          label={text.generated}
+          title={text.generatedTitle}
+          command={commands.generated}
+          copyLabel={text.copy}
+          copiedLabel={text.copied}
+          failedLabel={text.copyFailed}
+        />
+      </ol>
 
       <section
         id="readiness"

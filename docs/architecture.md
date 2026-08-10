@@ -1,9 +1,9 @@
 # Arquitectura de MeterKit
 
-> Sincronizado 2026-08-10: la API pública recomendada es `protect()`. Express y
-> Next.js comparten `createMeterKitResourceServer()`; MCP comparte contratos de
-> recibo/fingerprint. Las políticas opcionales se ejecutan después de verificar
-> el payer y antes de liquidar.
+> Sincronizado 2026-08-10: la API pública recomendada es `protect()`. Express,
+> Next.js, Hono y MCP mantienen el mismo ciclo x402 2.21. El presupuesto de
+> agente reserva capacidad antes de liquidar y sólo la consume después de un
+> settlement durable; una respuesta ambigua permanece reservada y recuperable.
 
 Fecha de decisión: 2026-08-03.
 
@@ -23,16 +23,23 @@ Proveedor <──────────────── liquidación directa
 ## Componentes
 
 - `apps/web`: landing y dashboard Next.js 16. No maneja secretos de wallets.
+- `apps/web/[lang]/docs`: documentación Fumadocs local, buscable y equivalente
+  en inglés/español.
 - `apps/gateway`: API Express 5, 402, rate limiting, índice de ventas.
 - `packages/sdk`: middleware publicable y adaptador de facilitador x402.
 - `packages/core`: tipos, validaciones, recibos y abstracción de persistencia.
 - `packages/subscriptions`: integración aislada con `@solana/subscriptions` 0.4.0.
+- `packages/create-meterkit`: inicializador determinista, secretless y todavía
+  candidato de workspace; no se presenta como paquete npm publicado.
+- `packages/pilot`: diagnóstico y evidencia consentida/minimizada; todavía no
+  es un paquete npm público.
 - `examples/client`: cliente x402 con firmante inyectado por el usuario.
 - `examples/mcp-scout`: servidor MCP útil, primera consulta gratuita.
 
 ## Decisiones
 
-1. x402 v2, esquema `exact`, CAIP-2 devnet y `PAYMENT-REQUIRED`/`PAYMENT-SIGNATURE`.
+1. Paquetes oficiales x402 2.21 coordinados, esquema `exact`, CAIP-2 devnet y
+   `PAYMENT-REQUIRED`/`PAYMENT-SIGNATURE`.
 2. Mint devnet USDC de Circle: `4zMMC...DncDU`, 6 decimales; 0,01 USDC son `10000` unidades.
 3. El facilitador público `https://x402.org/facilitator` se usa sólo en testnet. Producción exige un facilitador autenticado o propio.
 4. Subscriptions usa el programa canónico `De1eg...R44`. La UI siempre ofrece revocación explícita; no confía en rotación de autoridad.
@@ -59,6 +66,15 @@ Proveedor <──────────────── liquidación directa
     proveedor secundario.
 15. Las imágenes usan base por digest, Next.js standalone y dependencias
     productivas del gateway.
+16. Las allowances oficiales se proyectan a una vista canónica con owner,
+    delegate, mint, scope, límite por request, límite agregado, gasto, reserva,
+    finality y revocación. PostgreSQL serializa reserve/consume/release para
+    evitar overspend entre réplicas.
+17. GitHub es una identidad opcional enlazada a una sesión de wallet. No
+    sustituye la propiedad onchain ni autoriza pagos; los estados OAuth se
+    almacenan hasheados, expiran y se consumen una sola vez.
+18. El harness profesional separa latencia local de dependencias externas y
+    registra el commit, entorno, percentiles, outcomes y ejecuciones duplicadas.
 
 ## Consistencia y finalización
 
@@ -67,6 +83,10 @@ El gateway sólo entrega el recurso tras `settle` y una segunda validación RPC.
 La identidad persistida del producto usa `products.uid`; los pagos apuntan a ese
 UUID. Slug y owner siguen presentes como identidad pública legible, sin permitir
 que un proveedor reserve el slug de otro.
+
+Los paquetes públicos confirmados son `@usemeterkit/core@0.1.0` y
+`@usemeterkit/sdk@0.1.0`. Los demás workspaces siguen siendo candidatos hasta
+una release versionada y aprobada; un build local no equivale a publicación.
 
 ## Fuentes técnicas
 

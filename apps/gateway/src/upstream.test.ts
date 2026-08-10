@@ -15,7 +15,9 @@ describe("safe upstream proxy", () => {
     "https://api.example.com:8443/data",
     "https://evil.example/data",
   ])("rejects unsafe upstream %s", (url) => {
-    expect(() => assertAllowedUpstream(url, allowed)).toThrow("UPSTREAM_NOT_ALLOWED");
+    expect(() => assertAllowedUpstream(url, allowed)).toThrow(
+      "UPSTREAM_NOT_ALLOWED",
+    );
   });
 
   it("forwards query parameters and returns bounded JSON", async () => {
@@ -37,24 +39,30 @@ describe("safe upstream proxy", () => {
   });
 
   it("rejects redirects, non-JSON and oversized responses", async () => {
-    await expect(fetchAllowedUpstream({
-      upstreamUrl: "https://api.example.com/data",
-      clientQuery: new URLSearchParams(),
-      allowedHosts: allowed,
-      request: async () => new Response("text", {
-        headers: { "content-type": "text/plain" },
+    await expect(
+      fetchAllowedUpstream({
+        upstreamUrl: "https://api.example.com/data",
+        clientQuery: new URLSearchParams(),
+        allowedHosts: allowed,
+        request: async () =>
+          new Response("text", {
+            headers: { "content-type": "text/plain" },
+          }),
       }),
-    })).rejects.toThrow("UPSTREAM_CONTENT_TYPE_REJECTED");
-    await expect(fetchAllowedUpstream({
-      upstreamUrl: "https://api.example.com/data",
-      clientQuery: new URLSearchParams(),
-      allowedHosts: allowed,
-      request: async () => new Response("{}", {
-        headers: {
-          "content-type": "application/json",
-          "content-length": "1000001",
-        },
+    ).rejects.toThrow("UPSTREAM_CONTENT_TYPE_REJECTED");
+    await expect(
+      fetchAllowedUpstream({
+        upstreamUrl: "https://api.example.com/data",
+        clientQuery: new URLSearchParams(),
+        allowedHosts: allowed,
+        request: async () =>
+          new Response("{}", {
+            headers: {
+              "content-type": "application/json",
+              "content-length": "1000001",
+            },
+          }),
       }),
-    })).rejects.toThrow("UPSTREAM_RESPONSE_TOO_LARGE");
+    ).rejects.toThrow("UPSTREAM_RESPONSE_TOO_LARGE");
   });
 });

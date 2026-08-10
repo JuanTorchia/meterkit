@@ -7,7 +7,11 @@ import { z } from "zod";
 import { SolanaSettlementValidator } from "@usemeterkit/sdk";
 import { fetchProject, renderReport } from "./scout.js";
 import { FileReceiptGuard } from "./receipt-guard.js";
-import { fingerprintSignature, publicPaymentReceiptSchema, SOLANA_DEVNET } from "@usemeterkit/core";
+import {
+  fingerprintSignature,
+  publicPaymentReceiptSchema,
+  SOLANA_DEVNET,
+} from "@usemeterkit/core";
 
 const USDC_DEVNET = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
 const payTo = process.env.MERCHANT_WALLET;
@@ -36,25 +40,27 @@ const resourceServer = new x402ResourceServer(facilitator)
     });
     await receiptGuard.claim(result.transaction);
     const now = new Date().toISOString();
-    await receiptGuard.savePublicReceipt(publicPaymentReceiptSchema.parse({
-      schemaVersion: 1,
-      receiptId: crypto.randomUUID(),
-      productId: "solana-project-scout",
-      network: SOLANA_DEVNET,
-      assetMint: requirements.asset,
-      amountAtomic: requirements.amount,
-      recipient: requirements.payTo,
-      payer: result.payer,
-      resource: "mcp://tool/scout_project",
-      decision: "accepted",
-      settlement: "confirmed",
-      signatureFingerprint: fingerprintSignature(result.transaction),
-      explorerUrl: `https://explorer.solana.com/tx/${result.transaction}?cluster=devnet`,
-      policyDecisions: [],
-      createdAt: now,
-      updatedAt: now,
-      reasonCode: "SETTLEMENT_CONFIRMED",
-    }));
+    await receiptGuard.savePublicReceipt(
+      publicPaymentReceiptSchema.parse({
+        schemaVersion: 1,
+        receiptId: crypto.randomUUID(),
+        productId: "solana-project-scout",
+        network: SOLANA_DEVNET,
+        assetMint: requirements.asset,
+        amountAtomic: requirements.amount,
+        recipient: requirements.payTo,
+        payer: result.payer,
+        resource: "mcp://tool/scout_project",
+        decision: "accepted",
+        settlement: "confirmed",
+        signatureFingerprint: fingerprintSignature(result.transaction),
+        explorerUrl: `https://explorer.solana.com/tx/${result.transaction}?cluster=devnet`,
+        policyDecisions: [],
+        createdAt: now,
+        updatedAt: now,
+        reasonCode: "SETTLEMENT_CONFIRMED",
+      }),
+    );
   });
 await resourceServer.initialize();
 const accepts = await resourceServer.buildPaymentRequirements({
@@ -68,17 +74,23 @@ const paid = createPaymentWrapper(resourceServer, {
   accepts,
   resource: {
     url: "mcp://tool/scout_project",
-    description: "Reporte factual verificable de un repositorio público de Solana",
+    description:
+      "Reporte factual verificable de un repositorio público de Solana",
     mimeType: "text/markdown",
     serviceName: "MeterKit Solana Project Scout",
     tags: ["solana", "open-source", "project-research"],
   },
 });
 
-const server = new McpServer({ name: "solana-project-scout", version: "0.1.0" });
+const server = new McpServer({
+  name: "solana-project-scout",
+  version: "0.1.0",
+});
 const previewScope = process.env.MCP_PREVIEW_SCOPE ?? `merchant:${payTo}`;
 const inputSchema = {
-  githubRepository: z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/)
+  githubRepository: z
+    .string()
+    .regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/)
     .describe("Repositorio público en formato owner/repo"),
 };
 
@@ -86,29 +98,43 @@ server.registerTool(
   "scout_project_preview",
   {
     title: "Solana Project Scout — vista previa gratuita",
-    description: "Una consulta gratuita: valida el repositorio y devuelve sus fuentes, sin análisis financiero.",
+    description:
+      "Una consulta gratuita: valida el repositorio y devuelve sus fuentes, sin análisis financiero.",
     inputSchema,
   },
   async ({ githubRepository }) => {
     try {
       await receiptGuard.claimPreview(previewScope);
     } catch (error) {
-      if (!(error instanceof Error) || error.message !== "PREVIEW_ALREADY_USED") throw error;
-      return { content: [{ type: "text", text:
-        "La vista previa gratuita de esta instalación ya fue utilizada. Usa scout_project para el reporte pagado.",
-      }] };
+      if (!(error instanceof Error) || error.message !== "PREVIEW_ALREADY_USED")
+        throw error;
+      return {
+        content: [
+          {
+            type: "text",
+            text: "La vista previa gratuita de esta instalación ya fue utilizada. Usa scout_project para el reporte pagado.",
+          },
+        ],
+      };
     }
     const report = await fetchProject(githubRepository);
-    return { content: [{ type: "text", text: [
-      `# ${report.name}`,
-      report.description || "Sin descripción pública.",
-      `Actualizado en GitHub: ${report.updatedAt}`,
-      `Fuente: ${report.htmlUrl}`,
-      `Consultado: ${report.checkedAt}`,
-      "",
-      "Vista previa gratuita. Usa scout_project para el reporte verificable completo.",
-      "No es asesoramiento de inversión.",
-    ].join("\n") }] };
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `# ${report.name}`,
+            report.description || "Sin descripción pública.",
+            `Actualizado en GitHub: ${report.updatedAt}`,
+            `Fuente: ${report.htmlUrl}`,
+            `Consultado: ${report.checkedAt}`,
+            "",
+            "Vista previa gratuita. Usa scout_project para el reporte verificable completo.",
+            "No es asesoramiento de inversión.",
+          ].join("\n"),
+        },
+      ],
+    };
   },
 );
 
@@ -116,7 +142,8 @@ server.registerTool(
   "scout_project",
   {
     title: "Solana Project Scout",
-    description: "Reporte factual verificable por 0,02 USDC devnet. Sin señales de compra ni asesoramiento financiero.",
+    description:
+      "Reporte factual verificable por 0,02 USDC devnet. Sin señales de compra ni asesoramiento financiero.",
     inputSchema,
   },
   paid(async ({ githubRepository }) => {

@@ -9,6 +9,7 @@ import type { PublicPaymentReceipt } from "@usemeterkit/core";
 import type { PaymentEventSink } from "./events.js";
 import type { ConfiguredPaymentPolicy } from "./policy-runner.js";
 import { createX402Middleware, SolanaSettlementValidator } from "./index.js";
+import type { AgentBudgetGuard } from "./agent-budget.js";
 
 export type ProtectOptions = {
   product: Product;
@@ -20,6 +21,7 @@ export type ProtectOptions = {
   policies?: readonly ConfiguredPaymentPolicy[];
   onEvent?: PaymentEventSink;
   onReceipt?: (receipt: PublicPaymentReceipt) => void | Promise<void>;
+  agentBudget?: AgentBudgetGuard;
 };
 
 export function protect(rawOptions: ProtectOptions): RequestHandler {
@@ -27,10 +29,17 @@ export function protect(rawOptions: ProtectOptions): RequestHandler {
   try {
     const product = productSchema.parse(rawOptions.product);
     const resource = new URL(product.resource);
-    if (!['http:', 'https:'].includes(resource.protocol) || resource.username || resource.password) {
+    if (
+      !["http:", "https:"].includes(resource.protocol) ||
+      resource.username ||
+      resource.password
+    ) {
       throw new Error("unsafe resource URL");
     }
-    options = { ...rawOptions, product: { ...product, resource: resource.toString() } };
+    options = {
+      ...rawOptions,
+      product: { ...product, resource: resource.toString() },
+    };
   } catch (cause) {
     throw new Error("CONFIG_INVALID", { cause });
   }

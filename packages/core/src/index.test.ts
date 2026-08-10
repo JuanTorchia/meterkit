@@ -12,13 +12,22 @@ const base = {
 };
 
 describe("product identity", () => {
-  it.each(["premium-weather", "a", "a1", "weather-2026"])("accepts canonical slug %s", (id) => {
-    expect(productSchema.parse({ ...base, id }).id).toBe(id);
-  });
+  it.each(["premium-weather", "a", "a1", "weather-2026"])(
+    "accepts canonical slug %s",
+    (id) => {
+      expect(productSchema.parse({ ...base, id }).id).toBe(id);
+    },
+  );
 
   it.each([
-    "Premium-Weather", "premium_weather", "/premium", "premium/", "-premium",
-    "premium-", "a".repeat(64), "premium--weather/evil",
+    "Premium-Weather",
+    "premium_weather",
+    "/premium",
+    "premium/",
+    "-premium",
+    "premium-",
+    "a".repeat(64),
+    "premium--weather/evil",
   ])("rejects an unreachable or ambiguous slug %s", (id) => {
     expect(productSchema.safeParse({ ...base, id }).success).toBe(false);
   });

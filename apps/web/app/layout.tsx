@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://meterkit.juanchi.dev"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://meterkit.juanchi.dev",
+  ),
   title: {
     default: "MeterKit — USDC payments for APIs",
     template: "%s | MeterKit",
@@ -19,6 +21,17 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><a className="skipLink" href="#main-content">Skip to content</a>{children}</body></html>;
+export default function Layout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en" data-scroll-behavior="smooth">
+      <body>
+        <a className="skipLink" href="#main-content">
+          Skip to content
+        </a>
+        {children}
+      </body>
+    </html>
+  );
 }
