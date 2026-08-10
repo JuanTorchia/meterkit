@@ -137,8 +137,9 @@ export function isResourceAllowed(
 }
 
 function normalizePathname(pathname: string) {
-  const normalized = pathname.replace(/\/+$/, "");
-  return normalized || "/";
+  let end = pathname.length;
+  while (end > 0 && pathname.charCodeAt(end - 1) === 47) end -= 1;
+  return end === 0 ? "/" : pathname.slice(0, end);
 }
 
 async function main() {
