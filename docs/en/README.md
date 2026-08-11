@@ -4,9 +4,9 @@ MeterKit is devnet-only software for non-custodial USDC payments to API and MCP
 providers. This page is the maintained English entry point; Spanish remains a
 first-class documentation path for Latin American builders.
 
-Public registry baseline: `@usemeterkit/core@0.1.0` and
-`@usemeterkit/sdk@0.1.0`. The initializer, subscriptions and pilot CLI remain
-workspace candidates until a separately approved release.
+Public registry baseline: `@usemeterkit/core@0.2.0`,
+`@usemeterkit/sdk@0.2.0` and `create-meterkit@0.2.0`, all with npm provenance.
+Subscriptions and the pilot CLI remain workspace candidates.
 
 ## Start here
 
@@ -23,10 +23,9 @@ Join the
 [consented three-developer pilot](../pilots/README.md); internal tests do not
 count as external traction.
 
-For an existing service, install `@usemeterkit/sdk@0.1.0`. For a generated
-project, use `pnpm create:meterkit` only from an exact checked-out repository
-commit until the initializer is genuinely published. Never present the latter
-as registry adoption.
+For an existing service, install `@usemeterkit/sdk@0.2.0`. For a generated
+project, run `npm create meterkit@0.2.0` and choose the intended integration
+surface.
 
 ## Language structure
 

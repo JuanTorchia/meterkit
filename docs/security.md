@@ -87,9 +87,8 @@ indexa únicamente metadata, estado y recibo.
 
 ## Publicación de paquetes
 
-Core y SDK 0.1.0 ya son públicos, pero esa publicación histórica no tiene una
-attestation de provenance observada y no se reescribe. Las releases futuras se
-verifican desde un tag coincidente y se preparan mediante GitHub OIDC/staged
-publishing. El workflow no contiene tokens npm. Configurar trusted publisher y
-aprobar el stage siguen siendo gates humanos; un tarball o CI verde no equivale
-a una nueva publicación.
+Core y SDK 0.1.0 siguen siendo artefactos históricos sin provenance observada.
+Core, SDK e initializer 0.2.0 se publicaron mediante GitHub OIDC/staged
+publishing y poseen attestations SLSA del registry. El workflow no contiene
+tokens npm. Trusted Publisher, el entorno protegido y la aprobación 2FA siguen
+siendo gates humanos; un tarball o CI verde no equivale a una publicación.

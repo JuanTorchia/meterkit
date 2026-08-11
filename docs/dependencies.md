@@ -50,15 +50,15 @@ abrir rangos para publicaciones nuevas.
 
 ## Clasificación de paquetes MeterKit
 
-| Paquete                      | Estado                 | Publicación                                                                     |
-| ---------------------------- | ---------------------- | ------------------------------------------------------------------------------- |
-| `@usemeterkit/core`          | Primario               | 0.1.0 público; próxima versión por OIDC staged publishing                       |
-| `@usemeterkit/sdk`           | Primario               | 0.1.0 público; próxima versión por OIDC staged publishing                       |
-| `create-meterkit`            | Release candidate      | Allowlist 0.2.0 verificado; publicación inicial requiere acción del propietario |
-| `@usemeterkit/subscriptions` | Experimental           | No publicado; requiere evidencia devnet nueva                                   |
-| `@usemeterkit/pilot`         | Soportado internamente | No publicado; evaluar después del initializer                                   |
-| `@usemeterkit/policy-webacy` | Adaptador opcional     | No publicado; nunca requisito del core                                          |
-| `@usemeterkit/database`      | Interno                | No publicar hasta estabilizar un contrato de autohospedaje                      |
+| Paquete                      | Estado                 | Publicación                                                |
+| ---------------------------- | ---------------------- | ---------------------------------------------------------- |
+| `@usemeterkit/core`          | Primario               | 0.2.0 público con provenance OIDC                          |
+| `@usemeterkit/sdk`           | Primario               | 0.2.0 público con provenance OIDC                          |
+| `create-meterkit`            | Primario               | 0.2.0 público con provenance OIDC                          |
+| `@usemeterkit/subscriptions` | Experimental           | No publicado; requiere evidencia devnet nueva              |
+| `@usemeterkit/pilot`         | Soportado internamente | No publicado; evaluar después del initializer              |
+| `@usemeterkit/policy-webacy` | Adaptador opcional     | No publicado; nunca requisito del core                     |
+| `@usemeterkit/database`      | Interno                | No publicar hasta estabilizar un contrato de autohospedaje |
 
 Fuentes oficiales:
 

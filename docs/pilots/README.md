@@ -13,17 +13,14 @@ settlement, receipt, replay and documentation.
 Choose one factual installation path:
 
 - Existing service: install the public immutable
-  `@usemeterkit/sdk@0.1.0` package from npm and protect a participant-controlled
+  `@usemeterkit/sdk@0.2.0` package from npm and protect a participant-controlled
   route.
-- Generated project: clone the repository at an exact commit, install with the
-  frozen lockfile and run `pnpm create:meterkit <directory> --surface
+- Generated project: run `npm create meterkit@0.2.0 -- <directory> --surface
 <express|next-route|hono|mcp> --package-manager pnpm --yes`.
 
-`create-meterkit` is a verified `0.2.0` release candidate and
+`create-meterkit` is a public provenance-backed `0.2.0` release and
 `@usemeterkit/pilot` remains a candidate workspace package as of 2026-08-11.
-Neither is presented as an npm release until registry verification. The
-generated-project path is reproducible source evaluation, while only core and
-SDK 0.1.0 are current public registry releases.
+The generated-project path is registry adoption; the pilot CLI is not.
 
 Read `docs/sdk-quickstart.md`, run the workspace pilot verifier, complete the
 devnet journey, then export sanitized evidence. A readiness check is not a

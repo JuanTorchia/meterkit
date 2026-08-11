@@ -85,9 +85,10 @@ La identidad persistida del producto usa `products.uid`; los pagos apuntan a ese
 UUID. Slug y owner siguen presentes como identidad pública legible, sin permitir
 que un proveedor reserve el slug de otro.
 
-Los paquetes públicos confirmados son `@usemeterkit/core@0.1.0` y
-`@usemeterkit/sdk@0.1.0`. Los demás workspaces siguen siendo candidatos hasta
-una release versionada y aprobada; un build local no equivale a publicación.
+Los paquetes públicos confirmados son `@usemeterkit/core@0.2.0`,
+`@usemeterkit/sdk@0.2.0` y `create-meterkit@0.2.0`, con provenance de npm. Los
+demás workspaces siguen siendo candidatos; un build local no equivale a
+publicación.
 
 ## Fuentes técnicas
 
