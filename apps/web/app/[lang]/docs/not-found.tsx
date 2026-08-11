@@ -3,12 +3,14 @@ import Link from "next/link";
 export default function DocumentationNotFound() {
   return (
     <section className="docsState">
-      <p className="docsEyebrow">404</p>
       <h1>Documentation page not found</h1>
       <p>
-        The page may have moved. Return to the maintained documentation index.
+        The server answered 404. The page may have moved; the maintained index
+        lists everything currently published.
       </p>
-      <Link href="/en/docs">Open documentation</Link>
+      <Link className="secondary" href="/en/docs">
+        Open documentation
+      </Link>
     </section>
   );
 }

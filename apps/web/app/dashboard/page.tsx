@@ -9,6 +9,7 @@ import { useLocale } from "../use-locale";
 const copy = {
   en: {
     badge: "Internal proof · Solana Devnet",
+    barWarn: "Devnet only — do not send mainnet assets",
     demo: "Live demo",
     controls: "Payer controls",
     kicker: "PROVIDER WORKSPACE",
@@ -18,6 +19,7 @@ const copy = {
   },
   es: {
     badge: "Prueba interna · Solana Devnet",
+    barWarn: "Solo devnet — no envíes activos de mainnet",
     demo: "Demo en vivo",
     controls: "Control del pagador",
     kicker: "PANEL DEL PROVEEDOR",
@@ -27,6 +29,7 @@ const copy = {
   },
   "pt-BR": {
     badge: "Prova interna · Solana Devnet",
+    barWarn: "Somente devnet — não envie ativos da mainnet",
     demo: "Demo ao vivo",
     controls: "Controle do pagador",
     kicker: "PAINEL DO PROVEDOR",
@@ -41,14 +44,19 @@ export default function DashboardPage() {
   const text = copy[locale];
   return (
     <main className="workspacePage" id="main-content">
+      <div className="instrumentBar">
+        <span>Solana devnet</span>
+        <span>Non-custodial</span>
+        <span className="warn pushRight">{text.barWarn}</span>
+      </div>
       <nav className="workspaceNav">
         <Link className="brand" href="/">
           <span className="mark" aria-hidden="true">
-            M
+            MK
           </span>{" "}
           MeterKit
         </Link>
-        <span className="devnetBadge">● {text.badge}</span>
+        <span className="devnetBadge">{text.badge}</span>
         <div className="navActions">
           <Link href="/demo">{text.demo}</Link>
           <Link href="/agent/allowances">{text.controls}</Link>
@@ -69,7 +77,6 @@ export default function DashboardPage() {
         <MobileProductLinks locale={locale} />
       </nav>
       <div className="workspaceIntro">
-        <span className="kicker">{text.kicker}</span>
         <h1>{text.title}</h1>
         <p>{text.intro}</p>
       </div>

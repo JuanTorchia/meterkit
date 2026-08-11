@@ -1,73 +1,83 @@
+/* Pilots — Certificate of Calibration world. Persuade surface.
+   Ruled registers and seals; no radii, no cards, no colour as decoration. */
+
 .heroCta {
-  display: inline-block;
-  margin-top: 28px;
+  display: inline-flex;
+  margin-top: var(--s-6);
 }
+
 .prerequisites {
-  margin: 0 7vw 34px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px 24px;
+  margin: 0 var(--gutter) var(--s-7);
+  padding: var(--s-5) 0;
+  border-top: var(--rule-strong);
+  border-bottom: var(--rule);
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 28px;
-  align-items: center;
+  grid-template-columns: minmax(0, 22ch) minmax(0, 1fr);
+  gap: var(--s-3) var(--s-6);
+  align-items: baseline;
 }
+
 .prerequisites h2 {
-  font-size: 18px;
-  margin: 0;
+  font-size: var(--t-3);
 }
+
 .prerequisites p,
 .phaseIntro p {
-  color: var(--muted);
-  line-height: 1.6;
+  color: var(--ink-2);
   margin: 0;
 }
+
 .phaseIntro {
-  padding: 0 7vw 28px;
+  padding: 0 var(--gutter) var(--s-5);
+  display: grid;
+  gap: var(--s-3);
 }
+
 .phaseIntro h2 {
-  font-size: 38px;
+  font-size: var(--t-2);
+  font-stretch: 106%;
 }
-.phaseIntro p {
-  max-width: 720px;
-}
+
 .commandList {
   list-style: none;
   margin: 0;
 }
+
 .commandList > li {
   min-width: 0;
 }
-.commandList article {
-  height: 100%;
-}
+
 .command {
   position: relative;
 }
+
 .command pre {
-  padding-right: 72px;
+  padding-right: 84px;
   white-space: pre-wrap;
   overflow-wrap: normal;
   word-break: normal;
 }
+
 .command button {
   position: absolute;
-  right: 8px;
-  top: 8px;
-  border: 1px solid #49645a;
-  background: #10251d;
-  color: var(--lime);
-  border-radius: 6px;
-  padding: 6px 8px;
-  font:
-    500 9px ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
+  right: var(--s-2);
+  top: var(--s-2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: var(--stock-raised);
+  padding: 5px 9px;
+  font-family: var(--measure);
+  font-size: var(--t-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
+  transition: background 0.18s var(--ease);
 }
+
+.command button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .copyStatus {
   position: absolute;
   width: 1px;
@@ -75,144 +85,161 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
 }
+
+/* Readiness checks read as a calibration checklist. */
 .checkList {
   padding: 0;
+  margin: 0;
   list-style: none;
+  border-top: var(--rule-strong);
 }
+
 .checkList li {
-  border-bottom: 1px solid var(--line);
-  padding: 12px 0;
-  color: var(--green);
-  font-size: 13px;
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  border-bottom: var(--rule);
+  padding: var(--s-3) 0;
+  font-size: var(--t-small);
 }
+
+.checkList li::before {
+  content: "";
+  flex: 0 0 7px;
+  height: 7px;
+  background: var(--verified);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
 .completionList {
   list-style: none;
   padding: 0;
-  margin: 28px 0;
+  margin: var(--s-6) 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  border-top: var(--rule-strong);
 }
+
+.completionList li {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: var(--s-2) var(--s-4);
+  border-bottom: var(--rule);
+  padding: var(--s-4) 0;
+}
+
+.completionList li > span {
+  font-family: var(--measure);
+  font-size: var(--t-small);
+  color: var(--ink-3);
+}
+
+.completionList strong {
+  font-size: var(--t-body);
+}
+
+.completionList p {
+  font-size: var(--t-small);
+  color: var(--ink-2);
+  margin: 4px 0 0;
+}
+
 .startLink {
   display: inline-block;
-  margin-top: 12px;
-  color: var(--green);
+  margin-top: var(--s-3);
+  color: var(--intaglio);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.completionList li {
-  display: flex;
-  gap: 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 14px;
-}
-.completionList li > span {
-  flex: 0 0 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--lime);
-  font:
-    10px ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
-}
-.completionList strong {
-  font-size: 13px;
-}
-.completionList p {
-  font-size: 12px;
-  margin: 5px 0 0;
-}
+
 .reportBox {
-  margin-top: 28px;
-  border-left: 4px solid var(--lime);
-  background: var(--paper);
-  padding: 18px;
+  margin-top: var(--s-6);
+  border-left: 1px solid var(--seal);
+  background: var(--seal-tint);
+  padding: var(--s-4);
   display: grid;
-  gap: 10px;
+  gap: var(--s-2);
 }
+
 .reportBox p,
 .reportBox strong {
   margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: var(--t-small);
 }
+
 .reportBox strong {
-  color: #843d35;
+  color: var(--seal-deep);
 }
+
 .reportBox a {
   justify-self: start;
-  margin-top: 4px;
+  margin-top: var(--s-1);
 }
+
 .trustPanel {
-  margin: 55px 7vw 80px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 30px;
+  margin: var(--s-8) var(--gutter) var(--s-9);
+  padding-top: var(--s-5);
+  border-top: var(--rule-strong);
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 50px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s-6) var(--s-8);
 }
+
 .trustPanel h2 {
-  font-size: 26px;
+  font-size: var(--t-2);
+  font-stretch: 106%;
 }
+
 .trustPanel p {
-  color: var(--muted);
-  line-height: 1.6;
+  color: var(--ink-2);
 }
+
 .trustLinks {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  align-content: center;
+  align-content: start;
+  border-top: var(--rule);
 }
+
 .trustLinks a {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  border-bottom: var(--rule);
+  padding: var(--s-3) 0;
+  color: var(--intaglio);
+  font-family: var(--measure);
+  font-size: var(--t-small);
+  text-decoration: none;
 }
+
+.trustLinks a:hover {
+  color: var(--ink);
+}
+
 @media (max-width: 850px) {
-  .prerequisites {
-    margin: 0 4vw 30px;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  .phaseIntro {
-    padding: 0 4vw 24px;
-  }
-  .phaseIntro h2 {
-    font-size: 30px;
-  }
-  .command pre {
-    padding-right: 18px;
-    padding-top: 50px;
-    overflow-wrap: anywhere;
-  }
+  .prerequisites,
   .completionList,
   .trustPanel,
   .trustLinks {
     grid-template-columns: 1fr;
   }
-  .trustPanel {
-    margin: 45px 4vw 55px;
-    gap: 20px;
+
+  .prerequisites {
+    gap: var(--s-2);
   }
-  .evidence {
-    padding-top: 50px;
+
+  .command pre {
+    padding-right: var(--s-4);
+    padding-top: var(--s-7);
+    overflow-wrap: anywhere;
+  }
+
+  .completionList li {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
   }
 }

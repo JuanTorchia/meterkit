@@ -36,6 +36,7 @@ type Receipt = {
 const copy = {
   en: {
     badge: "Guided proof · Solana Devnet",
+    barWarn: "Devnet only — do not send mainnet assets",
     workspace: "Provider workspace →",
     kicker: "VERIFIABLE PRODUCT WALKTHROUGH",
     title: "Watch one API request expose its payment terms.",
@@ -71,6 +72,7 @@ const copy = {
   },
   es: {
     badge: "Prueba guiada · Solana Devnet",
+    barWarn: "Solo devnet — no envíes activos de mainnet",
     workspace: "Panel del proveedor →",
     kicker: "RECORRIDO VERIFICABLE",
     title: "Mira cómo una solicitud API expone sus condiciones de pago.",
@@ -106,6 +108,7 @@ const copy = {
   },
   "pt-BR": {
     badge: "Prova guiada · Solana Devnet",
+    barWarn: "Somente devnet — não envie ativos da mainnet",
     workspace: "Painel do provedor →",
     kicker: "DEMONSTRAÇÃO VERIFICÁVEL",
     title: "Veja uma requisição de API expor suas condições de pagamento.",
@@ -236,14 +239,19 @@ export default function DemoPage() {
 
   return (
     <main className="demoPage" id="main-content">
+      <div className="instrumentBar">
+        <span>Solana devnet</span>
+        <span>Non-custodial</span>
+        <span className="warn pushRight">{text.barWarn}</span>
+      </div>
       <nav className="demoNav">
         <Link className="brand" href="/">
           <span className="mark" aria-hidden="true">
-            M
+            MK
           </span>{" "}
           MeterKit
         </Link>
-        <span className="devnetBadge">● {text.badge}</span>
+        <span className="devnetBadge">{text.badge}</span>
         <div className="navActions">
           <Link className="demoWorkspaceLink" href="/dashboard">
             {text.workspace}
@@ -265,14 +273,15 @@ export default function DemoPage() {
         <MobileProductLinks locale={locale} />
       </nav>
       <header className="demoIntro">
-        <span className="kicker">{text.kicker}</span>
         <h1>{text.title}</h1>
         <p>{text.intro}</p>
       </header>
       <section className="demoConsole" aria-label="x402 payment walkthrough">
         <article className="persona providerPane">
-          <span className="personaLabel">{text.provider}</span>
-          <h2>Premium Weather API</h2>
+          <h2>
+            <span className="personaRole">{text.provider}</span> · Premium
+            Weather API
+          </h2>
           <p>{text.description}</p>
           <div className="demoPrice">
             <strong>0.01</strong>
@@ -292,8 +301,9 @@ export default function DemoPage() {
           </small>
         </article>
         <article className="persona agentPane">
-          <span className="personaLabel">{text.agent}</span>
-          <h2>{text.console}</h2>
+          <h2>
+            <span className="personaRole">{text.agent}</span> · {text.console}
+          </h2>
           <div className="requestLine">
             <code>GET /premium</code>
             <button
@@ -351,7 +361,7 @@ export default function DemoPage() {
                     index === 0 || phase !== "validating" ? "done" : ""
                   }
                 >
-                  {index === 0 || phase !== "validating" ? "✓" : "…"} {check}
+                  {check}
                 </li>
               ))}
             </ol>

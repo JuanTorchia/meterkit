@@ -11,6 +11,10 @@ pnpm-lock.yaml
 playwright-report/
 test-results/
 
+# Local tool artifacts: design-hook cache, review screenshots, harness settings.
+**/.impeccable/
+.claude/
+
 # Historical grant/application snapshots must remain byte-stable.
 docs/agentic-grant-pack/
 docs/grant-closeout-2026-08-05.md

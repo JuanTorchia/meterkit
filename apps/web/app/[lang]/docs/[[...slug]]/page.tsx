@@ -16,15 +16,26 @@ export default async function DocumentationPage({ params }: Properties) {
   const Body = page.data.body;
   return (
     <article className="docsArticle">
-      <div className="docsEyebrow">
-        {page.data.section} · {page.data.maturity}
-      </div>
       <h1>{page.data.title}</h1>
       <p className="docsDescription">{page.data.description}</p>
-      <div className="docsMeta">
-        <span>{page.data.productVersionRange}</span>
-        <span>{page.data.lastReviewedAt}</span>
-      </div>
+      <dl className="docsRecord">
+        <div>
+          <dt>{lang === "es" ? "Sección" : "Section"}</dt>
+          <dd>{page.data.section}</dd>
+        </div>
+        <div>
+          <dt>{lang === "es" ? "Madurez" : "Maturity"}</dt>
+          <dd>{page.data.maturity}</dd>
+        </div>
+        <div>
+          <dt>{lang === "es" ? "Aplica a" : "Applies to"}</dt>
+          <dd>{page.data.productVersionRange}</dd>
+        </div>
+        <div>
+          <dt>{lang === "es" ? "Última revisión" : "Last reviewed"}</dt>
+          <dd>{page.data.lastReviewedAt}</dd>
+        </div>
+      </dl>
       <div className="docsBody">
         <Body components={getMDXComponents()} />
       </div>

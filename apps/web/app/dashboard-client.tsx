@@ -59,6 +59,20 @@ const rpcUrl =
 
 export type ConnectedWallet = { wallet: Wallet; account: WalletAccount };
 
+// A raw `Failed to fetch` names neither the problem nor the recovery, so a
+// transport failure gets the product's own language instead of the exception.
+function gatewayErrorMessage(cause: unknown, locale: Locale) {
+  const transportFailure =
+    cause instanceof TypeError ||
+    (cause instanceof Error && /fetch|network/i.test(cause.message));
+  if (!transportFailure && cause instanceof Error) return cause.message;
+  return locale === "en"
+    ? "The gateway did not answer. Anything listed below may be out of date — check the gateway is running, then refresh."
+    : locale === "es"
+      ? "El gateway no respondió. Lo que aparece abajo puede estar desactualizado: verificá que el gateway esté corriendo y actualizá."
+      : "O gateway não respondeu. O que aparece abaixo pode estar desatualizado: verifique se o gateway está rodando e atualize.";
+}
+
 function isSolanaConnectableWallet(
   wallet: UiWallet,
   registeredWallets: readonly Wallet[],
@@ -180,7 +194,7 @@ function WalletOption({
 const dashboardCopy = {
   en: {
     connect: "Connect your wallet.",
-    newProduct: "＋ New product",
+    newProduct: "New product",
     overview: "OVERVIEW · PUBLIC DEVNET DATA",
     volume: "Settled volume",
     requests: "Paid requests",
@@ -194,7 +208,7 @@ const dashboardCopy = {
     apiTool: "API, endpoint, or MCP tool",
     activity: "ONCHAIN ACTIVITY",
     recent: "Recent payments",
-    refresh: "Refresh ↻",
+    refresh: "Refresh",
     empty: "No settled payments yet.",
     loading: "Loading receipts…",
     payerControl: "PAYER CONTROL",
@@ -203,10 +217,13 @@ const dashboardCopy = {
       "Your wallet signs a canonical program instruction. MeterKit never receives your key.",
     internalEvidence:
       "Internal devnet verification · not external users, revenue or production activity.",
+    emptyInstrumentsTitle: "No priced endpoints registered yet.",
+    emptyInstrumentsBody:
+      "Connect a wallet, then register an endpoint to give it a serial, a price and a settlement log.",
   },
   es: {
     connect: "Conecta tu wallet.",
-    newProduct: "＋ Nuevo producto",
+    newProduct: "Nuevo producto",
     overview: "OVERVIEW · DATOS PÚBLICOS DE DEVNET",
     volume: "Volumen liquidado",
     requests: "Solicitudes pagadas",
@@ -220,7 +237,7 @@ const dashboardCopy = {
     apiTool: "API, endpoint o herramienta MCP",
     activity: "ACTIVIDAD ONCHAIN",
     recent: "Pagos recientes",
-    refresh: "Actualizar ↻",
+    refresh: "Actualizar",
     empty: "Aún no hay pagos liquidados.",
     loading: "Cargando recibos…",
     payerControl: "CONTROL DEL PAGADOR",
@@ -229,10 +246,13 @@ const dashboardCopy = {
       "La wallet firma una instrucción del programa canónico. MeterKit nunca recibe tu clave.",
     internalEvidence:
       "Verificación interna en devnet · no representa usuarios externos, ingresos ni actividad productiva.",
+    emptyInstrumentsTitle: "Todavía no hay endpoints con precio.",
+    emptyInstrumentsBody:
+      "Conectá una wallet y registrá un endpoint para darle número de serie, precio y registro de liquidaciones.",
   },
   "pt-BR": {
     connect: "Conecte sua carteira.",
-    newProduct: "＋ Novo produto",
+    newProduct: "Novo produto",
     overview: "VISÃO GERAL · DADOS PÚBLICOS DA DEVNET",
     volume: "Volume liquidado",
     requests: "Requisições pagas",
@@ -246,7 +266,7 @@ const dashboardCopy = {
     apiTool: "API, endpoint ou ferramenta MCP",
     activity: "ATIVIDADE ONCHAIN",
     recent: "Pagamentos recentes",
-    refresh: "Atualizar ↻",
+    refresh: "Atualizar",
     empty: "Ainda não há pagamentos liquidados.",
     loading: "Carregando recibos…",
     payerControl: "CONTROLE DO PAGADOR",
@@ -255,6 +275,9 @@ const dashboardCopy = {
       "Sua carteira assina uma instrução do programa canônico. MeterKit nunca recebe sua chave.",
     internalEvidence:
       "Verificação interna na devnet · não representa usuários externos, receita ou atividade produtiva.",
+    emptyInstrumentsTitle: "Ainda não há endpoints com preço.",
+    emptyInstrumentsBody:
+      "Conecte uma carteira e registre um endpoint para dar a ele número de série, preço e registro de liquidações.",
   },
 } as const;
 
@@ -347,15 +370,7 @@ export function DashboardClient({ locale }: { locale: Locale }) {
         setError(undefined);
       } catch (cause) {
         if (signal?.aborted || sequence !== refreshSequence.current) return;
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : locale === "en"
-              ? "Could not read the gateway"
-              : locale === "es"
-                ? "No se pudo leer el gateway"
-                : "Não foi possível acessar o gateway",
-        );
+        setError(gatewayErrorMessage(cause, locale));
       } finally {
         if (sequence === refreshSequence.current && !signal?.aborted)
           setLoading(false);
@@ -388,7 +403,6 @@ export function DashboardClient({ locale }: { locale: Locale }) {
       <section className="dashboard" id="products">
         <header>
           <div>
-            <span className="kicker">{text.overview}</span>
             <h2>
               {connection ? short(connection.account.address) : text.connect}
             </h2>
@@ -433,7 +447,7 @@ export function DashboardClient({ locale }: { locale: Locale }) {
             aria-label="Linked developer identity"
           >
             <div>
-              <span className="kicker">DEVELOPER IDENTITY · OPTIONAL</span>
+              <span className="label">Developer identity · optional</span>
               <strong>
                 {githubIdentity
                   ? `GitHub · @${githubIdentity.login}`
@@ -534,40 +548,37 @@ export function DashboardClient({ locale }: { locale: Locale }) {
             <small>USDC · SPL Token</small>
           </article>
         </div>
-        <div className="grid liveGrid">
-          {products.map((product) => (
-            <article className="product" key={product.id}>
-              <div className="productTop">
-                <span className="weather">⌁</span>
-                <span className="live">
-                  ●{" "}
-                  {locale === "en"
-                    ? "ACTIVE"
-                    : locale === "es"
-                      ? "ACTIVO"
-                      : "ATIVO"}
-                </span>
+        <ol className="instrumentList">
+          {products.map((product, index) => (
+            <li className="instrument" key={product.id}>
+              <span className="instrumentSerial">
+                {String(index + 1).padStart(3, "0")}
+              </span>
+              <div className="instrumentIdent">
+                <h3>{product.name}</h3>
+                <p>
+                  {locale === "en" && product.id === "premium-weather"
+                    ? "Compact forecast with provenance and retrieval time"
+                    : product.description}
+                </p>
+                <code>GET {new URL(product.resource).pathname}</code>
               </div>
-              <h3>{product.name}</h3>
-              <p>
-                {locale === "en" && product.id === "premium-weather"
-                  ? "Compact forecast with provenance and retrieval time"
-                  : product.description}
-              </p>
-              <div className="price">
+              <div className="instrumentReading">
+                <span className="label">{text.perRequest}</span>
                 <strong>
-                  {formatUsdc(BigInt(product.priceAtomic), locale)}
+                  <span>{formatUsdc(BigInt(product.priceAtomic), locale)}</span>{" "}
+                  <em>USDC</em>
                 </strong>
-                <span>
-                  {" "}
-                  USDC
-                  <br />
-                  {text.perRequest}
+                <span className="seal">
+                  {locale === "en"
+                    ? "active"
+                    : locale === "es"
+                      ? "activo"
+                      : "ativo"}
                 </span>
               </div>
-              <code>GET {new URL(product.resource).pathname}</code>
-              <div className="productFoot">
-                <span>{short(product.payTo)}</span>
+              <div className="instrumentFoot">
+                <span className="label">{short(product.payTo)}</span>
                 <a href={product.resource} target="_blank" rel="noreferrer">
                   {locale === "en"
                     ? "Try 402 ↗"
@@ -576,21 +587,27 @@ export function DashboardClient({ locale }: { locale: Locale }) {
                       : "Testar 402 ↗"}
                 </a>
               </div>
-            </article>
+            </li>
           ))}
           {connection && (
-            <button className="add" onClick={() => setCreating(true)}>
-              <span>＋</span>
-              <h3>{text.createAnother}</h3>
+            <li className="instrumentAdd">
+              <button className="new" onClick={() => setCreating(true)}>
+                {text.createAnother}
+              </button>
               <p>{text.apiTool}</p>
-            </button>
+            </li>
           )}
-        </div>
+          {!products.length && !connection && (
+            <li className="instrumentEmpty">
+              <h3>{text.emptyInstrumentsTitle}</h3>
+              <p>{text.emptyInstrumentsBody}</p>
+            </li>
+          )}
+        </ol>
       </section>
       <section className="transactions" id="payments">
         <div className="sectionHead">
           <div>
-            <span className="kicker">{text.activity}</span>
             <h2>{text.recent}</h2>
           </div>
           <button onClick={() => void refresh()}>{text.refresh}</button>
@@ -602,7 +619,6 @@ export function DashboardClient({ locale }: { locale: Locale }) {
           )}
           {payments.map((payment) => (
             <div className="row" key={payment.id}>
-              <span className="tx">↗</span>
               <div>
                 <strong>{payment.productId}</strong>
                 <small>
@@ -610,22 +626,28 @@ export function DashboardClient({ locale }: { locale: Locale }) {
                     dateLocales[locale],
                   )}
                 </small>
+                <code>{short(payment.signature)}</code>
               </div>
-              <code>{short(payment.signature)}</code>
-              <strong>
-                {formatUsdc(BigInt(payment.amountAtomic), locale)} USDC
-              </strong>
-              <span className={`receiptStatus receiptStatus-${payment.status}`}>
-                {payment.status === "finalized"
-                  ? "✓"
-                  : payment.status === "failed"
-                    ? "×"
-                    : "…"}{" "}
-                {payment.status}
-              </span>
-              <a href={payment.explorerUrl} target="_blank" rel="noreferrer">
-                Explorer ↗
-              </a>
+              <div className="rowReading">
+                <strong className="tx">
+                  {formatUsdc(BigInt(payment.amountAtomic), locale)} USDC
+                </strong>
+                <span
+                  className="seal"
+                  data-state={
+                    payment.status === "finalized"
+                      ? "finalized"
+                      : payment.status === "failed"
+                        ? "failed"
+                        : "pending"
+                  }
+                >
+                  {payment.status}
+                </span>
+                <a href={payment.explorerUrl} target="_blank" rel="noreferrer">
+                  Explorer ↗
+                </a>
+              </div>
             </div>
           ))}
         </div>
@@ -696,7 +718,6 @@ export function AllowancePanel({
   return (
     <section className="allowances" id="allowances">
       <div>
-        <span className="kicker">{text.payerControl}</span>
         <h2>
           {locale === "en"
             ? "Create, inspect and revoke allowances."
