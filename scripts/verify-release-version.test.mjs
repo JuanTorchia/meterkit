@@ -38,6 +38,9 @@ test("OIDC release workflow stays tokenless and packs the full allowlist", async
     /oven-sh\/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6/,
   );
   assert.match(workflow, /bun-version: 1\.3\.14/);
+  assert.match(workflow, /services:\s+postgres:/);
+  assert.match(workflow, /POSTGRES_DB: meterkit/);
+  assert.match(workflow, /--health-cmd "pg_isready -U meterkit"/);
   for (const packageName of [
     "@usemeterkit/core",
     "@usemeterkit/sdk",
