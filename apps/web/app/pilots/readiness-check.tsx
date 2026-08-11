@@ -56,6 +56,8 @@ const copy = {
       "Too many verifications from this address. The check makes a real request to your endpoint, so it is limited to six per minute. Wait a minute and try again.",
     unreachable:
       "The verifier could not complete. Your endpoint may be slow or offline; try again, or run the CLI below against it.",
+    unavailable:
+      "The hosted verifier is not answering right now. This is on our side, not your endpoint. The command line check below runs the same verification locally.",
   },
   es: {
     label: "Endpoint a verificar",
@@ -83,6 +85,8 @@ const copy = {
       "Demasiadas verificaciones desde esta dirección. El chequeo hace una request real a tu endpoint, así que está limitado a seis por minuto. Esperá un minuto y reintentá.",
     unreachable:
       "El verificador no pudo completar. Tu endpoint puede estar lento o caído; reintentá, o corré el CLI de abajo contra él.",
+    unavailable:
+      "El verificador hospedado no está respondiendo. Esto es de nuestro lado, no de tu endpoint. El chequeo de línea de comandos de abajo corre la misma verificación localmente.",
   },
   "pt-BR": {
     label: "Endpoint a verificar",
@@ -110,6 +114,8 @@ const copy = {
       "Verificações demais deste endereço. A checagem faz uma requisição real ao seu endpoint, então é limitada a seis por minuto. Aguarde um minuto e tente de novo.",
     unreachable:
       "O verificador não conseguiu concluir. Seu endpoint pode estar lento ou fora do ar; tente de novo, ou rode o CLI abaixo contra ele.",
+    unavailable:
+      "O verificador hospedado não está respondendo. Isso é do nosso lado, não do seu endpoint. A checagem de linha de comando abaixo roda a mesma verificação localmente.",
   },
 } as const;
 
@@ -133,13 +139,21 @@ export function ReadinessCheck({ locale }: { locale: Locale }) {
       });
       if (response.status === 400) throw new Error(text.invalid);
       if (response.status === 429) throw new Error(text.limited);
+      // A 404 or 5xx here is our gateway, not the endpoint under test. Saying
+      // "your endpoint may be offline" would blame the provider for our fault.
+      if (response.status === 404 || response.status >= 500)
+        throw new Error(text.unavailable);
       if (!response.ok) throw new Error(text.unreachable);
       setReport((await response.json()) as Report);
     } catch (cause) {
+      // A thrown TypeError is the browser refusing the request itself: the
+      // gateway is unreachable or the origin is not allowed, both ours.
       setError(
-        cause instanceof Error && cause.message.length < 400
-          ? cause.message
-          : text.unreachable,
+        cause instanceof TypeError
+          ? text.unavailable
+          : cause instanceof Error && cause.message.length < 400
+            ? cause.message
+            : text.unreachable,
       );
     } finally {
       setBusy(false);
