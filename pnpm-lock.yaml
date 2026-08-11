@@ -56,6 +56,9 @@ importers:
       '@usemeterkit/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@usemeterkit/pilot':
+        specifier: workspace:*
+        version: link:../../packages/pilot
       '@usemeterkit/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk

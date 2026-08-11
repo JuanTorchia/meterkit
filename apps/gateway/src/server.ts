@@ -22,6 +22,9 @@ import {
   fetchAllowedUpstream,
   parseUpstreamAllowlist,
 } from "./upstream.js";
+import { verifyEndpoint } from "@usemeterkit/pilot";
+import { rateLimit } from "express-rate-limit";
+import { z } from "zod";
 import { installHttpPolicy } from "./http-policy.js";
 import { toHostedAuthorization } from "./authorization.js";
 import {
@@ -31,6 +34,24 @@ import {
 
 const app: Express = express();
 const config = loadGatewayConfig();
+const verifyRequestSchema = z.object({
+  endpoint: z.string().url().max(2048),
+});
+// Deliberately far below the global 60/min: one call here is one outbound
+// request that can occupy a socket for up to 15 seconds.
+const verifyLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: Number(process.env.VERIFY_RATE_LIMIT_PER_MINUTE ?? 6),
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  handler: (_request, response, _next, options) => {
+    response.status(options.statusCode).set("Cache-Control", "no-store").json({
+      error: "rate_limit_exceeded",
+      retryable: true,
+      retryAfterSeconds: 60,
+    });
+  },
+});
 let store: PaymentStore = new MemoryPaymentStore();
 let productStore: ProductStore | undefined;
 let reconciler: SolanaFinalityReconciler | undefined;
@@ -321,6 +342,47 @@ app.get("/v1/public/payments", async (_request, response) => {
   response.set("Cache-Control", "no-store");
   response.json(publicPayments(payments));
 });
+// Readiness verification, hosted. The same check the pilot CLI runs, without
+// asking a provider to clone the repository first.
+//
+// This makes the gateway an outbound HTTP client on caller-supplied input, so
+// it carries its own limiter rather than relying on the global one: each call
+// costs an outbound request with a 15s ceiling. verifyEndpoint already refuses
+// credentials in the URL, non-https public endpoints, and hostnames resolving
+// to loopback, private, link-local or reserved addresses; allowLocalhost stays
+// off here, which the CLI only enables for local development.
+app.post(
+  "/v1/pilot/verify",
+  // Validation runs before the limiter on purpose: the budget exists to bound
+  // outbound requests, so a mistyped URL should not spend it.
+  (request, response, next) => {
+    const parsed = verifyRequestSchema.safeParse(request.body);
+    if (!parsed.success) {
+      response
+        .status(400)
+        .json({ error: "invalid_endpoint", retryable: false });
+      return;
+    }
+    response.locals.endpoint = parsed.data.endpoint;
+    next();
+  },
+  verifyLimiter,
+  async (_request, response) => {
+    response.set("Cache-Control", "no-store");
+    try {
+      // A refused address still answers with a report. verifyEndpoint rejects it
+      // in parseEndpoint before any request leaves the process, and naming the
+      // reason helps a provider more than a bare status would.
+      response.json(await verifyEndpoint(response.locals.endpoint as string));
+    } catch (cause) {
+      response.status(502).json({
+        error: "verification_failed",
+        retryable: true,
+        detail: cause instanceof Error ? cause.message : "endpoint unreachable",
+      });
+    }
+  },
+);
 app.get("/v1/payments", async (request, response) => {
   const owner = await sessionOwner(request.header("authorization"));
   if (!owner) {

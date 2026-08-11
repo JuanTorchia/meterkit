@@ -1,4 +1,11 @@
+import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+
+// Read from the workspace rather than hardcoding: a pinned literal here is how
+// the pilots page kept asserting a superseded version long after it shipped.
+const publishedSdk: string = JSON.parse(
+  readFileSync("packages/sdk/package.json", "utf8"),
+).version;
 
 test("receipt states stay accessible and recoverable", async ({ page }) => {
   await page.route("**/v1/public/products", (route) =>
@@ -198,7 +205,9 @@ test("landing, guided demo and workspace communicate the non-custodial product",
     page.getByText("meterkit-pilot.json", { exact: false }).first(),
   ).toBeVisible();
   await expect(
-    page.getByText("@usemeterkit/sdk@0.1.0", { exact: false }).first(),
+    page
+      .getByText(`@usemeterkit/sdk@${publishedSdk}`, { exact: false })
+      .first(),
   ).toBeVisible();
   await expect(
     page.getByText(/initializer candidate is not published on npm/i),
