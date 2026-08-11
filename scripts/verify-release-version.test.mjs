@@ -41,6 +41,7 @@ test("OIDC release workflow stays tokenless and packs the full allowlist", async
   assert.match(workflow, /services:\s+postgres:/);
   assert.match(workflow, /POSTGRES_DB: meterkit/);
   assert.match(workflow, /--health-cmd "pg_isready -U meterkit"/);
+  assert.match(workflow, /pnpm exec playwright install --with-deps chromium/);
   for (const packageName of [
     "@usemeterkit/core",
     "@usemeterkit/sdk",
