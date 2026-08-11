@@ -122,7 +122,7 @@
 - [x] T071 [P] Create a scored package/domain/repository/search/social/trademark brand assessment without purchasing or renaming in `docs/brand-assessment.md`
 - [x] T072 [P] Reconcile architecture, security, business model, competition and roadmap with shipped facts in `docs/architecture.md`, `docs/security.md`, `docs/business-model.md`, `docs/competition.md`, and `docs/roadmap.md`
 - [x] T073 Reconcile English/Spanish landing, README, docs and package claims in `README.md`, `docs/en/README.md`, `docs/es/README.md`, and `content/docs/`
-- [ ] T074 Run formatting, lint, typecheck, tests, builds, E2E, audit, dependency review, CodeQL, secret scan, image scan, SBOM, package smoke, docs parity, compatibility and benchmarks via `package.json`
+- [x] T074 Run formatting, lint, typecheck, tests, builds, E2E, audit, dependency review, CodeQL, secret scan, image scan, SBOM, package smoke, docs parity, compatibility and benchmarks via `package.json`
 - [x] T075 Perform desktop/mobile visual, keyboard, console, contrast, heading, loading/error and reduced-motion inspection and save sanitized evidence via `scripts/verify-world-class-evidence.mjs`
 - [x] T076 Run complete initializer x402, MCP and agent-authorization devnet journeys and update `specs/002-world-class-agent-payments/quickstart.md` with exact internal results
 - [x] T077 Run Spec Kit convergence and leave only genuine third-party/owner-gated outcomes unchecked in `specs/002-world-class-agent-payments/tasks.md`
