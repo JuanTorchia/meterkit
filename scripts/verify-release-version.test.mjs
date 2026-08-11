@@ -33,6 +33,11 @@ test("OIDC release workflow stays tokenless and packs the full allowlist", async
     "utf8",
   );
   assert.doesNotMatch(workflow, /NODE_AUTH_TOKEN|registry-url/);
+  assert.match(
+    workflow,
+    /oven-sh\/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6/,
+  );
+  assert.match(workflow, /bun-version: 1\.3\.14/);
   for (const packageName of [
     "@usemeterkit/core",
     "@usemeterkit/sdk",
