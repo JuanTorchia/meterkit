@@ -12,7 +12,8 @@ on:
 
 permissions:
   checks: read
-  contents: read
+  # The SBOM action attaches the generated SPDX document to the GitHub release.
+  contents: write
   id-token: write
 
 jobs:
