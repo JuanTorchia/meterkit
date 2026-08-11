@@ -67,6 +67,9 @@ jobs:
       - name: Verify bilingual documentation parity
         run: pnpm docs:verify
 
+      - name: Verify published version claims
+        run: pnpm version:verify
+
       - name: Verify contributor path
         run: pnpm contributor:verify
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0] - Unreleased
+## [0.2.0] - 2026-08-11
 
 - Add canonical `protect()` middleware, versioned public receipts and sanitized lifecycle events.
 - Add maintained Next.js App Router and clean-package activation examples.

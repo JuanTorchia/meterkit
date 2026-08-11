@@ -69,7 +69,7 @@ const copy = {
     sdkBody:
       "MeterKit is middleware, not a custody layer. Your API, your wallet, your customer relationship. Two published packages and one line around the handler.",
     releaseNote:
-      "@usemeterkit/core and @usemeterkit/sdk are published at 0.1.0. The initializer, subscriptions and the pilot CLI are workspace candidates and are not on npm yet.",
+      "@usemeterkit/core, @usemeterkit/sdk and create-meterkit are published at 0.2.0 with registry provenance. Subscriptions and the pilot CLI are workspace candidates and are not on npm yet.",
     openWorkspace: "Open provider workspace",
     footer: "USDC commerce infrastructure for APIs and agents.",
   },
@@ -133,7 +133,7 @@ const copy = {
     sdkBody:
       "MeterKit es middleware, no una capa de custodia. Tu API, tu wallet, tu relación con el cliente. Dos paquetes publicados y una línea alrededor del handler.",
     releaseNote:
-      "@usemeterkit/core y @usemeterkit/sdk están publicados en 0.1.0. El inicializador, las suscripciones y el CLI de pilotos son candidatos del workspace y todavía no están en npm.",
+      "@usemeterkit/core, @usemeterkit/sdk y create-meterkit están publicados en 0.2.0 con procedencia verificable en el registry. Las suscripciones y el CLI de pilotos son candidatos del workspace y todavía no están en npm.",
     openWorkspace: "Abrir workspace del proveedor",
     footer: "Infraestructura comercial en USDC para APIs y agentes.",
   },
@@ -197,7 +197,7 @@ const copy = {
     sdkBody:
       "MeterKit é middleware, não uma camada de custódia. Sua API, sua carteira, sua relação com o cliente. Dois pacotes publicados e uma linha ao redor do handler.",
     releaseNote:
-      "@usemeterkit/core e @usemeterkit/sdk estão publicados em 0.1.0. O inicializador, as assinaturas e o CLI de pilotos são candidatos do workspace e ainda não estão no npm.",
+      "@usemeterkit/core, @usemeterkit/sdk e create-meterkit estão publicados em 0.2.0 com procedência verificável no registry. As assinaturas e o CLI de pilotos são candidatos do workspace e ainda não estão no npm.",
     openWorkspace: "Abrir workspace do provedor",
     footer: "Infraestrutura comercial em USDC para APIs e agentes.",
   },
