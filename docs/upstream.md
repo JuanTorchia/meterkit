@@ -21,17 +21,14 @@ contribution.
 
 ## Current factual status
 
-No upstream proposal has been submitted for this feature as of 2026-08-10.
-The selected candidate is
-[x402 issue #3110](https://github.com/x402-foundation/x402/issues/3110), which
-tracks examples that log complete payment payloads. MeterKit can contribute a
-bounded documentation/example patch that replaces redeemable payload output in
-TypeScript and Python examples with safe fields or a non-redeemable digest,
-adds an explicit warning, and preserves protocol behavior. The candidate is
-relevant beyond MeterKit and matches the fingerprint-only logging already used
-by this repository.
+[x402 PR #3118](https://github.com/x402-foundation/x402/pull/3118) was opened as
+a draft on 2026-08-11 for
+[issue #3110](https://github.com/x402-foundation/x402/issues/3110). The bounded
+documentation patch replaces complete payment-payload logging in the TypeScript
+and Python lifecycle examples with explicitly selected requirement fields and
+adds a warning about redeemable signatures and authorizations. It does not
+change protocol behavior or introduce a MeterKit dependency.
 
-Status: `candidate` — reviewed locally on 2026-08-10, not yet proposed by the
-MeterKit maintainer. No pull request, acceptance or ecosystem endorsement is
-claimed. Before changing the public status to `proposed`, the maintainer must
-approve the exact upstream diff and its public submission.
+Status: `proposed` — public draft awaiting the contributor's final human review
+before requesting upstream maintainer review. It is not accepted or endorsed by
+x402, and no merge outcome is claimed.

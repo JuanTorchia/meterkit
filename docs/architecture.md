@@ -29,8 +29,9 @@ Proveedor <──────────────── liquidación directa
 - `packages/sdk`: middleware publicable y adaptador de facilitador x402.
 - `packages/core`: tipos, validaciones, recibos y abstracción de persistencia.
 - `packages/subscriptions`: integración aislada con `@solana/subscriptions` 0.4.0.
-- `packages/create-meterkit`: inicializador determinista, secretless y todavía
-  candidato de workspace; no se presenta como paquete npm publicado.
+- `packages/create-meterkit`: inicializador determinista y secretless incluido
+  en el allowlist de la release `0.2.0`; sigue sin presentarse como publicado
+  hasta completar el alta manual y verificar el registro npm.
 - `packages/pilot`: diagnóstico y evidencia consentida/minimizada; todavía no
   es un paquete npm público.
 - `examples/client`: cliente x402 con firmante inyectado por el usuario.
