@@ -112,7 +112,7 @@
 - [x] T064 [US5] Extend opt-in activation export, usefulness-rating and deletion semantics in `packages/pilot/src/activation.ts` and `packages/pilot/src/cli.ts`
 - [x] T065 [US5] Publish bounded starter issues and upstream proposal criteria in `CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/`, and `docs/upstream.md`
 - [x] T066 [US5] Update the public pilot path for released packages and generated projects in `docs/pilots/README.md` and `apps/web/app/pilots/page.tsx`
-- [ ] T067 [US5] Propose one useful standards-compatible contribution to an upstream Solana/x402/MCP project and record only its factual public status in `docs/upstream.md`
+- [x] T067 [US5] Propose one useful standards-compatible contribution to an upstream Solana/x402/MCP project and record only its factual public status in `docs/upstream.md`
 - [ ] T068 [US5] Record three genuine external integrations and assistance levels in `docs/pilots/results.md` only after consented evidence exists
 - [ ] T069 [US5] Record one integration completing ten valid test payments across seven days only after participant evidence exists in `docs/pilots/results.md`
 - [ ] T070 [US5] Publish the case study and funding update only after T068–T069 are supported in `docs/pilots/case-study.md` and `docs/funding.md`
@@ -157,3 +157,8 @@
 5. Add benchmarks and professional evidence after critical behavior is stable.
 6. Recruit pilots and propose upstream work only after public activation succeeds; never mark third-party outcomes from internal agents or maintainer wallets.
 7. Evaluate branding last and do not purchase, rename, publish, or use mainnet without the corresponding owner gate.
+
+## Phase 9: Convergence
+
+- [ ] T078 CRITICAL Rotate the exposed Coolify deployment credential, inspect its audit history for unauthorized use, validate the replacement without logging it, and retain only sanitized incident evidence per Constitution I and Constitution VI (contradicts)
+- [ ] T079 Publish the reviewed `0.2.0` public package set, including the first `create-meterkit` release, through the staged OIDC workflow; verify registry provenance, tarball contents, version-matched documentation, clean installation and rollback per FR-001 and FR-032 (partial)

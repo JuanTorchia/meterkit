@@ -19,10 +19,11 @@ Choose one factual installation path:
   frozen lockfile and run `pnpm create:meterkit <directory> --surface
 <express|next-route|hono|mcp> --package-manager pnpm --yes`.
 
-`create-meterkit` and `@usemeterkit/pilot` are candidate workspace packages as
-of 2026-08-10 and are not presented as npm releases. The generated-project path
-is reproducible source evaluation, while only core and SDK 0.1.0 are current
-public registry releases.
+`create-meterkit` is a verified `0.2.0` release candidate and
+`@usemeterkit/pilot` remains a candidate workspace package as of 2026-08-11.
+Neither is presented as an npm release until registry verification. The
+generated-project path is reproducible source evaluation, while only core and
+SDK 0.1.0 are current public registry releases.
 
 Read `docs/sdk-quickstart.md`, run the workspace pilot verifier, complete the
 devnet journey, then export sanitized evidence. A readiness check is not a

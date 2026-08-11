@@ -52,9 +52,10 @@ pnpm create:meterkit ../meterkit-pilot \
 
 Choose `next-route`, `hono` or `mcp` instead of `express` when that is the
 participant's actual surface. Run the generated project's install and unpaid
-challenge instructions without maintainer edits. `create-meterkit` and
-`@usemeterkit/pilot` are not npm releases as of 2026-08-10; this path evaluates
-the checked-out source candidate and must be reported by commit, not as package
+challenge instructions without maintainer edits. `create-meterkit` is included
+in the verified `0.2.0` release candidate and `@usemeterkit/pilot` is not an npm
+release as of 2026-08-11. Until registry verification, this path evaluates the
+checked-out source candidate and must be reported by commit, not as package
 adoption.
 
 Save the exact package version or full commit SHA. It is the SDK identifier in

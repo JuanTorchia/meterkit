@@ -5,6 +5,7 @@ artifacts/
 coverage/
 dist/
 node_modules/
+pnpm-lock.yaml
 .meterkit/
 **/.source/
 playwright-report/

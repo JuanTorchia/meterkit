@@ -18,11 +18,12 @@ test("public release allowlist is deliberately small and version aligned", async
   assert.deepEqual(PUBLIC_RELEASE_PACKAGE_PATHS, [
     "packages/core/package.json",
     "packages/sdk/package.json",
+    "packages/create-meterkit/package.json",
   ]);
   const result = await verifyReleaseVersion("v0.2.0", root);
   assert.deepEqual(
     result.packages.map(({ name }) => name),
-    ["@usemeterkit/core", "@usemeterkit/sdk"],
+    ["@usemeterkit/core", "@usemeterkit/sdk", "create-meterkit"],
   );
 });
 
@@ -78,6 +79,7 @@ test("release manifests bind the allowlist to the exact source commit", async ()
   const packages = [
     { name: "@usemeterkit/core" },
     { name: "@usemeterkit/sdk" },
+    { name: "create-meterkit" },
   ];
   assert.equal(
     await verifyReleaseManifest(

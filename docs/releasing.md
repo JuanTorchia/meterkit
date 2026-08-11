@@ -7,8 +7,8 @@ must inspect each staged tarball and approve it with npm 2FA.
 
 ## One-time npm owner setup
 
-For both `@usemeterkit/core` and `@usemeterkit/sdk`, configure the trusted
-publisher in npm package settings with these exact values:
+For `@usemeterkit/core`, `@usemeterkit/sdk`, and `create-meterkit`, configure the
+trusted publisher in npm package settings with these exact values:
 
 - GitHub owner/repository: `JuanTorchia/meterkit`
 - workflow: `release.yml`
@@ -18,8 +18,10 @@ publisher in npm package settings with these exact values:
 Create the protected `npm-stage` GitHub environment and require Juan's approval.
 After one successful staging run, set npm publishing access to **require 2FA and
 disallow tokens**, then revoke obsolete automation tokens. A brand-new package
-cannot use staged publishing until its name has been claimed once; therefore
-`create-meterkit` is not in the release allowlist yet.
+cannot use staged publishing until its name has been claimed once.
+`create-meterkit` is in the verified release allowlist, but the owner must claim
+it manually before the first staged release; repository automation does not
+represent that owner gate as complete.
 
 ## Release procedure
 
@@ -31,9 +33,9 @@ cannot use staged publishing until its name has been claimed once; therefore
 6. Verify registry integrity, provenance and the clean-consumer smoke test.
 7. Generate the immutable release manifest and attach it to the release.
 
-The workflow intentionally stages only core and SDK. Pilot, subscriptions,
-database and policy packages remain outside the public allowlist until their
-support contracts and ownership are approved.
+The workflow intentionally stages core, SDK and the initializer. Pilot,
+subscriptions, database and policy packages remain outside the public allowlist
+until their support contracts and ownership are approved.
 
 ## Emergency recovery
 
