@@ -28,23 +28,17 @@ endpoint is private, report only its SHA-256 fingerprint as described in
 
 ## 1. Choose a released-SDK or generated-project path
 
-The SDK 0.1.0 release is publicly visible on npm. Install that exact immutable
+The SDK 0.2.0 release is publicly visible on npm. Install that exact immutable
 version in the participant's existing service:
 
 ```bash
-pnpm add @usemeterkit/sdk@0.1.0
+pnpm add @usemeterkit/sdk@0.2.0
 ```
 
-For a new generated project, use a full commit SHA so the initializer candidate
-and its templates remain reproducible:
+For a new generated project, use the provenance-backed initializer release:
 
 ```bash
-git clone https://github.com/JuanTorchia/meterkit.git
-cd meterkit
-git rev-parse HEAD
-corepack enable
-pnpm install --frozen-lockfile
-pnpm create:meterkit ../meterkit-pilot \
+npm create meterkit@0.2.0 -- ../meterkit-pilot \
   --surface express \
   --package-manager pnpm \
   --yes
@@ -53,10 +47,8 @@ pnpm create:meterkit ../meterkit-pilot \
 Choose `next-route`, `hono` or `mcp` instead of `express` when that is the
 participant's actual surface. Run the generated project's install and unpaid
 challenge instructions without maintainer edits. `create-meterkit` is included
-in the verified `0.2.0` release candidate and `@usemeterkit/pilot` is not an npm
-release as of 2026-08-11. Until registry verification, this path evaluates the
-checked-out source candidate and must be reported by commit, not as package
-adoption.
+in the public provenance-backed `0.2.0` release. `@usemeterkit/pilot` is not an
+npm release as of 2026-08-11.
 
 Save the exact package version or full commit SHA. It is the SDK identifier in
 the pilot report.

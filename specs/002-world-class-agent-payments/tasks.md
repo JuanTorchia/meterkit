@@ -161,4 +161,4 @@
 ## Phase 9: Convergence
 
 - [ ] T078 CRITICAL Rotate the exposed Coolify deployment credential, inspect its audit history for unauthorized use, validate the replacement without logging it, and retain only sanitized incident evidence per Constitution I and Constitution VI (contradicts)
-- [ ] T079 Publish the reviewed `0.2.0` public package set, including the first `create-meterkit` release, through the staged OIDC workflow; verify registry provenance, tarball contents, version-matched documentation, clean installation and rollback per FR-001 and FR-032 (partial)
+- [x] T079 Publish the reviewed `0.2.0` public package set, including the first `create-meterkit` release, through the staged OIDC workflow; verify registry provenance, tarball contents, version-matched documentation, clean installation and rollback per FR-001 and FR-032

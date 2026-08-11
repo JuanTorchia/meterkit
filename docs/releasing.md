@@ -75,12 +75,18 @@ The owner-gated sequence and its current status are deliberately explicit:
    the same configuration to `create-meterkit`: repository
    `JuanTorchia/meterkit`, workflow `release.yml`, environment `npm-stage`, and
    permission `npm stage publish` only.
-3. **Pending:** create the signed `v0.2.0` GitHub release from the exact CI-green `main`
+3. **Complete (2026-08-11):** create the `v0.2.0` GitHub release from the exact CI-green `main`
    commit. Approve the protected GitHub environment only after comparing the
    SHA. The workflow stages all three reviewed tarballs through OIDC.
-4. **Pending:** inspect the staged artifacts, approve each with npm 2FA, then verify public
+4. **Complete (2026-08-11):** inspect the staged artifacts, approve each with npm 2FA, then verify public
    versions, provenance, integrity, version-matched documentation and clean
    installation before marking T079 complete.
+
+The final release commit is `23bfc3aa5808efa99b0df40147e5134e5f44c54e`;
+CI run `31514965332` and staged-publication run `31515787660` succeeded. The tag
+is not GPG-signed because no signing key was configured; npm provenance binds
+each artifact to the GitHub Actions source and build instead. See
+`docs/releases/0.2.0.md` for immutable registry facts.
 
 Never mark steps 1–4 complete merely because the packages were packed locally,
 because a dry run passed, or because a local npm token once existed.

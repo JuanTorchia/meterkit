@@ -9,9 +9,10 @@ Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 
 **Devnet only — do not send mainnet assets.**
 
-Registry status checked 2026-08-10: `@usemeterkit/core@0.1.0` and
-`@usemeterkit/sdk@0.1.0` are public. `create-meterkit`, subscriptions and the
-pilot CLI remain workspace candidates and are not described as npm releases.
+Registry status checked 2026-08-11: `@usemeterkit/core@0.2.0`,
+`@usemeterkit/sdk@0.2.0` and `create-meterkit@0.2.0` are public with npm
+provenance attestations. Subscriptions and the pilot CLI remain workspace
+candidates and are not described as npm releases.
 
 MeterKit lets an API or MCP provider set a USDC price, add TypeScript middleware
 and receive payments directly from the client through x402. MeterKit does not
@@ -33,6 +34,12 @@ USDC budget for paid APIs and MCP tools over standard HTTP.
 - [Roadmap](docs/roadmap.md)
 
 ## English quickstart
+
+Generate a new Express, Next.js, Hono or MCP integration from npm:
+
+```bash
+npm create meterkit@0.2.0
+```
 
 Requirements: Node.js 22+, pnpm 11+ and Docker.
 
