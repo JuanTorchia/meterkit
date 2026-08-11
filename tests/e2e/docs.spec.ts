@@ -11,6 +11,9 @@ test("bilingual docs are searchable, keyboard reachable and recoverable", async 
   await expect(
     page.getByRole("heading", { name: "Start with MeterKit" }).first(),
   ).toBeVisible();
+  await expect(
+    page.locator('.docsSearch[data-shortcut-ready="true"]'),
+  ).toBeVisible();
   await page.keyboard.press("/");
   const search = page.getByLabel("Search documentation");
   await expect(search).toBeFocused();

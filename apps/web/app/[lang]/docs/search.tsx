@@ -5,6 +5,7 @@ import { useDocsSearch } from "fumadocs-core/search/client";
 import { fetchClient } from "fumadocs-core/search/client/fetch";
 
 export function DocumentationSearch({ locale }: { locale: "en" | "es" }) {
+  const root = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const { search, setSearch, query } = useDocsSearch({
     client: fetchClient({ locale }),
@@ -17,11 +18,15 @@ export function DocumentationSearch({ locale }: { locale: "en" | "es" }) {
       }
     };
     globalThis.addEventListener("keydown", onKeyDown);
-    return () => globalThis.removeEventListener("keydown", onKeyDown);
+    root.current?.setAttribute("data-shortcut-ready", "true");
+    return () => {
+      globalThis.removeEventListener("keydown", onKeyDown);
+      root.current?.setAttribute("data-shortcut-ready", "false");
+    };
   }, []);
   const results = query.data === "empty" ? [] : (query.data ?? []);
   return (
-    <div className="docsSearch">
+    <div ref={root} className="docsSearch" data-shortcut-ready="false">
       <label htmlFor="docs-search">
         {locale === "es" ? "Buscar documentación" : "Search documentation"}
       </label>
