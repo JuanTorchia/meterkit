@@ -921,10 +921,10 @@ export function AllowancePanel({
             await refreshAllowances();
             setStatus(
               locale === "en"
-                ? "Allowance active ✓"
+                ? "Allowance active"
                 : locale === "es"
-                  ? "Allowance activa ✓"
-                  : "Allowance ativa ✓",
+                  ? "Allowance activa"
+                  : "Allowance ativa",
             );
           } catch (cause) {
             setStatus(
@@ -1071,11 +1071,7 @@ export function AllowancePanel({
         throw new Error(`Could not record revocation: ${response.status}`);
       await refreshAllowances();
       setStatus(
-        locale === "en"
-          ? "Revoked ✓"
-          : locale === "es"
-            ? "Revocada ✓"
-            : "Revogada ✓",
+        locale === "en" ? "Revoked" : locale === "es" ? "Revocada" : "Revogada",
       );
     } catch (cause) {
       setStatus(cause instanceof Error ? cause.message : "Could not revoke");

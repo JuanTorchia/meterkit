@@ -378,7 +378,7 @@ export default function DemoPage() {
                 {new Date(receipt.settledAt).toLocaleString(locale)}
               </small>
               <button className="textButton" onClick={reset}>
-                {text.reset} ↻
+                {text.reset}
               </button>
             </div>
           )}

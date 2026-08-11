@@ -55,7 +55,7 @@ export default function AgentAllowancesPage() {
           </span>{" "}
           MeterKit
         </Link>
-        <span className="devnetBadge">● {text.badge}</span>
+        <span className="devnetBadge">{text.badge}</span>
         <div className="navActions">
           <Link href="/dashboard">{text.dashboard}</Link>
           <div className="localeSwitch" role="group" aria-label="Language">
