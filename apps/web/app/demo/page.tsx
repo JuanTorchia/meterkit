@@ -69,6 +69,14 @@ const copy = {
     error: "The proof could not be completed.",
     retry: "Retry",
     steps: ["1 Request", "2 Terms", "3 Evidence", "4 Explain"],
+    log: "Provider log",
+    logLines: [
+      "Endpoint published and priced",
+      "Request received with no payment attached",
+      "Answered 402 carrying price, recipient and network",
+      "Waiting on settlement evidence",
+      "Releases the protected result once settlement verifies; not repeated in this playback",
+    ],
   },
   es: {
     badge: "Prueba guiada · Solana Devnet",
@@ -105,6 +113,14 @@ const copy = {
     error: "No se pudo completar la prueba.",
     retry: "Reintentar",
     steps: ["1 Solicitud", "2 Condiciones", "3 Evidencia", "4 Explicación"],
+    log: "Registro del proveedor",
+    logLines: [
+      "Endpoint publicado y con precio",
+      "Solicitud recibida sin pago adjunto",
+      "Respondió 402 con precio, destinatario y red",
+      "Esperando evidencia de liquidación",
+      "Entrega el resultado protegido con la liquidación verificada; no se repite en este playback",
+    ],
   },
   "pt-BR": {
     badge: "Prova guiada · Solana Devnet",
@@ -141,6 +157,14 @@ const copy = {
     error: "Não foi possível completar a prova.",
     retry: "Tentar novamente",
     steps: ["1 Requisição", "2 Condições", "3 Evidência", "4 Explicação"],
+    log: "Registro do provedor",
+    logLines: [
+      "Endpoint publicado e com preço",
+      "Requisição recebida sem pagamento anexado",
+      "Respondeu 402 com preço, destinatário e rede",
+      "Aguardando evidência de liquidação",
+      "Entrega o resultado protegido com a liquidação verificada; não repetido neste playback",
+    ],
   },
 } as const;
 
@@ -299,6 +323,35 @@ export default function DemoPage() {
             {text.paidTo}{" "}
             {requirement ? short(requirement.payTo) : "the provider wallet"}
           </small>
+
+          {/* The exchange has two parties, so the provider carries state too.
+              Each line is gated on real state, never on an assumed timeline:
+              an error after the 402 leaves the answered line lit, correctly. */}
+          <div className="providerLog">
+            <span className="label">{text.log}</span>
+            <ol className="paymentTimeline">
+              {text.logLines.map((line, index) => (
+                <li
+                  key={line}
+                  className={
+                    [
+                      true,
+                      phase !== "idle",
+                      Boolean(requirement),
+                      phase === "validating" ||
+                        phase === "settled" ||
+                        phase === "unlocked",
+                      Boolean(receipt),
+                    ][index]
+                      ? "done"
+                      : ""
+                  }
+                >
+                  {line}
+                </li>
+              ))}
+            </ol>
+          </div>
         </article>
         <article className="persona agentPane">
           <h2>
