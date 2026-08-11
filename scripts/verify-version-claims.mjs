@@ -39,6 +39,17 @@ function rangeCovers(range, version) {
   );
 }
 
+async function collectSources(directory) {
+  const found = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) found.push(...(await collectSources(path)));
+    else if (/\.(tsx|ts)$/.test(entry.name) && !entry.name.includes(".test."))
+      found.push(path);
+  }
+  return found;
+}
+
 async function collectDocs(directory) {
   const found = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -84,8 +95,14 @@ export async function verifyVersionClaims(base = root) {
       );
   }
 
-  const docs = await collectDocs(resolve(base, "content/docs"));
-  for (const path of docs) {
+  // The first version of this check only scanned content/docs and missed a
+  // stale `@usemeterkit/sdk@0.1.0` install line living in the pilots page, so
+  // it scans the web app's own sources for pins too.
+  const sources = [
+    ...(await collectDocs(resolve(base, "content/docs"))),
+    ...(await collectSources(resolve(base, "apps/web/app"))),
+  ];
+  for (const path of sources) {
     const body = await readFile(path, "utf8");
     const relative = path.slice(base.length + 1);
 

@@ -5,11 +5,12 @@ import { useState } from "react";
 import { localeLabels, locales } from "../locale";
 import { MobileProductLinks } from "../product-links";
 import { useLocale } from "../use-locale";
+import { ReadinessCheck } from "./readiness-check";
 import styles from "./pilots.module.css";
 
 const commands = {
   released:
-    "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.1.0 express",
+    "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.2.0 express",
   generated:
     "git clone https://github.com/JuanTorchia/meterkit.git\ncd meterkit\npnpm install --frozen-lockfile\npnpm create:meterkit ../meterkit-pilot --surface express --package-manager pnpm --yes",
   install:
@@ -39,13 +40,15 @@ const copy = {
     pathsBody:
       "The SDK is publicly released. The initializer candidate is not published on npm; its repository path is shown explicitly and does not count as a registry release.",
     released: "A · RELEASED SDK",
-    releasedTitle: "Add the immutable public 0.1.0 package.",
+    releasedTitle: "Add the immutable public 0.2.0 package.",
     generated: "B · GENERATED PROJECT",
     generatedTitle: "Generate from the checked-out candidate source.",
     readiness: "PHASE A · READINESS",
     readinessTitle: "Check the policy before moving funds.",
     readinessBody:
       "These three steps produce readiness evidence only. They do not count as a completed external pilot.",
+    readinessAlso:
+      "The same check runs from the command line, where it takes a policy file and writes a portable JSON report you can attach to a pilot.",
     start: "1 · START",
     startTitle: "Clone and install once.",
     configure: "2 · CONFIGURE",
@@ -122,13 +125,15 @@ const copy = {
     pathsBody:
       "El SDK está publicado. El inicializador candidato todavía no está publicado en npm; se muestra explícitamente la ruta desde el repositorio y no cuenta como release del registry.",
     released: "A · SDK PUBLICADO",
-    releasedTitle: "Agrega el paquete público e inmutable 0.1.0.",
+    releasedTitle: "Agrega el paquete público e inmutable 0.2.0.",
     generated: "B · PROYECTO GENERADO",
     generatedTitle: "Genera desde el código candidato descargado.",
     readiness: "FASE A · PREPARACIÓN",
     readinessTitle: "Verifica la política antes de mover fondos.",
     readinessBody:
       "Estos tres pasos sólo producen evidencia de preparación. No cuentan como piloto externo completado.",
+    readinessAlso:
+      "El mismo chequeo corre desde la línea de comandos, donde toma un archivo de política y escribe un reporte JSON portable que podés adjuntar a un piloto.",
     start: "1 · INICIO",
     startTitle: "Clona e instala una vez.",
     configure: "2 · CONFIGURA",
@@ -206,13 +211,15 @@ const copy = {
     pathsBody:
       "O SDK está publicado. O inicializador candidato ainda não está publicado no npm; o caminho pelo repositório é mostrado explicitamente e não conta como release do registry.",
     released: "A · SDK PUBLICADO",
-    releasedTitle: "Adicione o pacote público e imutável 0.1.0.",
+    releasedTitle: "Adicione o pacote público e imutável 0.2.0.",
     generated: "B · PROJETO GERADO",
     generatedTitle: "Gere a partir do código candidato baixado.",
     readiness: "FASE A · PREPARAÇÃO",
     readinessTitle: "Confira a política antes de movimentar fundos.",
     readinessBody:
       "Estas três etapas produzem apenas evidência de preparação. Elas não contam como piloto externo concluído.",
+    readinessAlso:
+      "A mesma checagem roda pela linha de comando, onde recebe um arquivo de política e escreve um relatório JSON portátil que você pode anexar a um piloto.",
     start: "1 · INÍCIO",
     startTitle: "Clone e instale uma vez.",
     configure: "2 · CONFIGURE",
@@ -382,6 +389,10 @@ export default function PilotsPage() {
       >
         <h2 id="readiness-title">{text.readinessTitle}</h2>
         <p>{text.readinessBody}</p>
+        {/* The hosted check first: the same verification the CLI below runs,
+            without asking anyone to clone a repository to get an answer. */}
+        <ReadinessCheck locale={locale} />
+        <p className="readinessAlso">{text.readinessAlso}</p>
       </section>
       <ol className={`pilotCommands ${styles.commandList}`}>
         <CommandStep
