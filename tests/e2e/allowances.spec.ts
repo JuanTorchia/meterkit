@@ -65,13 +65,28 @@ test.beforeEach(async ({ page }) => {
           },
         },
       };
+      const incompatibleWallet = {
+        version: "1.0.0",
+        name: "MetaMask",
+        icon: account.icon,
+        chains: ["bitcoin:mainnet"],
+        accounts: [],
+        features: {
+          "bitcoin:connect": { version: "1.0.0", connect: async () => ({}) },
+        },
+      };
       globalThis.addEventListener("wallet-standard:app-ready", ((
         event: CustomEvent,
-      ) => event.detail.register(mock)) as EventListener);
+      ) => {
+        event.detail.register(incompatibleWallet);
+        event.detail.register(mock);
+      }) as EventListener);
       globalThis.dispatchEvent(
         new CustomEvent("wallet-standard:register-wallet", {
-          detail: (api: { register: (wallet: unknown) => void }) =>
-            api.register(mock),
+          detail: (api: { register: (wallet: unknown) => void }) => {
+            api.register(incompatibleWallet);
+            api.register(mock);
+          },
         }),
       );
     },

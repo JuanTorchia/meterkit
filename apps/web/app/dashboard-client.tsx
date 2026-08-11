@@ -59,6 +59,23 @@ const rpcUrl =
 
 export type ConnectedWallet = { wallet: Wallet; account: WalletAccount };
 
+function isSolanaConnectableWallet(
+  wallet: UiWallet,
+  registeredWallets: readonly Wallet[],
+) {
+  if (!wallet.chains.some((chain) => chain.startsWith("solana:"))) return false;
+  return registeredWallets.some((candidate) => {
+    const connect = candidate.features["standard:connect"] as
+      { connect?: unknown } | undefined;
+    return (
+      candidate.name === wallet.name &&
+      candidate.version === wallet.version &&
+      candidate.chains.some((chain) => chain.startsWith("solana:")) &&
+      typeof connect?.connect === "function"
+    );
+  });
+}
+
 export function WalletButton({
   onConnect,
   locale,
@@ -66,7 +83,10 @@ export function WalletButton({
   onConnect: (connection: ConnectedWallet) => void;
   locale: Locale;
 }) {
-  const wallets = useWallets();
+  const registeredWallets = getWallets().get();
+  const wallets = useWallets().filter((wallet) =>
+    isSolanaConnectableWallet(wallet, registeredWallets),
+  );
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -105,7 +125,7 @@ export function WalletButton({
         <div className="walletOptions" id="wallet-options">
           {wallets.map((wallet) => (
             <WalletOption
-              key={`${wallet.name}:${wallet.version}`}
+              key={`${wallet.name}:${wallet.version}:${wallet.chains.join(",")}`}
               wallet={wallet}
               onAccount={(account) => {
                 const rawWallet = getWallets()
@@ -113,7 +133,10 @@ export function WalletButton({
                   .find(
                     (candidate) =>
                       candidate.name === wallet.name &&
-                      candidate.version === wallet.version,
+                      candidate.version === wallet.version &&
+                      candidate.chains.some((chain) =>
+                        chain.startsWith("solana:"),
+                      ),
                   );
                 const rawAccount = rawWallet?.accounts.find(
                   (candidate) => candidate.address === account.address,
