@@ -51,7 +51,7 @@ export default function AgentAllowancesPage() {
       <nav className="workspaceNav">
         <Link className="brand" href="/">
           <span className="mark" aria-hidden="true">
-            M
+            MK
           </span>{" "}
           MeterKit
         </Link>
@@ -75,7 +75,6 @@ export default function AgentAllowancesPage() {
         <MobileProductLinks locale={locale} />
       </nav>
       <header className="workspaceIntro">
-        <span className="kicker">{text.kicker}</span>
         <h1>{text.title}</h1>
         <p>{text.intro}</p>
         <WalletButton

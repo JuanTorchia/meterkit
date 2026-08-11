@@ -22,6 +22,7 @@ const commands = {
 const copy = {
   en: {
     badge: "Self-service · Devnet only",
+    barWarn: "Devnet only — do not send mainnet assets",
     kicker: "EXTERNAL DEVELOPER PILOT",
     navDemo: "Demo",
     navProvider: "Provider",
@@ -104,6 +105,7 @@ const copy = {
   },
   es: {
     badge: "Autoservicio · Sólo devnet",
+    barWarn: "Solo devnet — no envíes activos de mainnet",
     kicker: "PILOTO PARA DESARROLLADORES EXTERNOS",
     navDemo: "Demo",
     navProvider: "Proveedor",
@@ -187,6 +189,7 @@ const copy = {
   },
   "pt-BR": {
     badge: "Autosserviço · Apenas devnet",
+    barWarn: "Somente devnet — não envie ativos da mainnet",
     kicker: "PILOTO PARA DESENVOLVEDORES EXTERNOS",
     navDemo: "Demo",
     navProvider: "Provedor",
@@ -275,14 +278,19 @@ export default function PilotsPage() {
 
   return (
     <main className="pilotsPage" id="main-content">
+      <div className="instrumentBar">
+        <span>Solana devnet</span>
+        <span>Non-custodial</span>
+        <span className="warn pushRight">{text.barWarn}</span>
+      </div>
       <nav className="workspaceNav" aria-label="MeterKit">
         <Link className="brand" href="/">
           <span className="mark" aria-hidden="true">
-            M
+            MK
           </span>{" "}
           MeterKit
         </Link>
-        <span className="devnetBadge">● {text.badge}</span>
+        <span className="devnetBadge">{text.badge}</span>
         <div className="navActions">
           <Link href="/demo">{text.navDemo}</Link>
           <Link href="/dashboard">{text.navProvider}</Link>
@@ -321,12 +329,11 @@ export default function PilotsPage() {
       </nav>
 
       <header className="pilotHero">
-        <span className="kicker">{text.kicker}</span>
         <h1>{text.title}</h1>
         <p>{text.intro}</p>
         <div className="pilotTrust">
           {text.trust.map((item) => (
-            <span key={item}>✓ {item}</span>
+            <span key={item}>{item}</span>
           ))}
         </div>
         <a className={`primary ${styles.heroCta}`} href="#readiness">
@@ -346,7 +353,6 @@ export default function PilotsPage() {
         className={styles.phaseIntro}
         aria-labelledby="starting-path-title"
       >
-        <span className="kicker">{text.paths}</span>
         <h2 id="starting-path-title">{text.pathsTitle}</h2>
         <p>{text.pathsBody}</p>
       </section>
@@ -374,7 +380,6 @@ export default function PilotsPage() {
         className={styles.phaseIntro}
         aria-labelledby="readiness-title"
       >
-        <span className="kicker">{text.readiness}</span>
         <h2 id="readiness-title">{text.readinessTitle}</h2>
         <p>{text.readinessBody}</p>
       </section>
@@ -410,17 +415,14 @@ export default function PilotsPage() {
         aria-labelledby="checks-title"
       >
         <div>
-          <h2 className="kicker" id="checks-title">
-            {text.checks}
-          </h2>
+          <h2 id="checks-title">{text.checks}</h2>
           <ul className={`checkGrid ${styles.checkList}`}>
             {text.items.map((item) => (
-              <li key={item}>✓ {item}</li>
+              <li key={item}>{item}</li>
             ))}
           </ul>
         </div>
         <div className="pilotCompletion">
-          <span className="kicker">{text.completed}</span>
           <h2>{text.completedTitle}</h2>
           <p>{text.completedBody}</p>
           <a
@@ -545,8 +547,11 @@ function CommandStep({
   };
   return (
     <li>
+      {/* Register pair, not a stacked label: the marker sits beside the heading
+          the way the landing's step register does. A label above a heading is
+          an eyebrow however the markup is arranged. */}
       <article aria-labelledby={headingId}>
-        <span>{label}</span>
+        <span className="commandMark">{label}</span>
         <h2 id={headingId}>{title}</h2>
         <div className={styles.command}>
           <pre tabIndex={0}>{command}</pre>
@@ -556,7 +561,7 @@ function CommandStep({
             aria-label={`${copyLabel}: ${title}`}
           >
             {copyState === "copied"
-              ? `✓ ${copiedLabel}`
+              ? copiedLabel
               : copyState === "failed"
                 ? failedLabel
                 : copyLabel}

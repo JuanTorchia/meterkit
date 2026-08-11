@@ -1,0 +1,478 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-11T00:00:00.000Z",
+  "title": "Design System: MeterKit",
+  "extensions": {
+    "colorMeta": {
+      "intaglio": {
+        "role": "primary",
+        "displayName": "Intaglio Blue",
+        "canonical": "#1a2e6e",
+        "tonalRamp": [
+          "#080e22",
+          "#0f1c47",
+          "#16295f",
+          "#1a2e6e",
+          "#2a4499",
+          "#5b76c9",
+          "#9aabdf",
+          "#dbe1f4"
+        ]
+      },
+      "intaglio-deep": {
+        "role": "primary",
+        "displayName": "Intaglio Deep",
+        "canonical": "#0f1c47",
+        "tonalRamp": [
+          "#05091a",
+          "#0a1230",
+          "#0f1c47",
+          "#16295f",
+          "#223b83",
+          "#4a63b4",
+          "#8f9fd8",
+          "#d6ddf1"
+        ]
+      },
+      "intaglio-tint": {
+        "role": "neutral",
+        "displayName": "Tolerance Tint",
+        "canonical": "#c3d2de",
+        "tonalRamp": [
+          "#1d2a33",
+          "#2f424f",
+          "#48606f",
+          "#6c8595",
+          "#93a9b8",
+          "#c3d2de",
+          "#dde7ef",
+          "#f0f5f9"
+        ]
+      },
+      "intaglio-wash": {
+        "role": "neutral",
+        "displayName": "Tolerance Wash",
+        "canonical": "#dbe4ec",
+        "tonalRamp": [
+          "#222c34",
+          "#374551",
+          "#52646f",
+          "#77899a",
+          "#a3b5c2",
+          "#dbe4ec",
+          "#e9f0f5",
+          "#f6f9fb"
+        ]
+      },
+      "verified": {
+        "role": "secondary",
+        "displayName": "Verification Green",
+        "canonical": "#1c6b4a",
+        "tonalRamp": [
+          "#082217",
+          "#0e3a28",
+          "#155239",
+          "#1c6b4a",
+          "#2c9a6c",
+          "#54c294",
+          "#93dcbb",
+          "#cfe2d8"
+        ]
+      },
+      "seal": {
+        "role": "tertiary",
+        "displayName": "Seal Red",
+        "canonical": "#c8321e",
+        "tonalRamp": [
+          "#2c0b06",
+          "#4d130b",
+          "#701b10",
+          "#8f2113",
+          "#c8321e",
+          "#e0644f",
+          "#ec9787",
+          "#f2d9d3"
+        ]
+      },
+      "seal-deep": {
+        "role": "tertiary",
+        "displayName": "Seal Deep",
+        "canonical": "#8f2113",
+        "tonalRamp": [
+          "#260905",
+          "#42110a",
+          "#63180e",
+          "#8f2113",
+          "#bd3021",
+          "#d96b5b",
+          "#eaa295",
+          "#f6dcd7"
+        ]
+      },
+      "seal-tint": {
+        "role": "tertiary",
+        "displayName": "Seal Tint",
+        "canonical": "#f2d9d3",
+        "tonalRamp": [
+          "#33201c",
+          "#54332d",
+          "#7a4c43",
+          "#a37064",
+          "#c99a8e",
+          "#e2bfb6",
+          "#f2d9d3",
+          "#faeeeb"
+        ]
+      },
+      "stock": {
+        "role": "neutral",
+        "displayName": "Certificate Stock",
+        "canonical": "#edf1f4",
+        "tonalRamp": [
+          "#22282c",
+          "#3a4349",
+          "#556067",
+          "#78848c",
+          "#a3aeb5",
+          "#ccd5db",
+          "#edf1f4",
+          "#f9fbfc"
+        ]
+      },
+      "stock-sunk": {
+        "role": "neutral",
+        "displayName": "Sunk Stock",
+        "canonical": "#e2e8ed",
+        "tonalRamp": [
+          "#1e242a",
+          "#343d45",
+          "#4e5a63",
+          "#727f89",
+          "#9ea9b3",
+          "#c6cfd7",
+          "#e2e8ed",
+          "#f4f7f9"
+        ]
+      },
+      "stock-raised": {
+        "role": "neutral",
+        "displayName": "Raised Stock",
+        "canonical": "#f7f9fb",
+        "tonalRamp": [
+          "#25292d",
+          "#3d444a",
+          "#586167",
+          "#7c868d",
+          "#a7b0b6",
+          "#d2d8dd",
+          "#f7f9fb",
+          "#ffffff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Cold Black",
+        "canonical": "#0c1114",
+        "tonalRamp": [
+          "#0c1114",
+          "#1a2328",
+          "#2b383f",
+          "#3f4d57",
+          "#67757f",
+          "#9aa6ae",
+          "#c8d0d5",
+          "#eef1f3"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "canonical": "#3f4d57",
+        "tonalRamp": [
+          "#131a1e",
+          "#222d33",
+          "#2f3d45",
+          "#3f4d57",
+          "#5b6d79",
+          "#8795a0",
+          "#b7c1c8",
+          "#e4e9ec"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Mist Ink",
+        "canonical": "#67757f",
+        "tonalRamp": [
+          "#181d21",
+          "#293238",
+          "#3d4950",
+          "#52606a",
+          "#67757f",
+          "#93a0a9",
+          "#bfc8cf",
+          "#e7ebee"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "totalizer": {
+        "displayName": "Totalizer",
+        "purpose": "The signature live reading at architectural scale. One per page, maximum. Monospaced so the odometer wheels align."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "The landing h1 only, widened to wdth 108. Yields scale to the totalizer."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings on Persuade surfaces and secondary page h1s, widened to wdth 106."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Register and sub-section headings. Drops to 1.05rem on Operate surfaces."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All prose. 68ch measure by default, 72ch in docs at 1.68 leading."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Monospaced supporting data: table cells, metadata, actions, code."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Measurement caption in monospaced uppercase. Sits beside or beneath what it measures, never above a heading."
+      }
+    },
+    "shadows": [
+      {
+        "name": "none",
+        "value": "none",
+        "purpose": "The system has no ambient shadows. Depth is drawn with hairline rules and tonal recession."
+      },
+      {
+        "name": "border-double",
+        "value": "inset 0 0 0 1px currentColor",
+        "purpose": "Secondary button hover: doubles the existing border rather than filling."
+      },
+      {
+        "name": "marker-left",
+        "value": "inset 2px 0 0 var(--intaglio)",
+        "purpose": "Docs sidebar hover: draws a 2px intaglio bar at the left edge."
+      },
+      {
+        "name": "marker-current",
+        "value": "inset 0 -2px 0 var(--seal)",
+        "purpose": "Current-position underline on demo steps and mobile product nav."
+      }
+    ],
+    "rules": [
+      {
+        "name": "rule",
+        "value": "1px solid var(--intaglio-tint)",
+        "purpose": "Row separator inside a register."
+      },
+      {
+        "name": "rule-strong",
+        "value": "1px solid var(--ink)",
+        "purpose": "Opens a register or section; frames inputs and panels."
+      },
+      {
+        "name": "rule-field",
+        "value": "1px solid rgba(255, 255, 255, 0.22)",
+        "purpose": "The same rule on the intaglio field, where it reads as embossing."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The only easing in the system. Fast out, long settle: a needle coming to rest."
+      },
+      {
+        "name": "state",
+        "value": "0.18s-0.2s",
+        "purpose": "Button and link state changes (background, color, box-shadow)."
+      },
+      {
+        "name": "instrument",
+        "value": "0.7s",
+        "purpose": "Odometer wheel travel and flow-diagram packet travel. Disabled under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      { "name": "hero-collapse", "value": "960px" },
+      { "name": "docs-stack", "value": "900px" },
+      { "name": "pilots-stack", "value": "850px" },
+      { "name": "compact", "value": "760px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The committed action on a light surface. Square, intaglio ground, monospaced.",
+      "html": "<button class=\"ds-btn-primary\">Read the quickstart</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--intaglio, #1a2e6e); color: #fff; font-family: var(--measure, ui-monospace, monospace); font-size: 0.875rem; letter-spacing: 0.02em; padding: 15px 24px; border: 0; border-radius: 0; cursor: pointer; transition: background 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary:hover { background: var(--intaglio-deep, #0f1c47); } .ds-btn-primary:focus-visible { outline: 2px solid var(--seal, #c8321e); outline-offset: 2px; }"
+    },
+    {
+      "name": "Primary Button on Intaglio Field",
+      "kind": "button",
+      "refersTo": "button-primary-on-field",
+      "description": "The same action inverted for the committed field. Never borrows seal red to gain contrast.",
+      "html": "<div class=\"ds-field\"><button class=\"ds-btn-primary-field\">Install the SDK</button></div>",
+      "css": ".ds-field { background: var(--intaglio, #1a2e6e); padding: 24px; } .ds-btn-primary-field { display: inline-flex; align-items: center; gap: 8px; background: var(--stock-raised, #f7f9fb); color: var(--intaglio, #1a2e6e); font-family: var(--measure, ui-monospace, monospace); font-size: 0.875rem; letter-spacing: 0.02em; padding: 15px 24px; border: 0; border-radius: 0; cursor: pointer; transition: background 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary-field:hover { background: #fff; } .ds-btn-primary-field:focus-visible { outline: 2px solid var(--seal, #c8321e); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outline-only alternative action; hover doubles the border rather than filling.",
+      "html": "<button class=\"ds-btn-secondary\">See a live receipt</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: inherit; font-family: var(--measure, ui-monospace, monospace); font-size: 0.875rem; letter-spacing: 0.02em; padding: 14px 23px; border: 1px solid currentColor; border-radius: 0; cursor: pointer; transition: box-shadow 0.2s cubic-bezier(0.16,1,0.3,1); } .ds-btn-secondary:hover { box-shadow: inset 0 0 0 1px currentColor; } .ds-btn-secondary:focus-visible { outline: 2px solid var(--seal, #c8321e); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Label above in monospaced uppercase caption style; square field with a strong cold-black rule.",
+      "html": "<label class=\"ds-field-label\">Price per request<input class=\"ds-input\" type=\"text\" placeholder=\"0.01\" /></label>",
+      "css": ".ds-field-label { display: grid; gap: 5px; font-family: var(--measure, ui-monospace, monospace); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3, #67757f); } .ds-input { font-family: var(--body, ui-sans-serif, system-ui, sans-serif); font-size: 1.02rem; letter-spacing: 0; text-transform: none; color: var(--ink, #0c1114); background: var(--stock-raised, #f7f9fb); border: 1px solid var(--ink, #0c1114); border-radius: 0; padding: 10px 12px; } .ds-input::placeholder { color: var(--ink-3, #67757f); } .ds-input:focus-visible { outline: 2px solid var(--seal, #c8321e); outline-offset: 2px; }"
+    },
+    {
+      "name": "Instrument Bar",
+      "kind": "nav",
+      "refersTo": "instrument-bar",
+      "description": "Persistent top chrome carrying network identity and the devnet warning. The warning is the only seal-red fill here.",
+      "html": "<div class=\"ds-instrument-bar\"><span>Network: Solana devnet</span><span class=\"ds-warn\">Devnet only — do not send mainnet assets</span><span class=\"ds-push\">Non-custodial</span></div>",
+      "css": ".ds-instrument-bar { display: flex; align-items: center; gap: 24px; padding: 7px 24px; background: var(--ink, #0c1114); color: var(--intaglio-tint, #c3d2de); font-family: var(--measure, ui-monospace, monospace); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; } .ds-instrument-bar > * { white-space: nowrap; } .ds-warn { color: #fff; background: var(--seal, #c8321e); padding: 2px 8px; } .ds-push { margin-left: auto; } @media (max-width: 760px) { .ds-instrument-bar { flex-wrap: wrap; gap: 8px 16px; } .ds-instrument-bar > * { white-space: normal; } .ds-push { margin-left: 0; flex-basis: 100%; } }"
+    },
+    {
+      "name": "Seal",
+      "kind": "chip",
+      "refersTo": "seal-verified",
+      "description": "The state stamp: wire-seal diamond plus monospaced uppercase in a 1px box. Verified, pending, failed.",
+      "html": "<span class=\"ds-seal\" data-state=\"finalized\">Finalized</span> <span class=\"ds-seal\" data-state=\"pending\">Pending</span> <span class=\"ds-seal\" data-state=\"failed\">Failed</span>",
+      "css": ".ds-seal { display: inline-flex; align-items: center; gap: 8px; font-family: var(--measure, ui-monospace, monospace); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--verified, #1c6b4a); border: 1px solid var(--verified, #1c6b4a); border-radius: 0; padding: 3px 9px; } .ds-seal::before { content: \"\"; width: 7px; height: 7px; background: var(--verified, #1c6b4a); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); } .ds-seal[data-state=\"pending\"] { color: var(--ink-3, #67757f); border-color: var(--intaglio-tint, #c3d2de); } .ds-seal[data-state=\"pending\"]::before { background: var(--ink-3, #67757f); } .ds-seal[data-state=\"failed\"] { color: var(--seal-deep, #8f2113); border-color: var(--seal, #c8321e); } .ds-seal[data-state=\"failed\"]::before { background: var(--seal, #c8321e); }"
+    },
+    {
+      "name": "Ruled Register",
+      "kind": "card",
+      "refersTo": null,
+      "description": "The structure that replaces cards everywhere: a strong opening rule, hairline row separators, no box and no background.",
+      "html": "<div class=\"ds-register\"><div><span class=\"ds-register-mark\">01</span><div><strong>Set a price</strong><p>The provider names a per-request amount in USDC.</p></div></div><div><span class=\"ds-register-mark\">02</span><div><strong>Protect the route</strong><p>Middleware returns HTTP 402 with the price.</p></div></div></div>",
+      "css": ".ds-register { border-top: 1px solid var(--ink, #0c1114); } .ds-register > div { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 8px 24px; align-items: baseline; padding: 24px 0; border-bottom: 1px solid var(--intaglio-tint, #c3d2de); } .ds-register-mark { font-family: var(--measure, ui-monospace, monospace); font-size: 0.875rem; color: var(--intaglio, #1a2e6e); } .ds-register strong { font-family: var(--display, ui-sans-serif, system-ui, sans-serif); font-size: 1.22rem; font-weight: 700; letter-spacing: -0.008em; } .ds-register p { margin: 4px 0 0; font-size: 0.875rem; color: var(--ink-2, #3f4d57); max-width: 68ch; } @media (max-width: 760px) { .ds-register > div { grid-template-columns: minmax(0, 1fr); gap: 8px; } }"
+    },
+    {
+      "name": "Live Totalizer",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The signature instrument: measured value on odometer wheels, its real plus-minus, a tolerance band and a traceable signature, all on one baseline.",
+      "html": "<div class=\"ds-totalizer\"><div class=\"ds-tot-head\"><span>Settled on devnet</span><span>devnet · usdc</span></div><div class=\"ds-tot-baseline\"><div class=\"ds-tot-value\">00412<span class=\"ds-tot-unit\">requests</span><span class=\"ds-tot-pm\">± 3<em>unconfirmed</em></span></div></div><div class=\"ds-tot-band\"></div><div class=\"ds-tot-meta\"><div><span>Test USDC settled</span><b>4.120000</b></div><div><span>Held by MeterKit</span><b>none, ever</b></div></div></div>",
+      "css": ".ds-totalizer { display: grid; gap: 16px; background: var(--intaglio, #1a2e6e); color: var(--stock-raised, #f7f9fb); padding: 24px; } .ds-tot-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.22); font-family: var(--measure, ui-monospace, monospace); font-size: 0.72rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--intaglio-tint, #c3d2de); } .ds-tot-value { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; font-family: var(--measure, ui-monospace, monospace); font-size: clamp(4.2rem, 12vw, 7rem); font-weight: 700; line-height: 0.94; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; font-feature-settings: \"zero\" 1; } .ds-tot-unit { font-size: 0.3em; letter-spacing: 0.08em; color: var(--intaglio-tint, #c3d2de); } .ds-tot-pm { display: inline-flex; align-items: baseline; gap: 8px; font-size: 0.26em; font-weight: 400; letter-spacing: 0; color: var(--intaglio-tint, #c3d2de); } .ds-tot-pm em { font-style: normal; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; } .ds-tot-band { position: relative; height: 6px; background: rgba(255,255,255,0.16); overflow: hidden; } .ds-tot-band::after { content: \"\"; position: absolute; inset: 0 auto 0 12%; width: 46%; background: var(--stock-raised, #f7f9fb); } .ds-tot-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; font-family: var(--measure, ui-monospace, monospace); font-size: 0.875rem; color: var(--intaglio-tint, #c3d2de); } .ds-tot-meta div { display: grid; gap: 3px; } .ds-tot-meta span { font-size: 0.72rem; letter-spacing: 0.13em; text-transform: uppercase; } .ds-tot-meta b { font-weight: 700; color: var(--stock-raised, #f7f9fb); }"
+    },
+    {
+      "name": "Error Banner",
+      "kind": "custom",
+      "refersTo": "error-banner",
+      "description": "Out of tolerance, in the same vocabulary as the totalizer's offline line: seal-tint ground, seal left rule, wire-seal diamond.",
+      "html": "<p class=\"ds-error\">Gateway unreachable. The counter shows nothing rather than a guess.</p>",
+      "css": ".ds-error { display: flex; align-items: baseline; gap: 12px; margin: 0; padding: 12px 16px; background: var(--seal-tint, #f2d9d3); color: var(--seal-deep, #8f2113); border-left: 1px solid var(--seal, #c8321e); font-family: var(--measure, ui-monospace, monospace); font-size: 0.875rem; } .ds-error::before { content: \"\"; flex: 0 0 7px; height: 7px; background: var(--seal, #c8321e); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }"
+    },
+    {
+      "name": "Tolerance Band",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The tinted strip that carries a measured range; filled from --band-from for --band-width.",
+      "html": "<div class=\"ds-band\" style=\"--band-from: 20%; --band-width: 34%\"></div>",
+      "css": ".ds-band { position: relative; height: 6px; background: var(--intaglio-wash, #dbe4ec); overflow: hidden; } .ds-band::after { content: \"\"; position: absolute; inset: 0 auto 0 var(--band-from, 20%); width: var(--band-width, 34%); background: var(--intaglio, #1a2e6e); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Certificate of Calibration",
+    "overview": "MeterKit is drawn as a security-printed measurement document, not as a software marketing page. A payment here is a reading taken by an instrument, and the surface's job is to hand the reader the certificate that lets them check the reading themselves. Everything follows from that: the ground is cold certificate stock under lab light, never cream and never a dark hero; the committed field is a deep intaglio blue that behaves like ink pressed into paper; and the page's structure is drawn in hairline rules rather than assembled from boxes.\n\nThe density is high and unapologetically numeric. Monospaced figures with tabular numerals and slashed zeroes carry every quantity, uncertainty is printed beside the value as a plus-minus rather than hidden, and states are stamped as seals rather than colored pills. The palette is small and almost entirely two-family — cold neutrals plus intaglio blue — so that the two chromatic exceptions (seal red for out-of-tolerance, verified green for confirmed finality) read as instrument states rather than decoration. The build explicitly refuses the category hero it was drawn against: no dark ground, no mesh gradient, no one-line snippet as the entire proposition, no logo wall.\n\nThree surfaces share one world but not one density. Persuade surfaces (landing, pilots) get the display/body pairing and the fluid clamp scale. Operate surfaces (dashboard, demo) collapse to a single family on a fixed rem scale, because product UI does not get typographic drama. Read surfaces (docs) widen the measure and loosen the leading, because comprehension outranks density there.",
+    "keyCharacteristics": [
+      "Zero radius everywhere; every corner in the system is square.",
+      "Hairline rules, not shadows, are the entire depth system.",
+      "Ruled registers replace cards on every surface.",
+      "Numbers are always monospaced, tabular, with slashed zero.",
+      "Uncertainty is printed, never rounded away.",
+      "Trilingual EN / ES / pt-BR: no composition may depend on English string lengths."
+    ],
+    "rules": [
+      {
+        "name": "The Reserved Seal Rule",
+        "body": "Seal red is never decoration and never a brand accent. As a fill it appears in exactly four places: the instrument bar's devnet warning, the totalizer's offline line, the error-banner marker, and the failed seal state. As a hairline marker it also carries the focus ring (2px outline) and the current-position underline on demo steps and mobile nav (inset 0 -2px 0). Nothing else. A subject that merely happens to be a payment does not earn red — the payment packet in the flow diagram was deliberately recolored off seal red because it encoded a subject, not an alarm.",
+        "section": "colors"
+      },
+      {
+        "name": "The Inversion Rule",
+        "body": "Primary actions use intaglio on light surfaces and invert to raised stock on the intaglio field. A primary action never borrows red to gain contrast on a dark ground.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two-State Rule",
+        "body": "Only two colors report state: verified green for confirmed finality, seal red for out of tolerance. Everything in between is neutral — mist ink for pending, intaglio for in-progress.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Eyebrow Rule",
+        "body": "A label set above a heading is banned outright, and the ban is on the rendered pattern, not the markup — folding the label inside an h2 does not satisfy it. Role and sequence markers survive two ways only: folded into the heading sentence (the demo's persona role), or as the left half of a register pair (the pilots command mark, the landing step register).",
+        "section": "typography"
+      },
+      {
+        "name": "The Instrument Reads the Number Rule",
+        "body": "Every quantity — amount, count, price, signature, serial, timestamp — is set in Martian Mono with tabular-nums and \"zero\" 1. Prose never carries a figure that a reader might want to compare against another figure.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two-Density Rule",
+        "body": "Persuade surfaces use the display/body pairing on the fluid clamp scale. Operate surfaces (dashboard, demo) use one family on a fixed rem scale; product UI does not get display/body pairing.",
+        "section": "typography"
+      },
+      {
+        "name": "The Shrinkable Column Rule",
+        "body": "Every page-level grid declares grid-template-columns: minmax(0, 1fr). An implicit auto column lets a long string push the whole document wider than the viewport; all six routes are verified at scrollWidth === clientWidth at 390px.",
+        "section": "layout"
+      },
+      {
+        "name": "The Three-Language Rule",
+        "body": "No composition may depend on English string lengths. Spanish and Portuguese run longest; register pairs, nav, and the instrument bar all wrap rather than clip.",
+        "section": "layout"
+      },
+      {
+        "name": "The Drawn-Depth Rule",
+        "body": "If a surface needs to feel separate, rule it or change its tone. Never float it.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No-Invented-Data Rule",
+        "body": "When the gateway is unreachable the totalizer prints its seal-red offline line and shows nothing. It never shows a guess, a last-known value, or a placeholder animation. The plus-minus carries real uncertainty from the same payload — it is never a decorative tolerance.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do replace any card impulse with a ruled register: a strong opening rule, hairline row separators, no box, no background.",
+      "Do set every figure in Martian Mono with tabular-nums and slashed zero.",
+      "Do invert the primary action to raised stock on the intaglio field, and keep it intaglio on stock.",
+      "Do print uncertainty as a plus-minus beside the value, sourced from the same payload as the value.",
+      "Do land every rule, register row, band, and axis on the same left and right terminus as its neighbors.",
+      "Do carry role and sequence markers as the left half of a register pair, or folded into the heading sentence.",
+      "Do declare grid-template-columns: minmax(0, 1fr) on every page-level grid, and verify scrollWidth === clientWidth at 390px.",
+      "Do compose for the longest of EN / ES / pt-BR; let chrome wrap rather than clip.",
+      "Do show nothing when data is unavailable, and say so in the same monospaced voice."
+    ],
+    "donts": [
+      "Don't set a label above a heading. The ban is on the rendered pattern; folding the label into the heading element does not satisfy it.",
+      "Don't spend seal red on anything that is not out-of-tolerance, the devnet warning, the focus ring, or the current-position marker. A subject is not an alarm.",
+      "Don't add a border radius. Nothing in this system is rounded.",
+      "Don't add a drop shadow, a glow, or a blur to create separation. Rule it or retone it.",
+      "Don't give Operate surfaces the display/body pairing or the fluid clamp scale.",
+      "Don't invent, interpolate, or animate a number the gateway did not return.",
+      "Don't use verified green as an accent; it is reserved for confirmed finality.",
+      "Don't reach for a dark-ground hero, a mesh gradient, a one-line snippet as the whole proposition, or a logo wall. These are the confirmed anti-references."
+    ]
+  }
+}

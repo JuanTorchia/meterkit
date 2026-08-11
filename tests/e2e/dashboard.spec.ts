@@ -31,9 +31,9 @@ test("receipt states stay accessible and recoverable", async ({ page }) => {
     }),
   );
   await page.goto("/dashboard");
-  await expect(page.getByText("… unknown", { exact: true })).toBeVisible();
-  await expect(page.getByText("✓ finalized", { exact: true })).toBeVisible();
-  const refresh = page.getByRole("button", { name: "Refresh ↻" });
+  await expect(page.getByText("unknown", { exact: true })).toBeVisible();
+  await expect(page.getByText("finalized", { exact: true })).toBeVisible();
+  const refresh = page.getByRole("button", { name: "Refresh" });
   await refresh.focus();
   await expect(refresh).toBeFocused();
   await refresh.press("Enter");
@@ -62,7 +62,7 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   expect(landingResponse?.headers()["x-content-type-options"]).toBe("nosniff");
   expect(landingResponse?.headers()["x-powered-by"]).toBeUndefined();
   await expect(
-    page.getByRole("heading", { name: /Turn an API call/ }),
+    page.getByRole("heading", { name: /Every request is metered/ }),
   ).toBeVisible();
   await expect(
     page.getByText("MeterKit never holds the funds", { exact: false }),
@@ -73,19 +73,19 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   });
   await page.getByRole("button", { name: "Español", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: /Convierte una llamada API/ }),
+    page.getByRole("heading", { name: /Cada request se mide/ }),
   ).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "es");
   await page
     .getByRole("button", { name: "Português (Brasil)", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: /Transforme uma chamada/ }),
+    page.getByRole("heading", { name: /Cada requisição é medida/ }),
   ).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: /Transforme uma chamada/ }),
+    page.getByRole("heading", { name: /Cada requisição é medida/ }),
   ).toBeVisible();
   await page.getByRole("button", { name: "English", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");

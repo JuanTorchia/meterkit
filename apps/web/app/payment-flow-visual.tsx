@@ -60,13 +60,16 @@ export function PaymentFlowVisual({ locale }: { locale: Locale }) {
     <div className="flowVisual" role="region" aria-label={text.devnet}>
       <div className="flowHeader">
         <span>
-          <i /> {text.devnet}
+          <i className="dot" /> {text.devnet}
         </span>
         <strong>0.01 USDC</strong>
       </div>
       <div className="flowStage">
         <div className="flowNode agentNode">
-          <span aria-hidden="true">◈</span>
+          <svg className="nodeIcon" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="4.25" />
+            <path d="M8 0v3.2M8 12.8V16M0 8h3.2M12.8 8H16" />
+          </svg>
           <small>{text.agent}</small>
           <strong>Scout-01</strong>
         </div>
@@ -76,7 +79,9 @@ export function PaymentFlowVisual({ locale }: { locale: Locale }) {
           <i className={`packet responsePacket step-${step}`} />
         </div>
         <div className="flowNode apiNode">
-          <span aria-hidden="true">⌁</span>
+          <svg className="nodeIcon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4.5 1.5h-3v13h3M11.5 1.5h3v13h-3M8 5.25v5.5" />
+          </svg>
           <small>{text.api}</small>
           <strong>Premium Weather</strong>
         </div>
@@ -101,7 +106,7 @@ export function PaymentFlowVisual({ locale }: { locale: Locale }) {
       </div>
       <div className="flowFooter">
         <span>
-          <b>M</b> {text.meterkit}
+          <b className="mark">MK</b> {text.meterkit}
         </span>
         <button onClick={() => setStep(1)} disabled={step > 0 && step < 4}>
           {step === 0 ? text.run : step < 4 ? text.running : text.again} →

@@ -21,9 +21,18 @@ export default async function DocumentationLayout({
   return (
     <div className="docsShell">
       <DocumentLanguage locale={lang} />
+      <div className="instrumentBar">
+        <span>Solana devnet</span>
+        <span>Non-custodial</span>
+        <span className="warn pushRight">
+          {lang === "es"
+            ? "Solo devnet — no envíes activos de mainnet"
+            : "Devnet only — do not send mainnet assets"}
+        </span>
+      </div>
       <header className="docsHeader">
         <Link href="/" className="brand">
-          <span className="mark">M</span>MeterKit
+          <span className="mark">MK</span> MeterKit
         </Link>
         <span className="docsVersion">v0.1 · devnet</span>
         <Link
