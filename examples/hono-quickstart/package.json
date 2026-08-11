@@ -17,7 +17,7 @@
     "@x402/core": "2.21.0",
     "@x402/hono": "2.21.0",
     "@x402/svm": "2.21.0",
-    "hono": "4.13.0"
+    "hono": "4.13.1"
   },
   "devDependencies": {
     "typescript": "^5.9.2",
