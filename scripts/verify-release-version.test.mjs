@@ -27,6 +27,21 @@ test("public release allowlist is deliberately small and version aligned", async
   );
 });
 
+test("OIDC release workflow stays tokenless and packs the full allowlist", async () => {
+  const workflow = await readFile(
+    join(root, ".github/workflows/release.yml"),
+    "utf8",
+  );
+  assert.doesNotMatch(workflow, /NODE_AUTH_TOKEN|registry-url/);
+  for (const packageName of [
+    "@usemeterkit/core",
+    "@usemeterkit/sdk",
+    "create-meterkit",
+  ]) {
+    assert.match(workflow, new RegExp(`--filter ${packageName} pack`));
+  }
+});
+
 test("rejects invalid tags and version drift", async () => {
   await assert.rejects(verifyReleaseVersion("latest", root), /vMAJOR/);
   const temporary = await mkdtemp(join(tmpdir(), "meterkit-release-"));
