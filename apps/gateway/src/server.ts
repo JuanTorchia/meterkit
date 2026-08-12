@@ -25,6 +25,7 @@ import {
 import { verifyEndpoint } from "@usemeterkit/pilot";
 import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
+import { buildIdentity } from "./build-identity.js";
 import { installHttpPolicy } from "./http-policy.js";
 import { toHostedAuthorization } from "./authorization.js";
 import {
@@ -74,6 +75,7 @@ app.get("/health", (_request, response) =>
     network: SOLANA_DEVNET,
     custody: false,
     persistence: productStore ? "postgres" : "memory",
+    ...buildIdentity(),
   }),
 );
 app.get("/v1/public/products", async (_request, response) => {

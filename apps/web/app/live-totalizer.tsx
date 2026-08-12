@@ -22,6 +22,11 @@ type Reading = {
   latest: PublicPayment | null;
 };
 
+// What the gateway says it is running. A counter can read zero because nothing
+// settled, or because the instrument behind it is stale; only this tells the
+// two apart from outside.
+type Health = { version?: string; commit?: string; startedAt?: string };
+
 const copy = {
   en: {
     heading: "Settled on devnet",
@@ -35,6 +40,8 @@ const copy = {
     offline:
       "Gateway unreachable. The counter shows nothing rather than a guess.",
     pending: "awaiting first settlement",
+    gateway: "Gateway build",
+    uptime: "up",
   },
   es: {
     heading: "Liquidado en devnet",
@@ -48,6 +55,8 @@ const copy = {
     offline:
       "Gateway inalcanzable. El contador no muestra nada en vez de una estimación.",
     pending: "esperando la primera liquidación",
+    gateway: "Build del gateway",
+    uptime: "activo hace",
   },
   "pt-BR": {
     heading: "Liquidado na devnet",
@@ -61,8 +70,19 @@ const copy = {
     offline:
       "Gateway inacessível. O contador não mostra nada em vez de uma estimativa.",
     pending: "aguardando a primeira liquidação",
+    gateway: "Build do gateway",
+    uptime: "ativo há",
   },
 } as const;
+
+/** Coarse on purpose: the question is "is this stale", not "how many seconds". */
+function sinceStarted(startedAt: string) {
+  const minutes = Math.floor((Date.now() - Date.parse(startedAt)) / 60_000);
+  if (!Number.isFinite(minutes) || minutes < 0) return "—";
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  return hours < 48 ? `${hours}h` : `${Math.floor(hours / 24)}d`;
+}
 
 function Wheels({ value, pad }: { value: number; pad: number }) {
   const digits = String(Math.max(0, Math.floor(value))).padStart(pad, "0");
@@ -93,6 +113,7 @@ export function LiveTotalizer({
 }) {
   const text = copy[locale];
   const [reading, setReading] = useState<Reading | null>(null);
+  const [health, setHealth] = useState<Health | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -100,10 +121,14 @@ export function LiveTotalizer({
 
     async function read() {
       try {
-        const response = await fetch(`${gateway}/v1/public/payments`, {
-          signal: controller.signal,
-        });
+        const [response, healthResponse] = await Promise.all([
+          fetch(`${gateway}/v1/public/payments`, { signal: controller.signal }),
+          fetch(`${gateway}/health`, { signal: controller.signal }),
+        ]);
         if (!response.ok) throw new Error("gateway_error");
+        setHealth(
+          healthResponse.ok ? ((await healthResponse.json()) as Health) : null,
+        );
         const payments: PublicPayment[] = await response.json();
         const settled = payments.filter((item) => item.status !== "failed");
         const finalized = settled.filter(
@@ -179,6 +204,20 @@ export function LiveTotalizer({
         <div>
           <span className="label">{text.custody}</span>
           <b>{text.none}</b>
+        </div>
+        <div>
+          <span className="label">{text.gateway}</span>
+          <b className="num">
+            {health?.version ?? "—"}
+            {health?.commit ? ` · ${health.commit} ` : " "}
+            {health?.startedAt ? (
+              // The space lives outside: leading whitespace inside an
+              // inline-flex box is dropped, which ran the commit into "up".
+              <span className="totalizerUptime">
+                {text.uptime} {sinceStarted(health.startedAt)}
+              </span>
+            ) : null}
+          </b>
         </div>
         <div>
           <span className="label">{text.latest}</span>

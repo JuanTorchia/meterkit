@@ -762,6 +762,15 @@ nav.workspaceNav,
   text-transform: uppercase;
 }
 
+/* Sized for the meta row, not for the numerals: .totalizerPm is set in em
+   against the totalizer's display size and vanishes at this scale. */
+.totalizerUptime {
+  font-size: var(--t-label);
+  letter-spacing: 0.08em;
+  color: var(--intaglio-tint);
+  font-weight: 400;
+}
+
 .totalizerTrace {
   font-family: var(--measure);
   color: var(--stock-raised);
