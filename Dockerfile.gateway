@@ -22,5 +22,11 @@ RUN apt-get update \
 WORKDIR /app
 COPY --from=build /runtime ./
 
+# Optional: when the platform supplies the built commit, /health reports it.
+# Absent, health still reports startedAt and version, which is enough to tell a
+# stale container from a current one.
+ARG SOURCE_COMMIT=""
+ENV SOURCE_COMMIT=$SOURCE_COMMIT
+
 USER node
 CMD ["node", "dist/server.js"]
