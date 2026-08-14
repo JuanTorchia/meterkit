@@ -36,9 +36,9 @@ const copy = {
     prerequisitesBody:
       "Node.js 22+, pnpm 11 and a test endpoint that returns an x402 challenge. Localhost is supported with an explicit development flag. No wallet is required for readiness.",
     offer: "ASSISTED PILOT OFFER",
-    offerTitle: "One paid endpoint, integrated and verified for USD 100.",
+    offerTitle: "MeterKit integrates and verifies your endpoint for USD 100.",
     offerBody:
-      "Includes one Express, Next.js, Hono or MCP endpoint on Solana devnet, a readiness review, one guided session of up to 45 minutes, settlement and replay evidence, and a closing report. You provide a non-sensitive test endpoint and about 60–90 minutes. Continued hosting is optional and priced separately only after the pilot.",
+      "You pay MeterKit USD 100 for the assisted integration service; participants are not paid or compensated to test it. The service includes one Express, Next.js, Hono or MCP endpoint on Solana devnet, a readiness review, one guided session of up to 45 minutes, settlement and replay evidence, and a closing report. You provide a non-sensitive test endpoint and about 60–90 minutes. Continued hosting is optional and priced separately only after the pilot.",
     offerBoundary:
       "MeterKit never requests wallet keys, mainnet funds, private endpoint URLs or permission to name you. Technical participation, private evidence retention, day-seven follow-up and public attribution are separate choices that you may deny or withdraw.",
     paths: "CHOOSE YOUR STARTING PATH",
@@ -128,9 +128,9 @@ const copy = {
     prerequisitesBody:
       "Node.js 22+, pnpm 11 y un endpoint de prueba que devuelva un desafío x402. Localhost funciona con una opción explícita de desarrollo. La preparación no requiere wallet.",
     offer: "OFERTA DE PILOTO ASISTIDO",
-    offerTitle: "Un endpoint pago, integrado y verificado por USD 100.",
+    offerTitle: "MeterKit integra y verifica tu endpoint por USD 100.",
     offerBody:
-      "Incluye un endpoint Express, Next.js, Hono o MCP en Solana devnet, revisión de preparación, una sesión guiada de hasta 45 minutos, evidencia de liquidación y replay, y reporte de cierre. Tú aportas un endpoint de prueba no sensible y aproximadamente 60–90 minutos. El hosting posterior es opcional y sólo se cotiza después del piloto.",
+      "Tú pagas USD 100 a MeterKit por el servicio de integración asistida; no pagamos ni compensamos a participantes por probarlo. El servicio incluye un endpoint Express, Next.js, Hono o MCP en Solana devnet, revisión de preparación, una sesión guiada de hasta 45 minutos, evidencia de liquidación y replay, y reporte de cierre. Tú aportas un endpoint de prueba no sensible y aproximadamente 60–90 minutos. El hosting posterior es opcional y sólo se cotiza después del piloto.",
     offerBoundary:
       "MeterKit nunca solicita claves de wallet, fondos mainnet, URLs privadas ni permiso para nombrarte. La participación técnica, retención privada, seguimiento al día siete y atribución pública son decisiones separadas que puedes negar o retirar.",
     paths: "ELIGE TU PUNTO DE PARTIDA",
@@ -221,9 +221,9 @@ const copy = {
     prerequisitesBody:
       "Node.js 22+, pnpm 11 e um endpoint de teste que retorne um desafio x402. Localhost funciona com uma opção explícita de desenvolvimento. A preparação não requer carteira.",
     offer: "OFERTA DE PILOTO ASSISTIDO",
-    offerTitle: "Um endpoint pago, integrado e verificado por USD 100.",
+    offerTitle: "A MeterKit integra e verifica seu endpoint por USD 100.",
     offerBody:
-      "Inclui um endpoint Express, Next.js, Hono ou MCP na Solana devnet, revisão de preparação, uma sessão guiada de até 45 minutos, evidência de liquidação e replay e relatório final. Você fornece um endpoint de teste não sensível e cerca de 60–90 minutos. A hospedagem posterior é opcional e só recebe preço depois do piloto.",
+      "Você paga USD 100 à MeterKit pelo serviço de integração assistida; participantes não recebem pagamento nem compensação para testá-lo. O serviço inclui um endpoint Express, Next.js, Hono ou MCP na Solana devnet, revisão de preparação, uma sessão guiada de até 45 minutos, evidência de liquidação e replay e relatório final. Você fornece um endpoint de teste não sensível e cerca de 60–90 minutos. A hospedagem posterior é opcional e só recebe preço depois do piloto.",
     offerBoundary:
       "MeterKit nunca solicita chaves da carteira, fundos mainnet, URLs privadas ou permissão para identificar você. Participação técnica, retenção privada, acompanhamento no dia sete e atribuição pública são escolhas separadas que podem ser negadas ou retiradas.",
     paths: "ESCOLHA SEU PONTO DE PARTIDA",

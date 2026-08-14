@@ -10,7 +10,9 @@ do not include email, IP, wallet, full signature, private key, token or business
 data. Friction categories are install, configuration, challenge, funding,
 settlement, receipt, replay and documentation.
 
-The disclosed assisted offer is USD 100 for one supported endpoint, one
+The disclosed assisted service costs USD 100, paid by the customer to MeterKit;
+MeterKit does not pay or compensate participants. It includes one supported
+endpoint, one
 readiness review, up to 45 minutes of guided integration, the settlement/replay
 evidence pass and a closing report. Expected participant time is 60–90 minutes.
 Self-service remains available; neither path authorizes custody, mainnet funds or

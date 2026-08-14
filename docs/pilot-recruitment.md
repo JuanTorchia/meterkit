@@ -1,19 +1,20 @@
 # Seven-day pilot recruitment campaign
 
 Goal: sell and complete the first disclosed **USD 100 assisted devnet
-integration** without pretending that automated health checks, interest or an
-unpaid start are customers.
+integration, paid by the customer to MeterKit**. MeterKit does not pay or
+compensate participants. Automated health checks, interest and unpaid starts are
+not customers.
 
 ## Funnel
 
-| Stage                 | Target | Evidence                                        |
-| --------------------- | -----: | ----------------------------------------------- |
-| Qualified contacts    |     15 | dated private outreach register                 |
-| Positive replies      |      5 | consented conversation record                   |
-| Pilot calls           |      3 | scheduled session                               |
-| Accepted USD 100 offer|      1 | explicit acceptance of disclosed scope/price    |
-| Payment received      |      1 | private commercial payment evidence             |
-| Completed integration |      1 | consented devnet settlement and replay evidence |
+| Stage                  | Target | Evidence                                        |
+| ---------------------- | -----: | ----------------------------------------------- |
+| Qualified contacts     |     15 | dated private outreach register                 |
+| Positive replies       |      5 | consented conversation record                   |
+| Pilot calls            |      3 | scheduled session                               |
+| Accepted USD 100 offer |      1 | explicit acceptance of disclosed scope/price    |
+| Payment received       |      1 | private commercial payment evidence             |
+| Completed integration  |      1 | consented devnet settlement and replay evidence |
 
 ## Where to recruit
 
@@ -34,7 +35,8 @@ projects. No bots, scraped emails or mass direct messages.
 
 > I built MeterKit, non-custodial TypeScript middleware that lets an API or MCP
 > tool charge test USDC per request on Solana using x402. I am offering one
-> assisted pilot for USD 100: we integrate and verify one endpoint you control,
+> USD 100 assisted integration service, paid by the customer to MeterKit: we
+> integrate and verify one endpoint you control,
 > including a readiness review, up to 45 minutes together, settlement/protected
 > response/replay evidence, and a closing report. You provide a non-sensitive
 > test endpoint and about 60–90 minutes. It is devnet-only and I never request
@@ -45,7 +47,8 @@ projects. No bots, scraped emails or mass direct messages.
 
 > Construí MeterKit, middleware TypeScript no custodial para que una API o
 > herramienta MCP cobre USDC de prueba por solicitud en Solana usando x402.
-> Ofrezco un piloto asistido por USD 100: integramos y verificamos un endpoint
+> Ofrezco un servicio de integración asistida por USD 100, pagados por el
+> cliente a MeterKit: integramos y verificamos un endpoint
 > bajo tu control, con revisión previa, hasta 45 minutos juntos, evidencia de
 > settlement/respuesta protegida/replay y reporte de cierre. Tú aportas un
 > endpoint no sensible y unos 60–90 minutos. Es sólo devnet y nunca solicito

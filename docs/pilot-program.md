@@ -5,7 +5,9 @@ completes the acceptance and evidence requirements below.**
 
 ## Disclosed assisted offer
 
-The initial paid offer is **USD 100 for one assisted devnet integration**. It
+The initial service is **USD 100 paid by the customer to MeterKit for one
+assisted devnet integration**. MeterKit does not pay or compensate participants
+to test it. It
 includes one Express, Next.js, Hono or MCP endpoint, readiness review, one guided
 session of up to 45 minutes, settlement/protected-response/replay evidence and a
 closing report. The participant supplies a non-sensitive endpoint it controls
@@ -165,8 +167,9 @@ bundle or independently validates the correlated receipt.
 ## Outreach — English
 
 > I built MeterKit, Apache-2.0 TypeScript middleware for charging devnet USDC
-> from an API or MCP tool using x402. I am offering one assisted pilot for USD
-> 100: one endpoint you control, a readiness review, up to 45 minutes together,
+> from an API or MCP tool using x402. I offer a USD 100 assisted integration
+> service, paid by the customer to MeterKit: one endpoint you control, a
+> readiness review, up to 45 minutes together,
 > settlement/protected-response/replay evidence and a closing report. You
 > provide a non-sensitive test endpoint and about 60–90 minutes. It uses only
 > test assets and never requires wallet keys, private URLs or public
@@ -175,8 +178,9 @@ bundle or independently validates the correlated receipt.
 ## Outreach — Español
 
 > Construí MeterKit, middleware TypeScript Apache-2.0 para cobrar USDC de prueba
-> desde una API o herramienta MCP mediante x402. Ofrezco un piloto asistido por
-> USD 100: un endpoint bajo tu control, revisión previa, hasta 45 minutos juntos,
+> desde una API o herramienta MCP mediante x402. Ofrezco un servicio de
+> integración asistida por USD 100, pagados por el cliente a MeterKit: un
+> endpoint bajo tu control, revisión previa, hasta 45 minutos juntos,
 > evidencia de settlement/respuesta protegida/replay y reporte de cierre. Tú
 > aportas un endpoint no sensible y unos 60–90 minutos. El piloto sólo usa
 > activos de prueba y nunca requiere compartir claves ni URLs privadas. El
