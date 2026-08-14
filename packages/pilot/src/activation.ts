@@ -114,3 +114,11 @@ export function createDeletionReceipt(
     deletionScope: "local-activation-report" as const,
   };
 }
+
+export function toLegacyActivationEvidence(raw: ActivationReport) {
+  return {
+    schemaVersion: 1 as const,
+    classification: "legacy_unverified" as const,
+    report: activationReportSchema.parse(raw),
+  };
+}

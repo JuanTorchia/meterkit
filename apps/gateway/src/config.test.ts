@@ -19,6 +19,23 @@ describe("hosted gateway configuration", () => {
       "https://api.demo.meterkit.dev/v1/weather/premium",
     );
     expect(config.product.payTo).toBe(merchant);
+    expect(config.pilot).toEqual({
+      maxActiveEngagementsPerOwner: 10,
+      evidenceRetentionDays: 365,
+    });
+    expect(config.export).toEqual({ maxRangeDays: 90, maxRecords: 10_000 });
+  });
+
+  it("bounds pilot retention and settlement export work", () => {
+    expect(() =>
+      loadGatewayConfig({ PILOT_EVIDENCE_RETENTION_DAYS: "forever" }),
+    ).toThrow(/PILOT_EVIDENCE_RETENTION_DAYS/);
+    expect(() =>
+      loadGatewayConfig({ SETTLEMENT_EXPORT_MAX_RANGE_DAYS: "91" }),
+    ).toThrow(/SETTLEMENT_EXPORT_MAX_RANGE_DAYS/);
+    expect(() =>
+      loadGatewayConfig({ SETTLEMENT_EXPORT_MAX_RECORDS: "10001" }),
+    ).toThrow(/SETTLEMENT_EXPORT_MAX_RECORDS/);
   });
 
   it("fails closed for mainnet, unsafe public HTTP and invalid ports", () => {

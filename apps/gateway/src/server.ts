@@ -22,7 +22,7 @@ import {
   fetchAllowedUpstream,
   parseUpstreamAllowlist,
 } from "./upstream.js";
-import { verifyEndpoint } from "@usemeterkit/pilot";
+import { pilotEngagementFileSchema, verifyEndpoint } from "@usemeterkit/pilot";
 import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
 import { buildIdentity } from "./build-identity.js";
@@ -343,6 +343,71 @@ app.get("/v1/public/payments", async (_request, response) => {
       : await paymentStore.list();
   response.set("Cache-Control", "no-store");
   response.json(publicPayments(payments));
+});
+app.post("/v1/pilots/engagements", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  const parsed = pilotEngagementFileSchema.safeParse(request.body?.engagement);
+  if (!parsed.success) {
+    response.status(422).json({
+      error: "invalid_pilot_engagement",
+      issues: parsed.error.issues,
+    });
+    return;
+  }
+  if (parsed.data.commercialPayments.length) {
+    response
+      .status(422)
+      .json({ error: "private_commercial_evidence_rejected" });
+    return;
+  }
+  try {
+    await productStore.savePilotEngagement({
+      ...parsed.data.engagement,
+      ownerWallet: owner,
+    });
+    for (const intervention of parsed.data.interventions) {
+      await productStore.saveSupportIntervention(intervention);
+    }
+    for (const event of parsed.data.events) {
+      await productStore.appendActivationEvent(event);
+    }
+    for (const consent of parsed.data.consents) {
+      await productStore.saveConsentGrant(consent);
+    }
+    for (const observation of parsed.data.retentionObservations) {
+      await productStore.saveRetentionObservation(observation);
+    }
+    for (const willingness of parsed.data.willingnessToPay) {
+      await productStore.saveWillingnessToPay(willingness);
+    }
+    response.status(202).set("Cache-Control", "no-store").json({
+      engagementId: parsed.data.engagement.engagementId,
+      status: "recorded",
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === "PILOT_PRODUCT_OWNER_MISMATCH"
+    ) {
+      response.status(404).json({ error: "pilot_product_not_found" });
+      return;
+    }
+    throw error;
+  }
+});
+app.get("/v1/pilots/summary", async (request, response) => {
+  const owner = await sessionOwner(request.header("authorization"));
+  if (!owner || !productStore) {
+    response.status(401).json({ error: "wallet_session_required" });
+    return;
+  }
+  response
+    .set("Cache-Control", "no-store")
+    .json(await productStore.getPilotConversionSummary(owner));
 });
 // Readiness verification, hosted. The same check the pilot CLI runs, without
 // asking a provider to clone the repository first.

@@ -18,14 +18,29 @@ suite("PostgresStore integration", () => {
     store = PostgresStore.connect(url!);
     await store.migrate();
     await store.pool.query(
-      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances, release_manifests, benchmark_runs, hosted_metadata_requests, users CASCADE",
+      "TRUNCATE pilot_engagements, funding_awards, payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances, release_manifests, benchmark_runs, hosted_metadata_requests, users CASCADE",
     );
   });
   afterAll(async () => {
     await store.pool.query(
-      "TRUNCATE payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances, release_manifests, benchmark_runs, hosted_metadata_requests, users CASCADE",
+      "TRUNCATE pilot_engagements, funding_awards, payments, products, wallet_sessions, wallet_challenges, idempotency_keys, agent_allowances, release_manifests, benchmark_runs, hosted_metadata_requests, users CASCADE",
     );
     await store.close();
+  });
+
+  it("applies the paid-pilot migration idempotently", async () => {
+    await store.migrate();
+    const result = await store.pool.query<{ table_name: string }>(
+      `SELECT table_name FROM information_schema.tables
+       WHERE table_schema='public' AND table_name = ANY($1::text[])
+       ORDER BY table_name`,
+      [["pilot_engagements", "pilot_activation_events", "pilot_consents"]],
+    );
+    expect(result.rows.map((row) => row.table_name)).toEqual([
+      "pilot_activation_events",
+      "pilot_consents",
+      "pilot_engagements",
+    ]);
   });
 
   it("persists products and atomically rejects payment replay", async () => {

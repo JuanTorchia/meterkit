@@ -12,7 +12,7 @@ const commands = {
   released:
     "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.2.0 express",
   generated:
-    "git clone https://github.com/JuanTorchia/meterkit.git\ncd meterkit\npnpm install --frozen-lockfile\npnpm create:meterkit ../meterkit-pilot --surface express --package-manager pnpm --yes",
+    "npm create meterkit@0.2.0 -- meterkit-pilot --surface express --package-manager pnpm --yes",
   install:
     "git clone https://github.com/JuanTorchia/meterkit.git\ncd meterkit\npnpm install --frozen-lockfile",
   configure: "pnpm pilot:init -- https://your-api.test/premium",
@@ -35,14 +35,21 @@ const copy = {
     prerequisites: "Prerequisites",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 and a test endpoint that returns an x402 challenge. Localhost is supported with an explicit development flag. No wallet is required for readiness.",
+    offer: "ASSISTED PILOT OFFER",
+    offerTitle: "One paid endpoint, integrated and verified for USD 100.",
+    offerBody:
+      "Includes one Express, Next.js, Hono or MCP endpoint on Solana devnet, a readiness review, one guided session of up to 45 minutes, settlement and replay evidence, and a closing report. You provide a non-sensitive test endpoint and about 60–90 minutes. Continued hosting is optional and priced separately only after the pilot.",
+    offerBoundary:
+      "MeterKit never requests wallet keys, mainnet funds, private endpoint URLs or permission to name you. Technical participation, private evidence retention, day-seven follow-up and public attribution are separate choices that you may deny or withdraw.",
     paths: "CHOOSE YOUR STARTING PATH",
     pathsTitle: "Use the public SDK or generate a reviewable project.",
     pathsBody:
-      "The SDK is publicly released. The initializer candidate is not published on npm; its repository path is shown explicitly and does not count as a registry release.",
+      "The SDK and create-meterkit initializer are public provenance-backed 0.2.0 releases. Both paths remain devnet-only and generate no wallet keys.",
     released: "A · RELEASED SDK",
     releasedTitle: "Add the immutable public 0.2.0 package.",
     generated: "B · GENERATED PROJECT",
-    generatedTitle: "Generate from the checked-out candidate source.",
+    generatedTitle:
+      "Generate a reviewable project from the public initializer.",
     readiness: "PHASE A · READINESS",
     readinessTitle: "Check the policy before moving funds.",
     readinessBody:
@@ -61,7 +68,7 @@ const copy = {
     checks: "What readiness checks",
     items: [
       "HTTP 402 response",
-      "x402 v2 challenge",
+      "x402 protocol version",
       "Solana network",
       "USDC mint",
       "Maximum amount",
@@ -120,14 +127,21 @@ const copy = {
     prerequisites: "Requisitos",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 y un endpoint de prueba que devuelva un desafío x402. Localhost funciona con una opción explícita de desarrollo. La preparación no requiere wallet.",
+    offer: "OFERTA DE PILOTO ASISTIDO",
+    offerTitle: "Un endpoint pago, integrado y verificado por USD 100.",
+    offerBody:
+      "Incluye un endpoint Express, Next.js, Hono o MCP en Solana devnet, revisión de preparación, una sesión guiada de hasta 45 minutos, evidencia de liquidación y replay, y reporte de cierre. Tú aportas un endpoint de prueba no sensible y aproximadamente 60–90 minutos. El hosting posterior es opcional y sólo se cotiza después del piloto.",
+    offerBoundary:
+      "MeterKit nunca solicita claves de wallet, fondos mainnet, URLs privadas ni permiso para nombrarte. La participación técnica, retención privada, seguimiento al día siete y atribución pública son decisiones separadas que puedes negar o retirar.",
     paths: "ELIGE TU PUNTO DE PARTIDA",
     pathsTitle: "Usa el SDK público o genera un proyecto revisable.",
     pathsBody:
-      "El SDK está publicado. El inicializador candidato todavía no está publicado en npm; se muestra explícitamente la ruta desde el repositorio y no cuenta como release del registry.",
+      "El SDK y el inicializador create-meterkit son releases públicas 0.2.0 con provenance. Ambos recorridos son sólo devnet y no generan claves de wallet.",
     released: "A · SDK PUBLICADO",
     releasedTitle: "Agrega el paquete público e inmutable 0.2.0.",
     generated: "B · PROYECTO GENERADO",
-    generatedTitle: "Genera desde el código candidato descargado.",
+    generatedTitle:
+      "Genera un proyecto revisable con el inicializador público.",
     readiness: "FASE A · PREPARACIÓN",
     readinessTitle: "Verifica la política antes de mover fondos.",
     readinessBody:
@@ -146,7 +160,7 @@ const copy = {
     checks: "Qué verifica la preparación",
     items: [
       "Respuesta HTTP 402",
-      "Desafío x402 v2",
+      "Versión de protocolo x402",
       "Red Solana",
       "Mint USDC",
       "Monto máximo",
@@ -206,14 +220,20 @@ const copy = {
     prerequisites: "Pré-requisitos",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 e um endpoint de teste que retorne um desafio x402. Localhost funciona com uma opção explícita de desenvolvimento. A preparação não requer carteira.",
+    offer: "OFERTA DE PILOTO ASSISTIDO",
+    offerTitle: "Um endpoint pago, integrado e verificado por USD 100.",
+    offerBody:
+      "Inclui um endpoint Express, Next.js, Hono ou MCP na Solana devnet, revisão de preparação, uma sessão guiada de até 45 minutos, evidência de liquidação e replay e relatório final. Você fornece um endpoint de teste não sensível e cerca de 60–90 minutos. A hospedagem posterior é opcional e só recebe preço depois do piloto.",
+    offerBoundary:
+      "MeterKit nunca solicita chaves da carteira, fundos mainnet, URLs privadas ou permissão para identificar você. Participação técnica, retenção privada, acompanhamento no dia sete e atribuição pública são escolhas separadas que podem ser negadas ou retiradas.",
     paths: "ESCOLHA SEU PONTO DE PARTIDA",
     pathsTitle: "Use o SDK público ou gere um projeto revisável.",
     pathsBody:
-      "O SDK está publicado. O inicializador candidato ainda não está publicado no npm; o caminho pelo repositório é mostrado explicitamente e não conta como release do registry.",
+      "O SDK e o inicializador create-meterkit são releases públicas 0.2.0 com provenance. Ambos os caminhos são apenas devnet e não geram chaves de carteira.",
     released: "A · SDK PUBLICADO",
     releasedTitle: "Adicione o pacote público e imutável 0.2.0.",
     generated: "B · PROJETO GERADO",
-    generatedTitle: "Gere a partir do código candidato baixado.",
+    generatedTitle: "Gere um projeto revisável com o inicializador público.",
     readiness: "FASE A · PREPARAÇÃO",
     readinessTitle: "Confira a política antes de movimentar fundos.",
     readinessBody:
@@ -232,7 +252,7 @@ const copy = {
     checks: "O que a preparação verifica",
     items: [
       "Resposta HTTP 402",
-      "Desafio x402 v2",
+      "Versão de protocolo x402",
       "Rede Solana",
       "Mint USDC",
       "Valor máximo",
@@ -354,6 +374,15 @@ export default function PilotsPage() {
       >
         <h2 id="prerequisites-title">{text.prerequisites}</h2>
         <p>{text.prerequisitesBody}</p>
+      </section>
+
+      <section className={styles.offer} aria-labelledby="pilot-offer-title">
+        <span>{text.offer}</span>
+        <div>
+          <h2 id="pilot-offer-title">{text.offerTitle}</h2>
+          <p>{text.offerBody}</p>
+          <p className={styles.offerBoundary}>{text.offerBoundary}</p>
+        </div>
       </section>
 
       <section

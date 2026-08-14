@@ -1,9 +1,14 @@
 import { Buffer } from "node:buffer";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
+import {
+  isSupportedX402Version,
+  SUPPORTED_X402_PROTOCOL_VERSIONS,
+} from "@usemeterkit/core";
 
 export { validateSettlementEvidence } from "./evidence.js";
 export * from "./activation.js";
+export * from "./activation-v2.js";
 
 export const SOLANA_DEVNET_NETWORK = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 export const SOLANA_DEVNET_USDC_MINT =
@@ -94,16 +99,23 @@ export async function verifyEndpoint(
     if (!candidates.length)
       throw new Error("challenge has no accepted payment method");
     requirement = selectRequirement(candidates, policy);
+    const versionSupported = isSupportedX402Version(challenge.x402Version);
     checks.push({
-      name: "x402 challenge decodes",
-      ok: challenge.x402Version === 2,
+      name: "x402 protocol version is supported",
+      ok: versionSupported,
       evidence: {
         x402Version: challenge.x402Version,
+        supported: [...SUPPORTED_X402_PROTOCOL_VERSIONS],
         scheme: requirement.scheme,
       },
-      ...(challenge.x402Version === 2
+      // A revision this build cannot settle is a boundary of the verifier, not
+      // a malformed endpoint: the challenge already decoded to get here. Name
+      // both sides so the provider does not hunt for a bug in a valid response.
+      ...(versionSupported
         ? {}
-        : { error: "expected x402Version 2" }),
+        : {
+            error: `endpoint announced x402Version ${String(challenge.x402Version)}; this MeterKit build settles ${SUPPORTED_X402_PROTOCOL_VERSIONS.join(", ")}`,
+          }),
     });
     checks.push({
       name: "payment scheme is exact",
