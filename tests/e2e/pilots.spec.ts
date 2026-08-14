@@ -6,8 +6,11 @@ test("assisted pilot discloses price, effort, deliverables and consent boundarie
   await page.goto("/pilots");
   await expect(
     page.getByRole("heading", {
-      name: "One paid endpoint, integrated and verified for USD 100.",
+      name: "MeterKit integrates and verifies your endpoint for USD 100.",
     }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/You pay MeterKit USD 100.*participants are not paid/),
   ).toBeVisible();
   await expect(page.getByText(/session of up to 45 minutes/)).toBeVisible();
   await expect(page.getByText(/about 60–90 minutes/)).toBeVisible();
@@ -26,8 +29,11 @@ test("pilot offer remains usable in Spanish on mobile", async ({ page }) => {
   await page.getByRole("button", { name: "Español" }).click();
   await expect(
     page.getByRole("heading", {
-      name: "Un endpoint pago, integrado y verificado por USD 100.",
+      name: "MeterKit integra y verifica tu endpoint por USD 100.",
     }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Tú pagas USD 100 a MeterKit.*no pagamos ni compensamos/),
   ).toBeVisible();
   await expect(page.getByText(/decisiones separadas/)).toBeVisible();
   expect(
