@@ -1111,13 +1111,14 @@ export class PostgresStore
   }
 
   async savePilotEngagement(engagement: OwnedPilotEngagement) {
-    const value = pilotEngagementSchema.parse(engagement);
-    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(engagement.ownerWallet)) {
+    const { ownerWallet, ...rawEngagement } = engagement;
+    const value = pilotEngagementSchema.parse(rawEngagement);
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ownerWallet)) {
       throw new Error("PILOT_OWNER_INVALID");
     }
     if (value.productUid) {
       const product = await this.getByUid(value.productUid);
-      if (!product || product.payTo !== engagement.ownerWallet) {
+      if (!product || product.payTo !== ownerWallet) {
         throw new Error("PILOT_PRODUCT_OWNER_MISMATCH");
       }
     }
@@ -1138,7 +1139,7 @@ export class PostgresStore
          AND pilot_engagements.offer_version=EXCLUDED.offer_version`,
       [
         value.engagementId,
-        engagement.ownerWallet,
+        ownerWallet,
         value.productUid ?? null,
         value.schemaVersion,
         value.participantClass,
