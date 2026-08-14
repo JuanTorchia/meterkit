@@ -27,6 +27,40 @@
   margin: 0;
 }
 
+.offer {
+  margin: 0 var(--gutter) var(--s-8);
+  padding: var(--s-5) 0;
+  border-top: var(--rule-strong);
+  border-bottom: var(--rule-strong);
+  display: grid;
+  grid-template-columns: minmax(0, 22ch) minmax(0, 1fr);
+  gap: var(--s-4) var(--s-6);
+}
+
+.offer > span {
+  font-family: var(--measure);
+  font-size: var(--t-label);
+  letter-spacing: 0.08em;
+  color: var(--seal-deep);
+}
+
+.offer h2 {
+  font-size: var(--t-2);
+  margin-bottom: var(--s-3);
+}
+
+.offer p {
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.offerBoundary {
+  margin-top: var(--s-3) !important;
+  padding-top: var(--s-3);
+  border-top: var(--rule);
+  font-size: var(--t-small);
+}
+
 .phaseIntro {
   padding: 0 var(--gutter) var(--s-5);
   display: grid;
@@ -223,6 +257,7 @@
 
 @media (max-width: 850px) {
   .prerequisites,
+  .offer,
   .completionList,
   .trustPanel,
   .trustLinks {

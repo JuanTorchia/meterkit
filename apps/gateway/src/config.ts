@@ -8,6 +8,14 @@ export type GatewayConfig = {
   port: number;
   publicGatewayUrl: string;
   trustProxyHops: number;
+  pilot: {
+    maxActiveEngagementsPerOwner: number;
+    evidenceRetentionDays: number;
+  };
+  export: {
+    maxRangeDays: number;
+    maxRecords: number;
+  };
   product: Product;
 };
 
@@ -17,6 +25,21 @@ function parsePort(value: string): number {
     throw new Error("PORT must be an integer between 1 and 65535");
   }
   return port;
+}
+
+function parseBoundedInteger(
+  name: string,
+  value: string,
+  minimum: number,
+  maximum: number,
+) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) {
+    throw new Error(
+      `${name} must be an integer between ${minimum} and ${maximum}`,
+    );
+  }
+  return parsed;
 }
 
 function parsePublicUrl(value: string): string {
@@ -59,6 +82,34 @@ export function loadGatewayConfig(
     port,
     publicGatewayUrl,
     trustProxyHops,
+    pilot: {
+      maxActiveEngagementsPerOwner: parseBoundedInteger(
+        "PILOT_MAX_ACTIVE_PER_OWNER",
+        env.PILOT_MAX_ACTIVE_PER_OWNER ?? "10",
+        1,
+        100,
+      ),
+      evidenceRetentionDays: parseBoundedInteger(
+        "PILOT_EVIDENCE_RETENTION_DAYS",
+        env.PILOT_EVIDENCE_RETENTION_DAYS ?? "365",
+        7,
+        730,
+      ),
+    },
+    export: {
+      maxRangeDays: parseBoundedInteger(
+        "SETTLEMENT_EXPORT_MAX_RANGE_DAYS",
+        env.SETTLEMENT_EXPORT_MAX_RANGE_DAYS ?? "90",
+        1,
+        90,
+      ),
+      maxRecords: parseBoundedInteger(
+        "SETTLEMENT_EXPORT_MAX_RECORDS",
+        env.SETTLEMENT_EXPORT_MAX_RECORDS ?? "10000",
+        1,
+        10_000,
+      ),
+    },
     product: productSchema.parse({
       id: "premium-weather",
       name: "Premium Weather API",

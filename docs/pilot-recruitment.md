@@ -1,17 +1,19 @@
 # Seven-day pilot recruitment campaign
 
-Goal: obtain three completed external devnet integrations without pretending that
-automated health checks are users.
+Goal: sell and complete the first disclosed **USD 100 assisted devnet
+integration** without pretending that automated health checks, interest or an
+unpaid start are customers.
 
 ## Funnel
 
 | Stage                 | Target | Evidence                                        |
 | --------------------- | -----: | ----------------------------------------------- |
-| Public post views     |    200 | platform analytics or screenshot                |
-| Repository visits     |     30 | GitHub traffic snapshot                         |
-| Readiness checks      |     10 | voluntary pasted result or support conversation |
-| Started integrations  |      5 | GitHub pilot issue marked “started”             |
-| Completed settlements |      3 | devnet Explorer URL and pilot form              |
+| Qualified contacts    |     15 | dated private outreach register                 |
+| Positive replies      |      5 | consented conversation record                   |
+| Pilot calls           |      3 | scheduled session                               |
+| Accepted USD 100 offer|      1 | explicit acceptance of disclosed scope/price    |
+| Payment received      |      1 | private commercial payment evidence             |
+| Completed integration |      1 | consented devnet settlement and replay evidence |
 
 ## Where to recruit
 
@@ -30,35 +32,37 @@ projects. No bots, scraped emails or mass direct messages.
 
 ## One public post — English
 
-> I built a non-custodial TypeScript middleware that lets an API or MCP tool
-> charge test USDC per request on Solana using x402. I need three developers to
-> test one endpoint on devnet. The public readiness check takes about two minutes;
-> the complete test takes 20–30 minutes, uses faucet assets only, and never shares
-> wallet keys. In return I will help with the integration and credit the tester
-> if desired. Repository: https://github.com/JuanTorchia/meterkit — Quickstart:
-> https://github.com/JuanTorchia/meterkit/blob/main/docs/pilot-quickstart.md
+> I built MeterKit, non-custodial TypeScript middleware that lets an API or MCP
+> tool charge test USDC per request on Solana using x402. I am offering one
+> assisted pilot for USD 100: we integrate and verify one endpoint you control,
+> including a readiness review, up to 45 minutes together, settlement/protected
+> response/replay evidence, and a closing report. You provide a non-sensitive
+> test endpoint and about 60–90 minutes. It is devnet-only and I never request
+> wallet keys, mainnet funds, private URLs or public attribution. Details:
+> https://meterkit.juanchi.dev/pilots
 
 ## One public post — Spanish
 
-> Construí un middleware TypeScript no custodial para que una API o herramienta
-> MCP cobre USDC de prueba por solicitud en Solana usando x402. Busco tres
-> desarrolladores para probar un endpoint en devnet. El chequeo público tarda
-> unos dos minutos; la prueba completa, entre 20 y 30 minutos, usa solamente
-> activos de faucet y nunca requiere compartir claves. Ayudo personalmente con
-> la integración y doy crédito al tester si lo desea. Repositorio:
-> https://github.com/JuanTorchia/meterkit — Guía:
-> https://github.com/JuanTorchia/meterkit/blob/main/docs/pilot-quickstart.md
+> Construí MeterKit, middleware TypeScript no custodial para que una API o
+> herramienta MCP cobre USDC de prueba por solicitud en Solana usando x402.
+> Ofrezco un piloto asistido por USD 100: integramos y verificamos un endpoint
+> bajo tu control, con revisión previa, hasta 45 minutos juntos, evidencia de
+> settlement/respuesta protegida/replay y reporte de cierre. Tú aportas un
+> endpoint no sensible y unos 60–90 minutos. Es sólo devnet y nunca solicito
+> claves, fondos mainnet, URLs privadas ni atribución pública. Detalles:
+> https://meterkit.juanchi.dev/pilots
 
 ## Operating cadence
 
-- Day 1: publish one English and one Spanish post; save their URLs.
+- Day 1: publish one language-appropriate post and contact five qualified people;
+  save URLs and private outcomes without copying personal data into Git.
 - Day 2: answer questions and offer two integration time slots.
-- Day 3: share one public readiness result and the Explorer proof already
-  recorded by MeterKit.
+- Day 3: contact five more qualified people and share the public readiness path.
 - Day 4–5: support started pilots; turn repeated friction into documentation.
-- Day 6: one respectful follow-up on the original posts, not individual spam.
-- Day 7: close the campaign with factual totals, including zero if nobody
-  completed it.
+- Day 6: contact the final five candidates and send at most one respectful
+  follow-up to people who previously engaged.
+- Day 7: close the campaign with factual funnel totals, including zero sales if
+  nobody accepted or paid.
 
 ## What is automated
 

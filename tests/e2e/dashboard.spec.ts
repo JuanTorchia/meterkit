@@ -210,10 +210,10 @@ test("landing, guided demo and workspace communicate the non-custodial product",
       .first(),
   ).toBeVisible();
   await expect(
-    page.getByText(/initializer candidate is not published on npm/i),
+    page.getByText(/create-meterkit initializer are public/i),
   ).toBeVisible();
   await expect(
-    page.getByText("pnpm create:meterkit", { exact: false }).first(),
+    page.getByText("npm create meterkit@0.2.0", { exact: false }).first(),
   ).toBeVisible();
   await expect(page).toHaveTitle("External developer pilot | MeterKit");
   await expect(page.getByRole("button", { name: /^Copy:/ })).toHaveCount(5);

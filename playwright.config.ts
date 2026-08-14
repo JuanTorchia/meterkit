@@ -12,7 +12,7 @@ export default defineConfig({
     },
     {
       command:
-        "NEXT_PUBLIC_GATEWAY_URL=http://127.0.0.1:3402 pnpm --filter @usemeterkit/web exec next dev -p 3100",
+        "NEXT_PUBLIC_GATEWAY_URL=http://127.0.0.1:3402 pnpm --filter @usemeterkit/web exec next dev --webpack -p 3100",
       url: "http://127.0.0.1:3100",
       reuseExistingServer: false,
       timeout: 120_000,

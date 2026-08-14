@@ -6,12 +6,31 @@ export * from "./release.js";
 export * from "./initializer.js";
 export * from "./documentation.js";
 export * from "./authorization.js";
+export * from "./pilot-activation.js";
 
 export const SOLANA_DEVNET = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 export const SOLANA_MAINNET = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
 export const SUBSCRIPTIONS_PROGRAM =
   "De1egAFMkMWZSN5rYXRj9CAdheBamobVNubTsi9avR44";
 export const PRODUCT_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+
+// The x402 protocol revision MeterKit emits, and the set it can settle. This is
+// data rather than a literal because the number sits on both sides of every
+// exchange: MeterKit writes it into a challenge and MeterKit's own pilot
+// verifier reads one back. Upstream already ships revisions side by side
+// (@x402/core exports PaymentRequired V1 and V2 together), so a new one will
+// land while v2 endpoints are still live, and the emitter and the verifier must
+// not be able to disagree about which revisions this build understands.
+export const X402_PROTOCOL_VERSION = 2;
+export const SUPPORTED_X402_PROTOCOL_VERSIONS: readonly number[] = [
+  X402_PROTOCOL_VERSION,
+];
+export function isSupportedX402Version(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    SUPPORTED_X402_PROTOCOL_VERSIONS.includes(value)
+  );
+}
 
 export const productSchema = z.object({
   id: z

@@ -3,17 +3,26 @@
 Status: recruiting. **No external pilot is claimed until an external developer
 completes the acceptance and evidence requirements below.**
 
-## Offer and modalities
+## Disclosed assisted offer
 
-Three to five API or MCP developers can choose:
+The initial paid offer is **USD 100 for one assisted devnet integration**. It
+includes one Express, Next.js, Hono or MCP endpoint, readiness review, one guided
+session of up to 45 minutes, settlement/protected-response/replay evidence and a
+closing report. The participant supplies a non-sensitive endpoint it controls
+and approximately 60–90 minutes. Continued hosting is optional and priced only
+after the pilot.
+
+Three to five API or MCP developers can instead choose the same evidence journey
+through:
 
 - self-service using the public quickstart;
-- one free guided integration session of up to 45 minutes;
 - self-service with asynchronous maintainer support.
 
 MeterKit does not request seed phrases, private keys, mainnet funds,
 exclusivity, private endpoint URLs or permission to publish a participant's
-name. The participant keeps or removes the integration after the proof.
+name. The participant keeps or removes the integration after the proof. A pilot
+start, willingness-to-pay response, accepted proposal, invoice, paid integration
+and commercial cash receipt are separate facts.
 
 GitHub pilot reports are public and expose the participant's GitHub handle.
 “Aggregate only” controls later citation; it does not make a public issue
@@ -47,6 +56,24 @@ as publicly attributable evidence.
 11. Submit the structured public pilot report with safe evidence.
 12. If permitted, record whether the integration remains in use after seven
     days.
+
+The v2 local evidence file records participant class, offer version and price,
+append-only activation events, interventions and consent scopes. A historical v1
+activation report remains `legacy_unverified`; it is never silently upgraded to
+a completed v2 pilot.
+
+## Consent scopes
+
+Consent is collected independently for technical participation, private evidence
+retention, day-seven follow-up, aggregate reporting, public attribution,
+testimonial quotation and a case study. Technical participation does not grant
+any other scope. A participant may deny or withdraw a scope without converting
+unknown evidence into failure or deleting unrelated consent choices.
+
+Local v2 evidence can be deleted with `engagement-delete`, which leaves only an
+opaque deletion receipt. MeterKit can remove hosted metadata it controls, but it
+cannot erase a Solana transaction, an already-public GitHub issue or a copy held
+by the participant. The CLI and documentation state this boundary before export.
 
 Self-service instructions: [`pilot-quickstart.md`](pilot-quickstart.md).
 Evidence and privacy rules: [`pilot-evidence.md`](pilot-evidence.md).
@@ -99,6 +126,8 @@ Report:
 - immediate keep/remove/limited outcome;
 - seven-day retention among participants who allowed follow-up;
 - preference for self-hosted, hosted analytics, integration support or no use.
+- the exact disclosed-price willingness-to-pay response, kept separate from
+  paid integration and received commercial revenue.
 
 Do not turn missing observations into zeroes. Publish the denominator with every
 conversion or retention percentage.
@@ -135,20 +164,21 @@ bundle or independently validates the correlated receipt.
 
 ## Outreach — English
 
-> I am testing MeterKit, Apache-2.0 TypeScript middleware for charging devnet
-> USDC from an API or MCP tool using x402. I am looking for 3–5 design partners
-> to integrate one test endpoint they control. You can use the self-service
-> guide or a free 45-minute session. The pilot uses only test assets and never
-> requires sharing wallet keys or private endpoint URLs. The GitHub evidence
-> form is public; you choose whether MeterKit may cite it elsewhere. Would you
-> like to test it?
+> I built MeterKit, Apache-2.0 TypeScript middleware for charging devnet USDC
+> from an API or MCP tool using x402. I am offering one assisted pilot for USD
+> 100: one endpoint you control, a readiness review, up to 45 minutes together,
+> settlement/protected-response/replay evidence and a closing report. You
+> provide a non-sensitive test endpoint and about 60–90 minutes. It uses only
+> test assets and never requires wallet keys, private URLs or public
+> attribution. Interested?
 
 ## Outreach — Español
 
-> Estoy probando MeterKit, middleware TypeScript Apache-2.0 para cobrar USDC de
-> prueba desde una API o herramienta MCP mediante x402. Busco entre 3 y 5 design
-> partners que integren un endpoint de prueba bajo su control. Puedes usar la
-> guía autoservicio o una sesión gratuita de 45 minutos. El piloto sólo usa
+> Construí MeterKit, middleware TypeScript Apache-2.0 para cobrar USDC de prueba
+> desde una API o herramienta MCP mediante x402. Ofrezco un piloto asistido por
+> USD 100: un endpoint bajo tu control, revisión previa, hasta 45 minutos juntos,
+> evidencia de settlement/respuesta protegida/replay y reporte de cierre. Tú
+> aportas un endpoint no sensible y unos 60–90 minutos. El piloto sólo usa
 > activos de prueba y nunca requiere compartir claves ni URLs privadas. El
 > formulario de evidencia en GitHub es público; tú decides si MeterKit puede
 > citarlo fuera de GitHub. ¿Te gustaría probarlo?

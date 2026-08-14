@@ -96,7 +96,36 @@ Never publish:
 attach it when the URL is private. Copy only the safe policy facts and
 fingerprints requested by the issue form.
 
-## Public consent
+## Scoped consent
+
+The v2 evidence contract never treats one checkbox as universal permission.
+Technical participation, private evidence retention, day-seven follow-up,
+aggregate reporting, public attribution, testimonial quotation and case-study
+permission are separate grant/deny/withdraw decisions. Withdrawal is timestamped
+and does not rewrite already-public or onchain evidence.
+
+Use the local CLI to create an evidence file before recording stages:
+
+```bash
+meterkit-pilot engagement-init \
+  --surface mcp \
+  --participant-class external_independent \
+  --assistance docs_only \
+  --out engagement.json
+
+meterkit-pilot engagement-consent \
+  --input engagement.json \
+  --scope technical_participation \
+  --status granted \
+  --terms terms-v1 \
+  --out engagement-consented.json
+```
+
+Every mutation writes a new file instead of overwriting evidence. Minimized
+exports remove private commercial evidence references. Clear wallet secrets and
+complete payment proofs are rejected from hosted pilot ingestion.
+
+## Public GitHub consent
 
 A GitHub issue is public and permanently associates its contents with the
 submitter's GitHub handle. The citation selection controls reuse by MeterKit:
@@ -110,6 +139,14 @@ submitter's GitHub handle. The citation selection controls reuse by MeterKit:
 If a participant cannot accept a public issue, maintainers may collect private
 feedback, but must not describe it as public or independently verifiable
 evidence.
+
+## Deletion limits
+
+`meterkit-pilot engagement-delete --input engagement.json --receipt
+deletion.json` removes the named local file and writes an opaque receipt. It
+cannot delete a public issue, a Solana transaction, participant copies or prior
+lawful aggregate reports. Withdrawing public attribution prevents future MeterKit
+citation but does not claim that immutable third-party evidence disappeared.
 
 ## Counting decision
 

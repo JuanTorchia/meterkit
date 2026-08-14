@@ -7,6 +7,12 @@ import {
   publicReleaseSchema,
   publicPaymentReceiptSchema,
   persistedProductSchema,
+  activationEventSchema,
+  consentGrantSchema,
+  pilotEngagementSchema,
+  retentionObservationSchema,
+  supportInterventionSchema,
+  willingnessToPaySchema,
   productSchema,
   type BenchmarkRun,
   type PaymentRecord,
@@ -15,11 +21,17 @@ import {
   type PersistedProduct,
   type Product,
   type PublicRelease,
+  type ActivationEvent,
+  type ConsentGrant,
+  type PilotEngagement,
+  type RetentionObservation,
+  type SupportIntervention,
+  type WillingnessToPay,
 } from "@usemeterkit/core";
 
 const { Pool } = pg;
 
-export interface ProductStore {
+export interface ProductStore extends PilotEvidenceStore {
   create(product: Product): Promise<PersistedProduct>;
   createIdempotent(
     product: Product,
@@ -170,6 +182,50 @@ export interface ReceiptStore {
   getPublicReceipt(receiptId: string): Promise<PublicPaymentReceipt | null>;
 }
 
+export type OwnedPilotEngagement = PilotEngagement & {
+  ownerWallet: string;
+};
+
+export type PilotConversionSummary = {
+  starts: number;
+  completedIntegrations: number;
+  supportMinutes: number;
+  daySeven: {
+    retained: number;
+    removed: number;
+    unknown: number;
+    ineligible: number;
+  };
+  willingnessToPay: {
+    yes: number;
+    maybe: number;
+    no: number;
+    declined: number;
+    unknown: number;
+  };
+  paidIntegrations: number;
+  commercialRevenueByCurrency: Record<string, string>;
+};
+
+export interface PilotEvidenceStore {
+  savePilotEngagement(engagement: OwnedPilotEngagement): Promise<void>;
+  getPilotEngagementForOwner(
+    ownerWallet: string,
+    engagementId: string,
+  ): Promise<OwnedPilotEngagement | null>;
+  listPilotEngagementsForOwner(
+    ownerWallet: string,
+  ): Promise<readonly OwnedPilotEngagement[]>;
+  appendActivationEvent(event: ActivationEvent): Promise<void>;
+  saveSupportIntervention(intervention: SupportIntervention): Promise<void>;
+  saveConsentGrant(consent: ConsentGrant): Promise<void>;
+  saveRetentionObservation(observation: RetentionObservation): Promise<void>;
+  saveWillingnessToPay(response: WillingnessToPay): Promise<void>;
+  getPilotConversionSummary(
+    ownerWallet: string,
+  ): Promise<PilotConversionSummary>;
+}
+
 export type HostedMetadataRequest = {
   requestId: string;
   ownerWallet: string;
@@ -200,7 +256,8 @@ export class PostgresStore
     ProductStore,
     FinalityStore,
     ReceiptStore,
-    WorldClassEvidenceStore
+    WorldClassEvidenceStore,
+    PilotEvidenceStore
 {
   constructor(readonly pool: pg.Pool) {}
 
@@ -216,19 +273,30 @@ export class PostgresStore
   }
 
   async migrate() {
-    for (const name of [
-      "001_init.sql",
-      "002_product_tenant_identity.sql",
-      "003_policy_receipts.sql",
-      "004_world_class_evidence.sql",
-      "005_authorization_reservations.sql",
-      "006_linked_identities.sql",
-    ]) {
-      const migration = await readFile(
-        fileURLToPath(new URL(`../migrations/${name}`, import.meta.url)),
-        "utf8",
-      );
-      await this.pool.query(migration);
+    const client = await this.pool.connect();
+    const lockId = 1_294_638_919;
+    try {
+      await client.query("SELECT pg_advisory_lock($1)", [lockId]);
+      for (const name of [
+        "001_init.sql",
+        "002_product_tenant_identity.sql",
+        "003_policy_receipts.sql",
+        "004_world_class_evidence.sql",
+        "005_authorization_reservations.sql",
+        "006_linked_identities.sql",
+        "007_paid_pilot_activation.sql",
+      ]) {
+        const migration = await readFile(
+          fileURLToPath(new URL(`../migrations/${name}`, import.meta.url)),
+          "utf8",
+        );
+        await client.query(migration);
+      }
+    } finally {
+      await client
+        .query("SELECT pg_advisory_unlock($1)", [lockId])
+        .catch(() => {});
+      client.release();
     }
   }
 
@@ -1042,6 +1110,273 @@ export class PostgresStore
       : null;
   }
 
+  async savePilotEngagement(engagement: OwnedPilotEngagement) {
+    const value = pilotEngagementSchema.parse(engagement);
+    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(engagement.ownerWallet)) {
+      throw new Error("PILOT_OWNER_INVALID");
+    }
+    if (value.productUid) {
+      const product = await this.getByUid(value.productUid);
+      if (!product || product.payTo !== engagement.ownerWallet) {
+        throw new Error("PILOT_PRODUCT_OWNER_MISMATCH");
+      }
+    }
+    await this.pool.query(
+      `INSERT INTO pilot_engagements
+        (engagement_id,owner_wallet,product_uid,schema_version,participant_class,
+         offer_version,disclosed_price,surface,source,assistance_mode,
+         operational_outcome,started_at,created_at,updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+       ON CONFLICT (engagement_id) DO UPDATE SET
+         product_uid=EXCLUDED.product_uid,
+         disclosed_price=EXCLUDED.disclosed_price,
+         assistance_mode=EXCLUDED.assistance_mode,
+         operational_outcome=EXCLUDED.operational_outcome,
+         updated_at=EXCLUDED.updated_at
+       WHERE pilot_engagements.owner_wallet=EXCLUDED.owner_wallet
+         AND pilot_engagements.participant_class=EXCLUDED.participant_class
+         AND pilot_engagements.offer_version=EXCLUDED.offer_version`,
+      [
+        value.engagementId,
+        engagement.ownerWallet,
+        value.productUid ?? null,
+        value.schemaVersion,
+        value.participantClass,
+        value.offerVersion,
+        value.disclosedPrice ? JSON.stringify(value.disclosedPrice) : null,
+        value.surface,
+        value.source,
+        value.assistanceMode,
+        value.operationalOutcome,
+        value.startedAt,
+        value.createdAt,
+        value.updatedAt,
+      ],
+    );
+  }
+
+  async getPilotEngagementForOwner(ownerWallet: string, engagementId: string) {
+    const result = await this.pool.query(
+      `SELECT * FROM pilot_engagements
+       WHERE owner_wallet=$1 AND engagement_id=$2`,
+      [ownerWallet, engagementId],
+    );
+    return result.rows[0] ? mapPilotEngagement(result.rows[0]) : null;
+  }
+
+  async listPilotEngagementsForOwner(ownerWallet: string) {
+    const result = await this.pool.query(
+      `SELECT * FROM pilot_engagements
+       WHERE owner_wallet=$1 ORDER BY started_at DESC LIMIT 100`,
+      [ownerWallet],
+    );
+    return result.rows.map(mapPilotEngagement);
+  }
+
+  async appendActivationEvent(event: ActivationEvent) {
+    const value = activationEventSchema.parse(event);
+    await this.pool.query(
+      `INSERT INTO pilot_activation_events
+        (event_id,engagement_id,stage,outcome,occurred_at,recorded_at,
+         evidence_reference,intervention_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       ON CONFLICT (event_id) DO NOTHING`,
+      [
+        value.eventId,
+        value.engagementId,
+        value.stage,
+        value.outcome,
+        value.occurredAt,
+        value.recordedAt,
+        value.evidenceReference ?? null,
+        value.interventionId ?? null,
+      ],
+    );
+  }
+
+  async saveSupportIntervention(intervention: SupportIntervention) {
+    const value = supportInterventionSchema.parse(intervention);
+    await this.pool.query(
+      `INSERT INTO pilot_support_interventions
+        (intervention_id,engagement_id,stage,kind,reason_code,actor_class,began_at,ended_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       ON CONFLICT (intervention_id) DO NOTHING`,
+      [
+        value.interventionId,
+        value.engagementId,
+        value.stage,
+        value.kind,
+        value.reasonCode,
+        value.actorClass,
+        value.beganAt,
+        value.endedAt ?? null,
+      ],
+    );
+  }
+
+  async saveConsentGrant(consent: ConsentGrant) {
+    const value = consentGrantSchema.parse(consent);
+    await this.pool.query(
+      `INSERT INTO pilot_consents
+        (consent_id,engagement_id,scope,status,terms_version,captured_at,withdrawn_at,source_reference)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       ON CONFLICT (engagement_id,scope) DO UPDATE SET
+         status=EXCLUDED.status,withdrawn_at=EXCLUDED.withdrawn_at,
+         source_reference=EXCLUDED.source_reference`,
+      [
+        value.consentId,
+        value.engagementId,
+        value.scope,
+        value.status,
+        value.termsVersion,
+        value.capturedAt,
+        value.withdrawnAt ?? null,
+        value.sourceReference ?? null,
+      ],
+    );
+  }
+
+  async saveRetentionObservation(observation: RetentionObservation) {
+    const value = retentionObservationSchema.parse(observation);
+    await this.pool.query(
+      `INSERT INTO pilot_retention_observations
+        (observation_id,engagement_id,due_at,observed_at,outcome,evidence_type,valid_payment_count)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
+       ON CONFLICT (observation_id) DO NOTHING`,
+      [
+        value.observationId,
+        value.engagementId,
+        value.dueAt,
+        value.observedAt ?? null,
+        value.outcome,
+        value.evidenceType ?? null,
+        value.validPaymentCount ?? null,
+      ],
+    );
+  }
+
+  async saveWillingnessToPay(response: WillingnessToPay) {
+    const value = willingnessToPaySchema.parse(response);
+    await this.pool.query(
+      `INSERT INTO pilot_willingness_to_pay
+        (response_id,engagement_id,asked_at,responded_at,response,offer_version,
+         amount,currency,unit,reason_code)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+       ON CONFLICT (response_id) DO NOTHING`,
+      [
+        value.responseId,
+        value.engagementId,
+        value.askedAt,
+        value.respondedAt ?? null,
+        value.response,
+        value.offerVersion,
+        value.amount,
+        value.currency,
+        value.unit,
+        value.reasonCode ?? null,
+      ],
+    );
+  }
+
+  async getPilotConversionSummary(ownerWallet: string) {
+    const result = await this.pool.query<{
+      starts: string;
+      completed: string;
+      support_minutes: string;
+      retained: string;
+      removed: string;
+      retention_unknown: string;
+      ineligible: string;
+      willingness_yes: string;
+      willingness_maybe: string;
+      willingness_no: string;
+      willingness_declined: string;
+      willingness_unknown: string;
+      paid_integrations: string;
+    }>(
+      `WITH owned AS (
+         SELECT * FROM pilot_engagements
+         WHERE owner_wallet=$1 AND participant_class='external_independent'
+       ), completed_events AS (
+         SELECT engagement_id FROM pilot_activation_events
+         WHERE outcome='passed'
+         GROUP BY engagement_id
+         HAVING count(DISTINCT stage) FILTER (WHERE stage IN
+           ('challenge_received','policy_verified','payment_submitted','settlement_finalized',
+            'protected_response','replay_rejected','completion_reviewed'))=7
+       ), completed AS (
+         SELECT engagement_id FROM completed_events event
+         WHERE EXISTS (SELECT 1 FROM pilot_consents consent
+           WHERE consent.engagement_id=event.engagement_id
+             AND consent.scope='technical_participation' AND consent.status='granted')
+           AND EXISTS (SELECT 1 FROM pilot_consents consent
+           WHERE consent.engagement_id=event.engagement_id
+             AND consent.scope='private_evidence_retention' AND consent.status='granted')
+       ), latest_retention AS (
+         SELECT DISTINCT ON (engagement_id) engagement_id,outcome
+         FROM pilot_retention_observations ORDER BY engagement_id,observed_at DESC NULLS LAST
+       ), latest_wtp AS (
+         SELECT DISTINCT ON (engagement_id) engagement_id,response
+         FROM pilot_willingness_to_pay ORDER BY engagement_id,responded_at DESC NULLS LAST
+       )
+       SELECT
+         count(*)::text AS starts,
+         count(*) FILTER (WHERE completed.engagement_id IS NOT NULL)::text AS completed,
+         COALESCE((SELECT sum(EXTRACT(EPOCH FROM (ended_at-began_at))/60)
+                   FROM pilot_support_interventions i JOIN owned o USING (engagement_id)
+                   WHERE ended_at IS NOT NULL),0)::text AS support_minutes,
+         count(*) FILTER (WHERE latest_retention.outcome='retained')::text AS retained,
+         count(*) FILTER (WHERE latest_retention.outcome='removed')::text AS removed,
+         count(*) FILTER (WHERE latest_retention.outcome='unknown')::text AS retention_unknown,
+         count(*) FILTER (WHERE latest_retention.outcome IS NULL OR latest_retention.outcome='ineligible')::text AS ineligible,
+         count(*) FILTER (WHERE latest_wtp.response LIKE 'yes_%')::text AS willingness_yes,
+         count(*) FILTER (WHERE latest_wtp.response='maybe')::text AS willingness_maybe,
+         count(*) FILTER (WHERE latest_wtp.response='no')::text AS willingness_no,
+         count(*) FILTER (WHERE latest_wtp.response='declined')::text AS willingness_declined,
+         count(*) FILTER (WHERE latest_wtp.response IS NULL OR latest_wtp.response='unknown')::text AS willingness_unknown,
+         count(*) FILTER (WHERE EXISTS (
+           SELECT 1 FROM commercial_payments payment
+           WHERE payment.engagement_id=owned.engagement_id
+             AND payment.status='received_verified' AND payment.net_amount>0))::text AS paid_integrations
+       FROM owned
+       LEFT JOIN completed USING (engagement_id)
+       LEFT JOIN latest_retention USING (engagement_id)
+       LEFT JOIN latest_wtp USING (engagement_id)`,
+      [ownerWallet],
+    );
+    const revenue = await this.pool.query<{ currency: string; net: string }>(
+      `SELECT payment.currency,sum(payment.net_amount)::text AS net
+       FROM commercial_payments payment
+       JOIN pilot_engagements engagement USING (engagement_id)
+       WHERE engagement.owner_wallet=$1 AND payment.status='received_verified'
+       GROUP BY payment.currency`,
+      [ownerWallet],
+    );
+    const row = result.rows[0];
+    return {
+      starts: Number(row?.starts ?? 0),
+      completedIntegrations: Number(row?.completed ?? 0),
+      supportMinutes: Number(row?.support_minutes ?? 0),
+      daySeven: {
+        retained: Number(row?.retained ?? 0),
+        removed: Number(row?.removed ?? 0),
+        unknown: Number(row?.retention_unknown ?? 0),
+        ineligible: Number(row?.ineligible ?? 0),
+      },
+      willingnessToPay: {
+        yes: Number(row?.willingness_yes ?? 0),
+        maybe: Number(row?.willingness_maybe ?? 0),
+        no: Number(row?.willingness_no ?? 0),
+        declined: Number(row?.willingness_declined ?? 0),
+        unknown: Number(row?.willingness_unknown ?? 0),
+      },
+      paidIntegrations: Number(row?.paid_integrations ?? 0),
+      commercialRevenueByCurrency: Object.fromEntries(
+        revenue.rows.map((item) => [item.currency, item.net]),
+      ),
+    };
+  }
+
   private async finishAllowanceReservation(
     reservationId: string,
     outcome: "consumed" | "released",
@@ -1106,6 +1441,29 @@ function mapPayment(row: Record<string, unknown>): PaymentRecord {
     settledAt: new Date(row.settled_at as string | Date).toISOString(),
     status: row.status,
   });
+}
+
+function mapPilotEngagement(
+  row: Record<string, unknown>,
+): OwnedPilotEngagement {
+  return {
+    ...pilotEngagementSchema.parse({
+      schemaVersion: 2,
+      engagementId: row.engagement_id,
+      participantClass: row.participant_class,
+      offerVersion: row.offer_version,
+      ...(row.disclosed_price ? { disclosedPrice: row.disclosed_price } : {}),
+      ...(row.product_uid ? { productUid: row.product_uid } : {}),
+      surface: row.surface,
+      startedAt: new Date(row.started_at as string | Date).toISOString(),
+      source: row.source,
+      assistanceMode: row.assistance_mode,
+      operationalOutcome: row.operational_outcome,
+      createdAt: new Date(row.created_at as string | Date).toISOString(),
+      updatedAt: new Date(row.updated_at as string | Date).toISOString(),
+    }),
+    ownerWallet: String(row.owner_wallet),
+  };
 }
 
 function mapPublicReceipt(row: Record<string, unknown>): PublicPaymentReceipt {
