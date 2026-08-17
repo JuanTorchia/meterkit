@@ -155,8 +155,18 @@ async function exercise(project, surface, manager) {
           globalThis.clearTimeout(fallback);
           resolveExit();
         });
-        if (process.platform === "win32") child.kill("SIGTERM");
-        else process.kill(-child.pid, "SIGTERM");
+        if (process.platform === "win32") {
+          try {
+            execFileSync("taskkill.exe", [
+              "/pid",
+              String(child.pid),
+              "/T",
+              "/F",
+            ]);
+          } catch {
+            child.kill("SIGTERM");
+          }
+        } else process.kill(-child.pid, "SIGTERM");
       });
     }
   }
