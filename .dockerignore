@@ -23,4 +23,6 @@ artifacts/release-manifests
 artifacts/docs-parity
 .meterkit-clean-*/
 .meterkit/
+.dependency-risk/
+dependency-risk-report*.json
 **/.source/

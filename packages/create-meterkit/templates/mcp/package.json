@@ -3,15 +3,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx src/server.ts",
-    "check:unpaid": "tsx src/server.ts --unpaid"
+    "dev": "node --env-file=.env --import tsx src/server.ts",
+    "check:unpaid": "node --env-file=.env --import tsx src/server.ts --unpaid",
+    "doctor": "meterkit doctor --project ."
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
-    "@usemeterkit/sdk": "0.2.0"
+    "@usemeterkit/database": "0.3.0",
+    "@usemeterkit/sdk": "0.3.0",
+    "@x402/core": "2.22.0",
+    "@x402/mcp": "2.22.0",
+    "@x402/svm": "2.22.0",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
-    "tsx": "^4.23.9",
+    "@usemeterkit/cli": "0.3.0",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3"
   }
 }

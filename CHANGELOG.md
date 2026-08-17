@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+## [0.3.0] - 2026-08-17
+
+- Add the public `@usemeterkit/cli` check, verify, doctor and bounded devnet pay flow.
+- Add a standalone PostgreSQL replay store with idempotent migrations and restart-safe generated mode.
+- Make the initializer executable without prompts, load generated env files, install with the selected manager and print exact next steps.
+- Separate synthetic release verification, external beta evidence and optional commercial setup claims.
+- Add exact registry, recovery and supported-platform release gates.
+
+- Coordinate x402 2.22.0 across SDK, examples, templates and compatibility fixtures.
+- Align Next.js 16.3.1 / React 19.2.8 and apply isolated gateway/tooling patch updates.
+- Keep CodeQL init and analyze on the same immutable 4.37.7 commit.
+- Add dependency inventory, cohort-aware remediation and server evidence tooling.
+
 ## [0.2.0] - 2026-08-11
 
 - Add canonical `protect()` middleware, versioned public receipts and sanitized lifecycle events.

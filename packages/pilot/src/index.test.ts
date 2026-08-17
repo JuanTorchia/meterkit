@@ -1,3 +1,4 @@
+import { SUPPORTED_X402_PROTOCOL_VERSIONS } from "@usemeterkit/core";
 import { describe, expect, it } from "vitest";
 import {
   parsePolicy,
@@ -131,6 +132,77 @@ describe("pilot endpoint verifier", () => {
       report.checks.find((check) => check.name === "payment scheme is exact")
         ?.ok,
     ).toBe(false);
+  });
+
+  it("reports an unknown protocol revision as a version boundary, not a broken challenge", async () => {
+    // A future revision decodes fine; MeterKit simply cannot settle it yet. The
+    // report has to say that, or a provider whose endpoint is correct goes
+    // hunting for a bug in it.
+    const future = { ...requirement, x402Version: 3 };
+    const report = await verifyEndpoint(
+      "https://api.example.test/premium",
+      {
+        network: acceptedRequirement.network,
+        mint: acceptedRequirement.asset,
+        recipient: acceptedRequirement.payTo,
+        maxAmountAtomic: "10000",
+      },
+      async () =>
+        new Response(null, {
+          status: 402,
+          headers: {
+            "PAYMENT-REQUIRED": Buffer.from(JSON.stringify(future)).toString(
+              "base64",
+            ),
+          },
+        }),
+    );
+    const versionCheck = report.checks.find(
+      (check) => check.name === "x402 protocol version is supported",
+    );
+    expect(report.passed).toBe(false);
+    expect(versionCheck?.ok).toBe(false);
+    expect(versionCheck?.error).toContain("3");
+    expect(versionCheck?.error).toContain(
+      SUPPORTED_X402_PROTOCOL_VERSIONS.join(", "),
+    );
+    // Everything downstream of the version still ran: the challenge decoded.
+    expect(
+      report.checks.find((check) => check.name === "payment scheme is exact")
+        ?.ok,
+    ).toBe(true);
+  });
+
+  it("accepts every revision core declares supported", async () => {
+    // Guards against the literal creeping back in: bump the constant and this
+    // has to keep passing without touching the verifier.
+    for (const supported of SUPPORTED_X402_PROTOCOL_VERSIONS) {
+      const report = await verifyEndpoint(
+        "https://api.example.test/premium",
+        {
+          network: acceptedRequirement.network,
+          mint: acceptedRequirement.asset,
+          recipient: acceptedRequirement.payTo,
+          maxAmountAtomic: "10000",
+        },
+        async () =>
+          new Response(null, {
+            status: 402,
+            headers: {
+              "PAYMENT-REQUIRED": Buffer.from(
+                JSON.stringify({ ...requirement, x402Version: supported }),
+              ).toString("base64"),
+            },
+          }),
+      );
+      const versionCheck = report.checks.find(
+        (check) => check.name === "x402 protocol version is supported",
+      );
+      expect(versionCheck?.ok).toBe(true);
+      expect(versionCheck?.evidence?.supported).toEqual([
+        ...SUPPORTED_X402_PROTOCOL_VERSIONS,
+      ]);
+    }
   });
 
   it("rejects a policy and challenge outside supported Solana devnet USDC", async () => {

@@ -1,41 +1,102 @@
 import { expect, test } from "@playwright/test";
 
-test("assisted pilot discloses price, effort, deliverables and consent boundaries", async ({
+test("free beta and optional setup are understandable, keyboard reachable and error-safe", async ({
   page,
 }) => {
-  await page.goto("/pilots");
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  await page.goto("/");
+  const primary = page.getByRole("link", {
+    name: "Review the free devnet beta",
+  });
+  await expect(primary).toBeVisible();
+  await primary.focus();
+  await expect(primary).toBeFocused();
+  await primary.click();
   await expect(
     page.getByRole("heading", {
-      name: "MeterKit integrates and verifies your endpoint for USD 100.",
+      name: "Install and verify one endpoint at no charge.",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/You pay MeterKit USD 100.*participants are not paid/),
+    page.getByText(
+      /Participants are not charged and are not paid or compensated/,
+    ),
   ).toBeVisible();
-  await expect(page.getByText(/session of up to 45 minutes/)).toBeVisible();
-  await expect(page.getByText(/about 60–90 minutes/)).toBeVisible();
   await expect(
-    page.getByText(/Technical participation, private evidence retention/),
+    page.getByText(/optional founder setup service costs USD 100/),
   ).toBeVisible();
-  await expect(page.getByText(/never requests wallet keys/)).toBeVisible();
-  await expect(
-    page.getByText(/do not count as a completed external pilot/),
-  ).toBeVisible();
+  await expect(page.getByText(/Devnet only/).first()).toBeVisible();
+
+  const ratio = await page
+    .locator("a.primary")
+    .first()
+    .evaluate((element) => {
+      const style = getComputedStyle(element);
+      const channels = (value: string) =>
+        value
+          .match(/[\d.]+/g)!
+          .slice(0, 3)
+          .map((part) => Number(part) / 255);
+      const luminance = (value: string) =>
+        channels(value)
+          .map((channel) =>
+            channel <= 0.03928
+              ? channel / 12.92
+              : ((channel + 0.055) / 1.055) ** 2.4,
+          )
+          .reduce(
+            (sum, channel, index) =>
+              sum + channel * [0.2126, 0.7152, 0.0722][index]!,
+            0,
+          );
+      const values = [
+        luminance(style.color),
+        luminance(style.backgroundColor),
+      ].sort((a, b) => b - a);
+      return (values[0]! + 0.05) / (values[1]! + 0.05);
+    });
+  expect(ratio).toBeGreaterThanOrEqual(4.5);
+  expect(consoleErrors).toEqual([]);
 });
 
-test("pilot offer remains usable in Spanish on mobile", async ({ page }) => {
+test("readiness exposes loading and provider-independent failure states", async ({
+  page,
+}) => {
+  await page.route("**/v1/pilot/verify", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.fulfill({ status: 503, body: "{}" });
+  });
+  await page.goto("/pilots");
+  await page
+    .getByLabel("Endpoint to verify")
+    .fill("https://api.example/premium");
+  await page.getByRole("button", { name: "Verify readiness" }).click();
+  await expect(page.getByRole("button", { name: "Verifying…" })).toBeDisabled();
+  await expect(page.locator(".errorBanner[role='alert']")).toContainText(
+    /our side, not your endpoint/,
+  );
+});
+
+test("free beta remains usable and equivalent in Spanish on mobile", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/pilots");
   await page.getByRole("button", { name: "Español" }).click();
   await expect(
     page.getByRole("heading", {
-      name: "MeterKit integra y verifica tu endpoint por USD 100.",
+      name: "Instala y verifica un endpoint sin costo.",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText(/Tú pagas USD 100 a MeterKit.*no pagamos ni compensamos/),
+    page.getByText(/No se les cobra ni se les paga o compensa/),
   ).toBeVisible();
-  await expect(page.getByText(/decisiones separadas/)).toBeVisible();
+  await expect(
+    page.getByText(/servicio opcional de implementación cuesta USD 100/),
+  ).toBeVisible();
   expect(
     await page.evaluate(
       () =>

@@ -1,9 +1,10 @@
 # Seven-day pilot recruitment campaign
 
-Goal: sell and complete the first disclosed **USD 100 assisted devnet
-integration, paid by the customer to MeterKit**. MeterKit does not pay or
-compensate participants. Automated health checks, interest and unpaid starts are
-not customers.
+Goal: recruit five independent builders for a **free, uncompensated devnet
+beta** and observe the self-service path before intervening. Participants are
+not charged and MeterKit does not pay or compensate them. An optional USD 100
+done-for-you setup remains a separate customer-requested service. Automated
+health checks, interest and unpaid starts are not customers.
 
 ## Funnel
 

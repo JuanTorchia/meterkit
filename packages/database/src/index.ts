@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
+export { StandalonePostgresPaymentStore } from "./standalone-payment-store.js";
+export { migrateStandalonePaymentStore } from "./standalone-migrations.js";
 import {
   benchmarkRunSchema,
   paymentRecordSchema,

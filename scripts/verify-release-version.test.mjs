@@ -17,13 +17,21 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 test("public release allowlist is deliberately small and version aligned", async () => {
   assert.deepEqual(PUBLIC_RELEASE_PACKAGE_PATHS, [
     "packages/core/package.json",
+    "packages/database/package.json",
     "packages/sdk/package.json",
+    "packages/cli/package.json",
     "packages/create-meterkit/package.json",
   ]);
-  const result = await verifyReleaseVersion("v0.2.0", root);
+  const result = await verifyReleaseVersion("v0.3.0", root);
   assert.deepEqual(
     result.packages.map(({ name }) => name),
-    ["@usemeterkit/core", "@usemeterkit/sdk", "create-meterkit"],
+    [
+      "@usemeterkit/core",
+      "@usemeterkit/database",
+      "@usemeterkit/sdk",
+      "@usemeterkit/cli",
+      "create-meterkit",
+    ],
   );
 });
 
@@ -44,7 +52,9 @@ test("OIDC release workflow stays tokenless and packs the full allowlist", async
   assert.match(workflow, /pnpm exec playwright install --with-deps chromium/);
   for (const packageName of [
     "@usemeterkit/core",
+    "@usemeterkit/database",
     "@usemeterkit/sdk",
+    "@usemeterkit/cli",
     "create-meterkit",
   ]) {
     assert.match(workflow, new RegExp(`--filter ${packageName} pack`));
@@ -62,8 +72,8 @@ test("rejects invalid tags and version drift", async () => {
   sdk.version = "9.9.9";
   await writeFile(sdkPath, JSON.stringify(sdk));
   await assert.rejects(
-    verifyReleaseVersion("v0.2.0", temporary),
-    /expected 0.2.0/,
+    verifyReleaseVersion("v0.3.0", temporary),
+    /expected 0.3.0/,
   );
 });
 
@@ -102,12 +112,14 @@ test("release manifests bind the allowlist to the exact source commit", async ()
   }).trim();
   const packages = [
     { name: "@usemeterkit/core" },
+    { name: "@usemeterkit/database" },
     { name: "@usemeterkit/sdk" },
+    { name: "@usemeterkit/cli" },
     { name: "create-meterkit" },
   ];
   assert.equal(
     await verifyReleaseManifest(
-      { tag: "v0.2.0", version: "0.2.0", sourceCommit, packages },
+      { tag: "v0.3.0", version: "0.3.0", sourceCommit, packages },
       root,
     ),
     true,
@@ -115,8 +127,8 @@ test("release manifests bind the allowlist to the exact source commit", async ()
   await assert.rejects(
     verifyReleaseManifest(
       {
-        tag: "v0.2.0",
-        version: "0.2.0",
+        tag: "v0.3.0",
+        version: "0.3.0",
         sourceCommit: "0".repeat(40),
         packages,
       },

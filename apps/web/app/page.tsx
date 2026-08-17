@@ -27,7 +27,7 @@ const copy = {
     ),
     intro:
       "Price an API or MCP tool per request. The customer pays your wallet directly, and every payment finalizes as a receipt anyone can check in an explorer. MeterKit never holds the funds.",
-    install: "Install the SDK →",
+    install: "Review the free devnet beta →",
     run: "Run the live demo",
     github: "View on GitHub",
     proof: [
@@ -69,7 +69,7 @@ const copy = {
     sdkBody:
       "MeterKit is middleware, not a custody layer. Your API, your wallet, your customer relationship. Two published packages and one line around the handler.",
     releaseNote:
-      "@usemeterkit/core, @usemeterkit/sdk and create-meterkit are published at 0.2.0 with registry provenance. Subscriptions and the pilot CLI are workspace candidates and are not on npm yet.",
+      "The 0.3.0 release candidate adds the CLI and standalone PostgreSQL adapter. It becomes recommended only after exact registry smoke passes; the site never treats a source build as a published release.",
     openWorkspace: "Open provider workspace",
     footer: "USDC commerce infrastructure for APIs and agents.",
   },
@@ -91,7 +91,7 @@ const copy = {
     ),
     intro:
       "Ponele precio por request a una API o herramienta MCP. El cliente paga directo a tu wallet y cada pago finaliza como un recibo que cualquiera puede comprobar en un explorer. MeterKit nunca recibe los fondos.",
-    install: "Instalar el SDK →",
+    install: "Revisar la beta devnet gratis →",
     run: "Ejecutar demo en vivo",
     github: "Ver en GitHub",
     proof: [
@@ -133,7 +133,7 @@ const copy = {
     sdkBody:
       "MeterKit es middleware, no una capa de custodia. Tu API, tu wallet, tu relación con el cliente. Dos paquetes publicados y una línea alrededor del handler.",
     releaseNote:
-      "@usemeterkit/core, @usemeterkit/sdk y create-meterkit están publicados en 0.2.0 con procedencia verificable en el registry. Las suscripciones y el CLI de pilotos son candidatos del workspace y todavía no están en npm.",
+      "El candidato 0.3.0 agrega la CLI y el adaptador PostgreSQL standalone. Sólo se recomienda después del smoke exacto contra el registry; un build local nunca cuenta como release publicada.",
     openWorkspace: "Abrir workspace del proveedor",
     footer: "Infraestructura comercial en USDC para APIs y agentes.",
   },
@@ -155,7 +155,7 @@ const copy = {
     ),
     intro:
       "Defina um preço por requisição para uma API ou ferramenta MCP. O cliente paga direto na sua carteira e cada pagamento finaliza como um recibo que qualquer pessoa pode conferir em um explorer. A MeterKit nunca recebe os fundos.",
-    install: "Instalar o SDK →",
+    install: "Revisar a beta devnet grátis →",
     run: "Executar demo ao vivo",
     github: "Ver no GitHub",
     proof: [
@@ -197,7 +197,7 @@ const copy = {
     sdkBody:
       "MeterKit é middleware, não uma camada de custódia. Sua API, sua carteira, sua relação com o cliente. Dois pacotes publicados e uma linha ao redor do handler.",
     releaseNote:
-      "@usemeterkit/core, @usemeterkit/sdk e create-meterkit estão publicados em 0.2.0 com procedência verificável no registry. As assinaturas e o CLI de pilotos são candidatos do workspace e ainda não estão no npm.",
+      "O candidato 0.3.0 adiciona a CLI e o adaptador PostgreSQL standalone. Só será recomendado após o smoke exato no registry; um build local nunca conta como release publicada.",
     openWorkspace: "Abrir workspace do provedor",
     footer: "Infraestrutura comercial em USDC para APIs e agentes.",
   },
@@ -229,12 +229,7 @@ export default function Home() {
           locale={locale}
           actions={
             <div className="actions">
-              <a
-                className="primary"
-                href="https://github.com/JuanTorchia/meterkit/blob/main/docs/sdk-quickstart.md"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className="primary" href="/pilots">
                 {text.install}
               </a>
               <Link className="secondary" href="/demo">
@@ -285,6 +280,23 @@ export default function Home() {
           <h2>{text.sdkTitle}</h2>
           <p>{text.sdkBody}</p>
           <p className="releaseNote">{text.releaseNote}</p>
+          <p className="releaseNote">
+            Maintained by Juan Torchia · devnet beta · 0 verified external
+            integrations reported so far.{" "}
+            <a href="https://github.com/JuanTorchia/meterkit/releases">
+              Releases
+            </a>
+            {" · "}
+            <a href="https://github.com/JuanTorchia/meterkit/security/policy">
+              Security
+            </a>
+            {" · "}
+            <a href="https://github.com/JuanTorchia/meterkit/issues">Support</a>
+            {" · "}
+            <a href="https://github.com/JuanTorchia/meterkit/blob/main/docs/roadmap.md">
+              Roadmap
+            </a>
+          </p>
           <Link className="darkLink" href="/dashboard">
             {text.openWorkspace} →
           </Link>

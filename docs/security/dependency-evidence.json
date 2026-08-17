@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-17T09:32:20.256Z",
+  "commit": "d7a05fb50d67911eacc4401bcb49085e90629397",
+  "lockfileDigest": "sha256:ae27a692827b4daf9831ffdb297d55bfc1cef237f3641a2cc3d404e2c2299a7c",
+  "inventoryDigest": "sha256:9ccc1aa000675ff62cc82d76ede014f85dc41e6a787d4474b5af205034ae24e8",
+  "sourceSnapshotIds": [
+    "github_alerts",
+    "github_updates",
+    "maintainer_report",
+    "manifests_lockfile",
+    "package_audit_development",
+    "package_audit_production",
+    "sbom"
+  ],
+  "environmentId": "bulbasaur-24gb",
+  "artifactDigests": {
+    "gatewayImage": "sha256:05478da8bf8f2e2209afa201c9ed7c0f06b33b5d7a76c1f6a46f509525c1780a",
+    "webImage": "sha256:f8c5d4975e05dcaf44afa825f65b46484f297f76a21e4d80533b972e12d093db"
+  },
+  "outcomes": {
+    "build": "passed",
+    "compatibility": "passed",
+    "containers": "passed",
+    "containerVulnerabilityScan": "passed",
+    "developmentAudit": "passed",
+    "docsParity": "passed",
+    "frozenInstall": "passed",
+    "packedArtifacts": "passed",
+    "paymentBoundary": "passed",
+    "productionAudit": "passed",
+    "quickstarts": "passed",
+    "sbom": "passed",
+    "secretScan": "passed",
+    "tests": "passed",
+    "typecheck": "passed"
+  },
+  "gate": "passed"
+}

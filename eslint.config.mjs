@@ -12,5 +12,18 @@ export default tseslint.config(
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        Buffer: "readonly",
+        Response: "readonly",
+        clearTimeout: "readonly",
+        fetch: "readonly",
+        process: "readonly",
+        setTimeout: "readonly",
+      },
+    },
+  },
   { rules: { "@typescript-eslint/no-explicit-any": "off" } },
 );

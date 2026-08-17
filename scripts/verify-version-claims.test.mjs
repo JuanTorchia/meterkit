@@ -11,7 +11,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 /** Builds a minimal tree with the same shape the real check reads. */
 async function fixture({ packageVersion, note, snippet, range }) {
   const base = await mkdtemp(join(tmpdir(), "meterkit-claims-"));
-  for (const name of ["core", "sdk", "create-meterkit"]) {
+  for (const name of ["core", "database", "sdk", "cli", "create-meterkit"]) {
     await mkdir(join(base, "packages", name), { recursive: true });
     await writeFile(
       join(base, "packages", name, "package.json"),
@@ -24,6 +24,11 @@ async function fixture({ packageVersion, note, snippet, range }) {
     `const copy = { en: { releaseNote: "${note}" } };\n`,
   );
   await mkdir(join(base, "content", "docs", "en"), { recursive: true });
+  await mkdir(join(base, "docs"), { recursive: true });
+  await writeFile(
+    join(base, "docs/beta-results.md"),
+    "External independent evidence\nSynthetic verification\nunknown (0 eligible)\nAutomated checks are not users, integrations, customers.\n",
+  );
   await writeFile(
     join(base, "content/docs/en/index.mdx"),
     `---\nproductVersionRange: "${range}"\n---\n\n\`\`\`bash\npnpm add ${snippet}\n\`\`\`\n`,

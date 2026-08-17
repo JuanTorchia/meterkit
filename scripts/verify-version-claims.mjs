@@ -78,6 +78,21 @@ export async function verifyVersionClaims(base = root) {
     return { passed: false, failures };
   }
   const published = [...distinct][0];
+  const betaResults = await readFile(
+    resolve(base, "docs/beta-results.md"),
+    "utf8",
+  );
+  for (const required of [
+    "External independent evidence",
+    "Synthetic verification",
+    "unknown (0 eligible)",
+    "not users, integrations, customers",
+  ]) {
+    if (!betaResults.includes(required))
+      failures.push(
+        `docs/beta-results.md is missing truthful marker: ${required}`,
+      );
+  }
 
   const landing = await readFile(
     resolve(base, "apps/web/app/page.tsx"),

@@ -34,6 +34,12 @@ import {
   recordWillingnessToPay,
   withdrawConsent,
 } from "./activation-v2.js";
+import {
+  aggregateSelfServiceLedger,
+  appendSelfServiceEvidence,
+  readSelfServiceLedger,
+} from "./self-service-ledger.js";
+import { externalActivationEvidenceSchema } from "./self-service-evidence.js";
 
 const [, , command, ...args] = process.argv;
 
@@ -243,6 +249,24 @@ try {
     await writeExclusive(receipt, createPilotDeletionReceipt(file));
     await unlink(input);
     process.stdout.write(`Deleted local engagement and created ${receipt}\n`);
+  } else if (command === "beta-record") {
+    const input = requiredOption(args, "--input");
+    const ledger = requiredOption(args, "--ledger");
+    positionalArgs(args, new Set(["--input", "--ledger"]));
+    const evidence = externalActivationEvidenceSchema.parse(
+      JSON.parse(await readFile(input, "utf8")),
+    );
+    await appendSelfServiceEvidence(ledger, evidence);
+    process.stdout.write(`Appended minimized beta evidence to ${ledger}\n`);
+  } else if (command === "beta-export") {
+    const ledger = requiredOption(args, "--ledger");
+    const output = requiredOption(args, "--out");
+    positionalArgs(args, new Set(["--ledger", "--out"]));
+    const aggregate = aggregateSelfServiceLedger(
+      await readSelfServiceLedger(ledger),
+    );
+    await writeExclusive(output, aggregate);
+    process.stdout.write(`Created consent-filtered beta aggregate ${output}\n`);
   } else if (command === "activation") {
     const input = option(args, "--input");
     const output = option(args, "--out");

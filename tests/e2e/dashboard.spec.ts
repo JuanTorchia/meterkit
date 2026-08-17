@@ -209,14 +209,15 @@ test("landing, guided demo and workspace communicate the non-custodial product",
       .getByText(`@usemeterkit/sdk@${publishedSdk}`, { exact: false })
       .first(),
   ).toBeVisible();
+  await expect(page.getByText(/still a release candidate/i)).toBeVisible();
   await expect(
-    page.getByText(/create-meterkit initializer are public/i),
-  ).toBeVisible();
-  await expect(
-    page.getByText("npm create meterkit@0.2.0", { exact: false }).first(),
+    page.getByText("npm create meterkit@0.3.0", { exact: false }).first(),
   ).toBeVisible();
   await expect(page).toHaveTitle("External developer pilot | MeterKit");
-  await expect(page.getByRole("button", { name: /^Copy:/ })).toHaveCount(5);
+  const copyButtons = page.getByRole("button", { name: /^Copy:/ });
+  await expect(copyButtons).toHaveCount(5);
+  await expect(copyButtons.nth(0)).toBeDisabled();
+  await expect(copyButtons.nth(1)).toBeDisabled();
   await page.screenshot({
     path: "artifacts/pilots-desktop.png",
     fullPage: true,

@@ -14,9 +14,9 @@
     "@solana/sysvars": "5.5.1",
     "@usemeterkit/core": "workspace:*",
     "@usemeterkit/sdk": "workspace:*",
-    "@x402/core": "2.21.0",
-    "@x402/hono": "2.21.0",
-    "@x402/svm": "2.21.0",
+    "@x402/core": "2.22.0",
+    "@x402/hono": "2.22.0",
+    "@x402/svm": "2.22.0",
     "hono": "4.13.0"
   },
   "devDependencies": {

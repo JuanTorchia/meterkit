@@ -4,9 +4,9 @@ MeterKit permite cobrar USDC de devnet por APIs y herramientas MCP sin custodiar
 fondos ni claves privadas. Este es el punto de entrada mantenido para builders de
 Latinoamérica.
 
-Base pública del registry: `@usemeterkit/core@0.2.0`,
-`@usemeterkit/sdk@0.2.0` y `create-meterkit@0.2.0`, todos con provenance de npm.
-Subscriptions y la CLI de pilotos siguen siendo candidatos del workspace.
+El candidato 0.3.0 agrega la CLI pública y el adaptador PostgreSQL standalone al
+core, SDK e inicializador. Sólo será la base recomendada después de pasar el
+smoke post-publicación contra el registry.
 
 ## Primeros pasos
 
@@ -23,8 +23,15 @@ Subscriptions y la CLI de pilotos siguen siendo candidatos del workspace.
 Express `protect()` es el camino canónico. Next.js App Router, Hono y MCP
 comparten el contrato versionado de recibos; Hono continúa experimental hasta
 tener uso externo. En un servicio existente instale
-`@usemeterkit/sdk@0.2.0`. Para generar un proyecto, ejecute
-`npm create meterkit@0.2.0` y seleccione la superficie de integración.
+`@usemeterkit/sdk@0.3.0`. Para generar un proyecto, ejecute
+`npm create meterkit@0.3.0 -- meterkit-app --surface express --package-manager
+npm --recipient <WALLET_PUBLICA_DEVNET> --yes`.
+
+La convocatoria actual es una **beta devnet gratuita para cinco personas**. No
+se cobra ni se compensa a participantes; la implementación hecha por MeterKit
+por USD 100 es un servicio separado y opcional, nunca un requisito del software
+open source. Integraciones externas verificadas reportadas actualmente: **0**.
+Las pruebas internas o sintéticas no cuentan como adopción.
 
 Los documentos técnicos en español permanecen directamente bajo `docs/`. Las
 traducciones inglesas completas de documentos originalmente españoles viven en

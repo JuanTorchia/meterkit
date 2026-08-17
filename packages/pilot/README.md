@@ -19,3 +19,7 @@ localhost development config. Do not enable that flag for untrusted configs.
 
 `pilot-report.json` is readiness evidence only. A completed external pilot also
 requires a devnet settlement, Explorer receipt and replay rejection.
+
+This package remains a workspace compatibility/evidence tool; new public
+endpoint checks, diagnosis and safe devnet payment belong to the separately
+versioned `@usemeterkit/cli`. Never describe local or CI runs as external users.

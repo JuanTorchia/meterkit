@@ -24,6 +24,8 @@ describe("create-meterkit CLI", () => {
       dryRun: true,
       json: true,
       yes: true,
+      install: true,
+      durability: "memory",
     });
   });
 
@@ -52,5 +54,75 @@ describe("create-meterkit CLI", () => {
       }),
     ).toBe(2);
     expect(errors.join("")).toContain("INVALID_INPUT");
+  });
+
+  it("collects the guided bare-command choices only in a TTY", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "meterkit-guided-"));
+    const answers: Record<string, string | boolean> = {
+      directory: "guided-app",
+      surface: "hono",
+      packageManager: "npm",
+      recipient: "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE",
+      install: false,
+    };
+    const output: string[] = [];
+
+    expect(
+      await runCli([], {
+        cwd,
+        isTTY: true,
+        prompt: async (request) => answers[request.id],
+        stdout: (value) => output.push(value),
+      }),
+    ).toBe(0);
+    expect(output.join("")).toContain("guided-app");
+    expect(output.join("")).toContain("npm");
+  });
+
+  it("never prompts in a non-interactive shell", async () => {
+    let prompted = false;
+    const errors: string[] = [];
+    expect(
+      await runCli([], {
+        isTTY: false,
+        prompt: async () => {
+          prompted = true;
+          return "unexpected";
+        },
+        stderr: (value) => errors.push(value),
+      }),
+    ).toBe(2);
+    expect(prompted).toBe(false);
+    expect(errors.join("")).toContain("directory is required");
+  });
+
+  it("honors complete non-interactive install flags and recipient", () => {
+    expect(
+      parseCliArguments([
+        "automated-app",
+        "--surface",
+        "express",
+        "--package-manager",
+        "npm",
+        "--recipient",
+        "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE",
+        "--no-install",
+        "--yes",
+      ]),
+    ).toMatchObject({
+      directory: "automated-app",
+      surface: "express",
+      packageManager: "npm",
+      recipient: "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE",
+      install: false,
+      yes: true,
+      durability: "memory",
+    });
+  });
+
+  it("selects PostgreSQL durability explicitly", () => {
+    expect(
+      parseCliArguments(["durable", "--store", "postgres"]).durability,
+    ).toBe("postgres");
   });
 });

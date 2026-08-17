@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-08-17T06:50:00.000Z",
+  "alerts": [],
+  "updates": [
+    {
+      "number": 68,
+      "kind": "runtime",
+      "cohort": "web-runtime",
+      "checks": "failed",
+      "failureCode": "UNRELATED_E2E_LOCALE_ASSERTION"
+    },
+    {
+      "number": 69,
+      "kind": "runtime",
+      "cohort": "gateway-runtime",
+      "checks": "passed"
+    },
+    {
+      "number": 70,
+      "kind": "runtime",
+      "cohort": "production-other",
+      "checks": "failed",
+      "failureCode": "X402_FIXTURE_VERSION_DRIFT"
+    },
+    {
+      "number": 71,
+      "kind": "development",
+      "cohort": "development",
+      "checks": "passed"
+    },
+    {
+      "number": 72,
+      "kind": "github_action",
+      "cohort": "codeql",
+      "checks": "failed",
+      "failureCode": "CODEQL_ACTION_VERSION_MISMATCH"
+    },
+    {
+      "number": 73,
+      "kind": "github_action",
+      "cohort": "codeql",
+      "checks": "failed",
+      "failureCode": "CODEQL_ACTION_VERSION_MISMATCH"
+    }
+  ]
+}

@@ -16,3 +16,20 @@ jobs:
         with:
           fail-on-severity: high
           comment-summary-in-pr: always
+          warn-only: false
+
+      - name: Preserve sanitized dependency-review summary
+        if: always()
+        env:
+          OUTCOME: ${{ job.status }}
+        run: |
+          mkdir -p artifacts/dependency-risk
+          node -e 'require("fs").writeFileSync("artifacts/dependency-risk/review.json", JSON.stringify({schemaVersion:1,outcome:process.env.OUTCOME,threshold:"high",commit:process.env.GITHUB_SHA})+"\n")'
+
+      - name: Upload dependency-review summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dependency-review-${{ github.sha }}
+          path: artifacts/dependency-risk/review.json
+          retention-days: 30

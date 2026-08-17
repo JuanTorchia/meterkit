@@ -9,10 +9,15 @@ Open-source, non-custodial USDC payments for APIs and MCP tools on Solana.
 
 **Devnet only — do not send mainnet assets.**
 
-Registry status checked 2026-08-11: `@usemeterkit/core@0.2.0`,
-`@usemeterkit/sdk@0.2.0` and `create-meterkit@0.2.0` are public with npm
-provenance attestations. Subscriptions and the pilot CLI remain workspace
-candidates and are not described as npm releases.
+Project status: technical devnet beta maintained by
+[Juan Torchia](https://github.com/JuanTorchia). Current verified external
+integrations: **0**. Automated registry checks, npm downloads, repository
+traffic and maintainer runs are reported separately and never counted as users.
+
+Release candidate 0.3.0 publishes `@usemeterkit/core`, `@usemeterkit/database`,
+`@usemeterkit/sdk`, `@usemeterkit/cli` and `create-meterkit` together with npm
+provenance. Until the v0.3.0 registry gate passes, use v0.2.0 only for the older
+challenge-only flow and do not infer that the new CLI/database artifacts exist.
 
 MeterKit lets an API or MCP provider set a USDC price, add TypeScript middleware
 and receive payments directly from the client through x402. MeterKit does not
@@ -28,7 +33,9 @@ USDC budget for paid APIs and MCP tools over standard HTTP.
 - [Community plan](docs/community.md)
 - [External pilot quickstart](docs/pilot-quickstart.md)
 - [SDK quickstart — first HTTP 402](docs/sdk-quickstart.md)
-- [Join the three-developer external pilot](docs/pilots/README.md)
+- [Join the free five-person external beta](docs/pilots/README.md) — no charge
+  and no tester compensation; optional done-for-you setup is a separate USD 100
+  service only when requested
 - [Release procedure](docs/releasing.md)
 - [Security policy](SECURITY.md)
 - [Roadmap](docs/roadmap.md)
@@ -38,10 +45,18 @@ USDC budget for paid APIs and MCP tools over standard HTTP.
 Generate a new Express, Next.js, Hono or MCP integration from npm:
 
 ```bash
-npm create meterkit@0.2.0
+npm create meterkit@0.3.0 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
+cd meterkit-app
+npm run dev
 ```
 
-Requirements: Node.js 22+, pnpm 11+ and Docker.
+In a second terminal, `cd meterkit-app && npm run check:unpaid`. This public
+first-402 path requires Node.js 22 but no clone, Docker, PostgreSQL, funds or
+private key. It uses a visibly non-durable in-memory store and must not serve
+paid requests.
+
+The following is the separate contributor/full-stack path. It requires pnpm 11
+and Docker:
 
 ```bash
 git clone https://github.com/JuanTorchia/meterkit.git
