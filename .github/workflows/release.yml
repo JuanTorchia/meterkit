@@ -27,8 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: npm-stage
-    env:
-      DEPENDENCY_EVIDENCE_PATH: ${{ runner.temp }}/meterkit-dependency-evidence.json
     services:
       postgres:
         image: postgres:17-alpine
@@ -87,16 +85,17 @@ jobs:
         run: |
           asset="dependency-evidence-${GITHUB_SHA}.json"
           gh release download "$RELEASE_TAG" --pattern "$asset" --dir "$RUNNER_TEMP"
-          mv "$RUNNER_TEMP/$asset" "$DEPENDENCY_EVIDENCE_PATH"
+          mv "$RUNNER_TEMP/$asset" "$RUNNER_TEMP/meterkit-dependency-evidence.json"
 
       - name: Require complete dependency evidence
         if: github.event_name == 'release'
-        run: node scripts/dependency-risk/release-check.mjs "$DEPENDENCY_EVIDENCE_PATH"
+        run: node scripts/dependency-risk/release-check.mjs "$RUNNER_TEMP/meterkit-dependency-evidence.json"
 
       - name: Verify release version
         if: github.event_name == 'release'
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
+          DEPENDENCY_EVIDENCE_PATH: ${{ runner.temp }}/meterkit-dependency-evidence.json
         run: node scripts/verify-release-version.mjs "$RELEASE_TAG"
 
       - name: Require clean release source
