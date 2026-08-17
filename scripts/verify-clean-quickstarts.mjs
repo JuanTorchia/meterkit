@@ -54,6 +54,7 @@ function run(command, args, cwd) {
   return execFileSync(command, args, {
     cwd,
     encoding: "utf8",
+    shell: process.platform === "win32",
     stdio: ["ignore", "pipe", "pipe"],
     timeout: 120_000,
   });
@@ -124,6 +125,7 @@ async function exercise(project, surface, manager) {
     cwd: project,
     env: { ...process.env, PORT: String(port) },
     detached: process.platform !== "win32",
+    shell: process.platform === "win32",
     stdio: ["ignore", "pipe", "pipe"],
   });
   let diagnostics = "";
