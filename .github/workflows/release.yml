@@ -23,7 +23,9 @@ permissions:
 
 jobs:
   publish:
+    if: github.event_name == 'release' || inputs.registry_version == ''
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: npm-stage
     services:
       postgres:
@@ -76,15 +78,18 @@ jobs:
           test "$conclusion" = "success"
 
       - name: Download exact-commit dependency evidence
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          run_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&status=success" --jq '[.workflow_runs[] | select(.name == "CI")][0].id')"
-          test -n "$run_id" && test "$run_id" != "null"
           mkdir -p artifacts/dependency-risk
-          gh run download "$run_id" --name "dependency-evidence-${GITHUB_SHA}" --dir artifacts/dependency-risk
+          asset="dependency-evidence-${GITHUB_SHA}.json"
+          gh release download "$RELEASE_TAG" --pattern "$asset" --dir artifacts/dependency-risk
+          mv "artifacts/dependency-risk/$asset" artifacts/dependency-risk/evidence.json
 
       - name: Require complete dependency evidence
+        if: github.event_name == 'release'
         run: node scripts/dependency-risk/release-check.mjs artifacts/dependency-risk/evidence.json
 
       - name: Verify release version
