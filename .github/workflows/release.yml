@@ -27,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: npm-stage
+    env:
+      DEPENDENCY_EVIDENCE_PATH: ${{ runner.temp }}/meterkit-dependency-evidence.json
     services:
       postgres:
         image: postgres:17-alpine
@@ -83,14 +85,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          mkdir -p artifacts/dependency-risk
           asset="dependency-evidence-${GITHUB_SHA}.json"
-          gh release download "$RELEASE_TAG" --pattern "$asset" --dir artifacts/dependency-risk
-          mv "artifacts/dependency-risk/$asset" artifacts/dependency-risk/evidence.json
+          gh release download "$RELEASE_TAG" --pattern "$asset" --dir "$RUNNER_TEMP"
+          mv "$RUNNER_TEMP/$asset" "$DEPENDENCY_EVIDENCE_PATH"
 
       - name: Require complete dependency evidence
         if: github.event_name == 'release'
-        run: node scripts/dependency-risk/release-check.mjs artifacts/dependency-risk/evidence.json
+        run: node scripts/dependency-risk/release-check.mjs "$DEPENDENCY_EVIDENCE_PATH"
 
       - name: Verify release version
         if: github.event_name == 'release'
@@ -112,7 +113,6 @@ jobs:
         if: github.event_name == 'release'
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
-          DEPENDENCY_EVIDENCE_PATH: artifacts/dependency-risk/evidence.json
         # release:verify generates tracked benchmark/evidence outputs. Source
         # cleanliness is enforced immediately before that command.
         run: node scripts/generate-release-manifest.mjs "$RELEASE_TAG" --allow-dirty
