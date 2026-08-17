@@ -95,7 +95,6 @@ jobs:
         if: github.event_name == 'release'
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
-          DEPENDENCY_EVIDENCE_PATH: ${{ runner.temp }}/meterkit-dependency-evidence.json
         run: node scripts/verify-release-version.mjs "$RELEASE_TAG"
 
       - name: Require clean release source
@@ -112,6 +111,7 @@ jobs:
         if: github.event_name == 'release'
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
+          DEPENDENCY_EVIDENCE_PATH: ${{ runner.temp }}/meterkit-dependency-evidence.json
         # release:verify generates tracked benchmark/evidence outputs. Source
         # cleanliness is enforced immediately before that command.
         run: node scripts/generate-release-manifest.mjs "$RELEASE_TAG" --allow-dirty
