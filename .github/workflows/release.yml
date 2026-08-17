@@ -9,8 +9,13 @@ on:
         description: Build and verify packages without publishing
         type: boolean
         default: true
+      registry_version:
+        description: Exact already-published version to verify from npm
+        type: string
+        required: false
 
 permissions:
+  actions: read
   checks: read
   # The SBOM action attaches the generated SPDX document to the GitHub release.
   contents: write
@@ -70,6 +75,18 @@ jobs:
           conclusion="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs" --jq '[.check_runs[] | select(.name == "verify") | .conclusion] | last')"
           test "$conclusion" = "success"
 
+      - name: Download exact-commit dependency evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?head_sha=${GITHUB_SHA}&status=success" --jq '[.workflow_runs[] | select(.name == "CI")][0].id')"
+          test -n "$run_id" && test "$run_id" != "null"
+          mkdir -p artifacts/dependency-risk
+          gh run download "$run_id" --name "dependency-evidence-${GITHUB_SHA}" --dir artifacts/dependency-risk
+
+      - name: Require complete dependency evidence
+        run: node scripts/dependency-risk/release-check.mjs artifacts/dependency-risk/evidence.json
+
       - name: Verify release version
         if: github.event_name == 'release'
         env:
@@ -83,10 +100,14 @@ jobs:
       - name: Verify packages
         run: pnpm release:verify
 
+      - name: Verify self-service claims
+        run: node scripts/verify-self-service-claims.mjs
+
       - name: Generate exact-tag release manifest
         if: github.event_name == 'release'
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
+          DEPENDENCY_EVIDENCE_PATH: artifacts/dependency-risk/evidence.json
         # release:verify generates tracked benchmark/evidence outputs. Source
         # cleanliness is enforced immediately before that command.
         run: node scripts/generate-release-manifest.mjs "$RELEASE_TAG" --allow-dirty
@@ -100,7 +121,9 @@ jobs:
         run: |
           mkdir -p artifacts/npm
           pnpm --filter @usemeterkit/core pack --pack-destination "$GITHUB_WORKSPACE/artifacts/npm"
+          pnpm --filter @usemeterkit/database pack --pack-destination "$GITHUB_WORKSPACE/artifacts/npm"
           pnpm --filter @usemeterkit/sdk pack --pack-destination "$GITHUB_WORKSPACE/artifacts/npm"
+          pnpm --filter @usemeterkit/cli pack --pack-destination "$GITHUB_WORKSPACE/artifacts/npm"
           pnpm --filter create-meterkit pack --pack-destination "$GITHUB_WORKSPACE/artifacts/npm"
 
       - name: Generate package SBOM
@@ -115,3 +138,61 @@ jobs:
           for artifact in artifacts/npm/*.tgz; do
             npm stage publish "$artifact" --access public
           done
+
+  registry-smoke:
+    if: github.event_name == 'workflow_dispatch' && inputs.registry_version != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        manager: [npm, pnpm]
+        surface: [express, next-route, hono, mcp]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 11.10.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @usemeterkit/core build
+      - name: Verify exact public artifact
+        env:
+          METERKIT_REGISTRY_VERSION: ${{ inputs.registry_version }}
+          METERKIT_QUICKSTART_MANAGERS: ${{ matrix.manager }}
+          METERKIT_QUICKSTART_SURFACES: ${{ matrix.surface }}
+        run: node scripts/verify-registry-quickstarts.mjs > registry-smoke.json
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: registry-smoke-${{ inputs.registry_version }}-${{ matrix.manager }}-${{ matrix.surface }}
+          path: registry-smoke.json
+
+  registry-promotion-decision:
+    if: github.event_name == 'workflow_dispatch' && inputs.registry_version != ''
+    needs: registry-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 11.10.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @usemeterkit/core build
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: registry-smoke-${{ inputs.registry_version }}-*
+          path: registry-smoke-results
+      - name: Require every exact registry cell before recommendation
+        env:
+          METERKIT_REGISTRY_VERSION: ${{ inputs.registry_version }}
+        run: node scripts/aggregate-registry-smoke.mjs registry-smoke-results > registry-promotion.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: registry-promotion-${{ inputs.registry_version }}
+          path: registry-promotion.json

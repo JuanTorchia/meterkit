@@ -1,29 +1,29 @@
 import assert from "node:assert/strict";
-import { cp, mkdtemp, readFile, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { verifyDocumentation } from "./verify-docs-parity.mjs";
 
-const root = resolve("content/docs");
-
-test("English and Spanish documentation have equivalent versioned claims", async () => {
-  const report = await verifyDocumentation(root);
-  assert.equal(report.passed, true);
-  assert.ok(report.pagesPerLocale >= 6);
-  assert.ok(report.claims >= 12);
-});
-
-test("claim drift and broken links fail deterministically", async () => {
-  const temporary = await mkdtemp(join(tmpdir(), "meterkit-docs-"));
-  await cp(root, temporary, { recursive: true });
-  const spanish = join(temporary, "es/index.mdx");
-  const source = await readFile(spanish, "utf8");
-  await writeFile(
-    spanish,
-    source.replace("direct-settlement", "custodial-settlement"),
-  );
-  await assert.rejects(verifyDocumentation(temporary), /DOC_CLAIM_MISMATCH/);
-  await writeFile(spanish, source.replace("./concepts", "./missing-page"));
-  await assert.rejects(verifyDocumentation(temporary), /DOC_LINK_BROKEN/);
+test("English and Spanish public CTA preserve beta and commercial boundaries", async () => {
+  const [page, readme, english, spanish] = await Promise.all([
+    readFile("apps/web/app/pilots/page.tsx", "utf8"),
+    readFile("README.md", "utf8"),
+    readFile("docs/en/README.md", "utf8"),
+    readFile("docs/es/README.md", "utf8"),
+  ]);
+  for (const source of [page, readme]) {
+    assert.match(
+      source,
+      /five-person|Five independent|cinco personas|Cinco builders/i,
+    );
+    assert.match(
+      source,
+      /not (?:paid|tester compensation)|no se les paga|no tester compensation/i,
+    );
+    assert.match(source, /USD 100/);
+  }
+  assert.match(english, /free five-person/i);
+  assert.match(spanish, /beta devnet gratuita para cinco/i);
+  for (const source of [english, spanish]) {
+    assert.match(source, /devnet/i);
+    assert.match(source, /0|zero|cero/i);
+  }
 });

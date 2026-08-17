@@ -1,7 +1,8 @@
 # External pilot program
 
-Goal: three independent developers integrate the public SDK and each complete a
-finalized devnet x402 payment to their own provider wallet.
+Goal: invite five independent developers to try the free devnet beta and measure
+whether they can reach a valid 402, settlement and replay rejection without
+maintainer intervention.
 
 Participation is voluntary. Before sharing an activation report, the developer
 must explicitly consent and select assistance as `none`, `docs_only` or
@@ -10,25 +11,25 @@ do not include email, IP, wallet, full signature, private key, token or business
 data. Friction categories are install, configuration, challenge, funding,
 settlement, receipt, replay and documentation.
 
-The disclosed assisted service costs USD 100, paid by the customer to MeterKit;
-MeterKit does not pay or compensate participants. It includes one supported
-endpoint, one
-readiness review, up to 45 minutes of guided integration, the settlement/replay
-evidence pass and a closing report. Expected participant time is 60–90 minutes.
-Self-service remains available; neither path authorizes custody, mainnet funds or
-public attribution.
+Beta participants are not charged and MeterKit does not pay or compensate them.
+Self-service is the primary path. If a customer separately requests that
+MeterKit perform the work, an optional USD 100 setup service covers one endpoint
+and up to 45 minutes of support. It is never required for open-source use.
+Neither path authorizes custody, mainnet funds or public attribution.
 
 Choose one factual installation path:
 
 - Existing service: install the public immutable
-  `@usemeterkit/sdk@0.2.0` package from npm and protect a participant-controlled
+  `@usemeterkit/sdk@0.3.0` package after its registry gate and protect a participant-controlled
   route.
-- Generated project: run `npm create meterkit@0.2.0 -- <directory> --surface
-<express|next-route|hono|mcp> --package-manager pnpm --yes`.
+- Generated project: run `npm create meterkit@0.3.0 -- <directory> --surface
+<express|next-route|hono|mcp> --package-manager pnpm --recipient
+<DEVNET_PUBLIC_WALLET> --yes`.
 
-`create-meterkit` is a public provenance-backed `0.2.0` release and
-`@usemeterkit/pilot` remains a candidate workspace package as of 2026-08-11.
-The generated-project path is registry adoption; the pilot CLI is not.
+The 0.3.0 initializer, CLI, SDK and database adapter are release candidates
+until the exact registry smoke passes. `@usemeterkit/pilot` remains a workspace
+evidence package. Registry verification is synthetic engineering evidence, not
+adoption.
 
 Read `docs/sdk-quickstart.md`, run the workspace pilot verifier, complete the
 devnet journey, then export sanitized evidence. A readiness check is not a

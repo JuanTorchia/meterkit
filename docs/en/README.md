@@ -4,9 +4,9 @@ MeterKit is devnet-only software for non-custodial USDC payments to API and MCP
 providers. This page is the maintained English entry point; Spanish remains a
 first-class documentation path for Latin American builders.
 
-Public registry baseline: `@usemeterkit/core@0.2.0`,
-`@usemeterkit/sdk@0.2.0` and `create-meterkit@0.2.0`, all with npm provenance.
-Subscriptions and the pilot CLI remain workspace candidates.
+The 0.3.0 release candidate adds the public CLI and standalone database adapter
+to core, SDK and initializer. It becomes the recommended registry baseline only
+after its post-publish smoke gate passes.
 
 ## Start here
 
@@ -19,13 +19,16 @@ Subscriptions and the pilot CLI remain workspace candidates.
 
 Express `protect()` is canonical. Next.js App Router, Hono and MCP share the
 versioned receipt contract; Hono remains experimental pending external use.
-Join the
-[consented three-developer pilot](../pilots/README.md); internal tests do not
+Join the [free five-person devnet beta](../pilots/README.md). Participants are
+not charged or compensated; the separate USD 100 done-for-you setup is optional
+and never required to use the open-source software. Verified external
+integrations currently reported: **0**. Internal and synthetic tests do not
 count as external traction.
 
-For an existing service, install `@usemeterkit/sdk@0.2.0`. For a generated
-project, run `npm create meterkit@0.2.0` and choose the intended integration
-surface.
+For an existing service, install `@usemeterkit/sdk@0.3.0`. For a generated
+project, use the fully specified `npm create meterkit@0.3.0 -- meterkit-app
+--surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET>
+--yes` command.
 
 ## Language structure
 

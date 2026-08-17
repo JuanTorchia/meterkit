@@ -6,7 +6,9 @@ import process from "node:process";
 
 export const PUBLIC_RELEASE_PACKAGE_PATHS = [
   "packages/core/package.json",
+  "packages/database/package.json",
   "packages/sdk/package.json",
+  "packages/cli/package.json",
   "packages/create-meterkit/package.json",
 ];
 

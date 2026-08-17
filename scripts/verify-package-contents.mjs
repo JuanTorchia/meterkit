@@ -39,6 +39,14 @@ async function publishablePackages(base) {
       name: manifest.name,
       directory: join(base, "packages", entry.name),
       entryPoint: entryPoint.replace(/^\.\//, ""),
+      bins: Object.entries(
+        typeof manifest.bin === "string"
+          ? { [manifest.name]: manifest.bin }
+          : (manifest.bin ?? {}),
+      ).map(([name, path]) => ({
+        name,
+        path: path.replace(/^\.\//, ""),
+      })),
     });
   }
   return found;
@@ -82,7 +90,7 @@ export async function verifyPackageContents(base = root) {
 
   const destination = await mkdtemp(join(tmpdir(), "meterkit-pack-"));
   try {
-    for (const { name, directory, entryPoint } of packages) {
+    for (const { name, directory, entryPoint, bins } of packages) {
       let packed;
       try {
         packed = packedFiles(directory, destination);
@@ -95,6 +103,13 @@ export async function verifyPackageContents(base = root) {
       if (!packed.has(entryPoint)) {
         failures.push(`${name}: entry point ${entryPoint} is not packed`);
         continue;
+      }
+      for (const bin of bins) {
+        if (!packed.has(bin.path)) {
+          failures.push(
+            `${name}: bin ${bin.name} points to ${bin.path}, but it is not packed`,
+          );
+        }
       }
 
       // Walk the emitted module graph from the entry point.

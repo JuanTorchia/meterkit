@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { sha256 } from "./dependency-risk/model.mjs";
 import { publicReleaseSchema } from "../packages/core/dist/index.js";
 import {
   PUBLIC_RELEASE_PACKAGE_PATHS,
@@ -89,6 +90,18 @@ export async function generateReleaseManifest({
     join(tmpdir(), "meterkit-release-packs-"),
   );
   try {
+    const dependencyEvidencePath = process.env.DEPENDENCY_EVIDENCE_PATH;
+    if (!dependencyEvidencePath)
+      throw new Error("DEPENDENCY_EVIDENCE_REQUIRED");
+    const dependencyEvidenceRaw = await readFile(
+      resolve(dependencyEvidencePath),
+      "utf8",
+    );
+    const dependencyEvidence = JSON.parse(dependencyEvidenceRaw);
+    if (dependencyEvidence.gate !== "passed")
+      throw new Error("DEPENDENCY_GATE_NOT_PASSED");
+    if (dependencyEvidence.commit !== sourceCommit)
+      throw new Error("DEPENDENCY_EVIDENCE_COMMIT_MISMATCH");
     const packages = [];
     for (const manifestPath of PUBLIC_RELEASE_PACKAGE_PATHS) {
       packages.push(
@@ -103,6 +116,12 @@ export async function generateReleaseManifest({
       packages,
       compatibilityReport: "artifacts/compatibility/report.json",
       sbomReferences: ["artifacts/sbom/source.spdx.json"],
+      dependencyEvidence: {
+        gate: "passed",
+        digest: sha256(dependencyEvidenceRaw),
+        environmentId: dependencyEvidence.environmentId,
+        generatedAt: dependencyEvidence.generatedAt,
+      },
       provenanceStatus: "staged",
       migrationImpact: "compatible",
       rollback:

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "build:packages": "pnpm --filter @usemeterkit/core build && pnpm --filter @usemeterkit/database build && pnpm --filter @usemeterkit/sdk build && pnpm --filter @usemeterkit/subscriptions build && pnpm --filter @usemeterkit/policy-webacy build && pnpm --filter @usemeterkit/pilot build",
+    "build:packages": "pnpm --filter @usemeterkit/core build && pnpm --filter @usemeterkit/database build && pnpm --filter @usemeterkit/sdk build && pnpm --filter @usemeterkit/subscriptions build && pnpm --filter @usemeterkit/policy-webacy build && pnpm --filter @usemeterkit/cli build && pnpm --filter @usemeterkit/pilot build",
     "predev": "pnpm build:packages",
     "dev": "pnpm --parallel --filter @usemeterkit/gateway --filter @usemeterkit/web dev",
     "lint": "eslint .",
@@ -38,7 +38,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "version:verify": "node scripts/verify-version-claims.mjs",
-    "package:verify": "node scripts/verify-package-contents.mjs"
+    "package:verify": "node scripts/verify-package-contents.mjs",
+    "dependency:risk": "node scripts/dependency-risk/cli.mjs",
+    "dependency:risk:local": "node scripts/dependency-risk/cli.mjs local-check",
+    "dependency:risk:server": "node scripts/dependency-risk/cli.mjs server-collect"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -48,9 +51,9 @@
     "bs58": "6.0.0",
     "eslint": "^9.39.1",
     "prettier": "^3.6.2",
-    "tsx": "4.23.11",
+    "tsx": "4.23.12",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.66.0",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^3.2.4"
   }
 }

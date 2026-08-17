@@ -1,11 +1,13 @@
 import express from "express";
-import { MemoryPaymentStore, protect, SOLANA_DEVNET } from "@usemeterkit/sdk";
+import { protect, SOLANA_DEVNET } from "@usemeterkit/sdk";
+import { createPaymentStore } from "./payment-store.js";
 
 const wallet = process.env.MERCHANT_WALLET;
 if (!wallet)
   throw new Error("Set MERCHANT_WALLET to a disposable devnet address");
 const port = Number(process.env.PORT ?? "3000");
 const app = express();
+const store = await createPaymentStore();
 app.get(
   "/premium",
   protect({
@@ -19,7 +21,7 @@ app.get(
       payTo: wallet,
       network: SOLANA_DEVNET,
     },
-    store: new MemoryPaymentStore(),
+    store,
     rpcUrl: process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
   }),
   (_request, response) => response.json({ protected: true }),

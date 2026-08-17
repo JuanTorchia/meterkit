@@ -7,6 +7,8 @@ export * from "./initializer.js";
 export * from "./documentation.js";
 export * from "./authorization.js";
 export * from "./pilot-activation.js";
+export * from "./self-service.js";
+export * from "./dependency-risk.js";
 
 export const SOLANA_DEVNET = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 export const SOLANA_MAINNET = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
@@ -75,10 +77,12 @@ export interface PaymentStore {
   has(signature: string): Promise<boolean>;
   save(record: PaymentRecord): Promise<void>;
   list(): Promise<readonly PaymentRecord[]>;
+  reserveAuthorization?(fingerprint: string): Promise<boolean>;
 }
 
 export class MemoryPaymentStore implements PaymentStore {
   readonly #records = new Map<string, PaymentRecord>();
+  readonly #authorizations = new Set<string>();
   async has(signature: string) {
     return this.#records.has(signature);
   }
@@ -89,6 +93,11 @@ export class MemoryPaymentStore implements PaymentStore {
   }
   async list() {
     return [...this.#records.values()];
+  }
+  async reserveAuthorization(fingerprint: string) {
+    if (this.#authorizations.has(fingerprint)) return false;
+    this.#authorizations.add(fingerprint);
+    return true;
   }
 }
 

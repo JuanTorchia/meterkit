@@ -43,6 +43,15 @@ export const publicReleaseSchema = z
     packages: z.array(packageArtifactSchema).min(1).max(32),
     compatibilityReport: z.string().min(1).max(512),
     sbomReferences: z.array(z.string().min(1).max(512)).min(1).max(32),
+    dependencyEvidence: z
+      .object({
+        gate: z.literal("passed"),
+        digest: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+        environmentId: z.string().min(1).max(256),
+        generatedAt: z.string().datetime(),
+      })
+      .strict()
+      .optional(),
     provenanceStatus: z.enum(["staged", "verified", "unavailable", "failed"]),
     migrationImpact: z.enum(["none", "compatible", "breaking"]),
     publishedAt: z.string().datetime().optional(),

@@ -10,15 +10,17 @@ import styles from "./pilots.module.css";
 
 const commands = {
   released:
-    "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.2.0 express",
+    "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.3.0 express",
   generated:
-    "npm create meterkit@0.2.0 -- meterkit-pilot --surface express --package-manager pnpm --yes",
+    "npm create meterkit@0.3.0 -- meterkit-pilot --surface express --package-manager pnpm --recipient <DEVNET_PUBLIC_WALLET> --yes",
   install:
     "git clone https://github.com/JuanTorchia/meterkit.git\ncd meterkit\npnpm install --frozen-lockfile",
   configure: "pnpm pilot:init -- https://your-api.test/premium",
   verify:
     "pnpm pilot:verify -- \\\n  --config meterkit-pilot.json \\\n  --out pilot-report.json",
 } as const;
+const selfServiceReleaseAvailable =
+  process.env.NEXT_PUBLIC_SELF_SERVICE_VERSION === "0.3.0";
 
 const copy = {
   en: {
@@ -35,18 +37,20 @@ const copy = {
     prerequisites: "Prerequisites",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 and a test endpoint that returns an x402 challenge. Localhost is supported with an explicit development flag. No wallet is required for readiness.",
-    offer: "ASSISTED PILOT OFFER",
-    offerTitle: "MeterKit integrates and verifies your endpoint for USD 100.",
+    releasePending:
+      "The 0.3.0 self-service packages are still a release candidate. Installation commands stay disabled until the exact npm registry matrix passes.",
+    offer: "FREE FIVE-PERSON DEVNET BETA",
+    offerTitle: "Install and verify one endpoint at no charge.",
     offerBody:
-      "You pay MeterKit USD 100 for the assisted integration service; participants are not paid or compensated to test it. The service includes one Express, Next.js, Hono or MCP endpoint on Solana devnet, a readiness review, one guided session of up to 45 minutes, settlement and replay evidence, and a closing report. You provide a non-sensitive test endpoint and about 60–90 minutes. Continued hosting is optional and priced separately only after the pilot.",
+      "Five independent builders can use the devnet beta for free. Participants are not charged and are not paid or compensated to test it. Start from the public initializer and try without a call; optional support is limited to one 45-minute session. Separately, if you ask MeterKit to perform the integration for you, the optional founder setup service costs USD 100. The open-source software never requires that service.",
     offerBoundary:
       "MeterKit never requests wallet keys, mainnet funds, private endpoint URLs or permission to name you. Technical participation, private evidence retention, day-seven follow-up and public attribution are separate choices that you may deny or withdraw.",
     paths: "CHOOSE YOUR STARTING PATH",
     pathsTitle: "Use the public SDK or generate a reviewable project.",
     pathsBody:
-      "The SDK and create-meterkit initializer are public provenance-backed 0.2.0 releases. Both paths remain devnet-only and generate no wallet keys.",
+      "The 0.3.0 SDK and initializer candidate is devnet-only and generates no wallet keys. Use it only after the exact-version registry gate passes.",
     released: "A · RELEASED SDK",
-    releasedTitle: "Add the immutable public 0.2.0 package.",
+    releasedTitle: "Add the exact verified 0.3.0 package.",
     generated: "B · GENERATED PROJECT",
     generatedTitle:
       "Generate a reviewable project from the public initializer.",
@@ -127,18 +131,20 @@ const copy = {
     prerequisites: "Requisitos",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 y un endpoint de prueba que devuelva un desafío x402. Localhost funciona con una opción explícita de desarrollo. La preparación no requiere wallet.",
-    offer: "OFERTA DE PILOTO ASISTIDO",
-    offerTitle: "MeterKit integra y verifica tu endpoint por USD 100.",
+    releasePending:
+      "Los paquetes de autoservicio 0.3.0 todavía son candidatos. Los comandos permanecen deshabilitados hasta pasar la matriz exacta contra npm.",
+    offer: "BETA DEVNET GRATUITA PARA CINCO PERSONAS",
+    offerTitle: "Instala y verifica un endpoint sin costo.",
     offerBody:
-      "Tú pagas USD 100 a MeterKit por el servicio de integración asistida; no pagamos ni compensamos a participantes por probarlo. El servicio incluye un endpoint Express, Next.js, Hono o MCP en Solana devnet, revisión de preparación, una sesión guiada de hasta 45 minutos, evidencia de liquidación y replay, y reporte de cierre. Tú aportas un endpoint de prueba no sensible y aproximadamente 60–90 minutos. El hosting posterior es opcional y sólo se cotiza después del piloto.",
+      "Cinco builders independientes pueden usar gratis la beta devnet. No se les cobra ni se les paga o compensa por probarla. Empieza con el inicializador público e intenta hacerlo sin llamada; el soporte opcional se limita a una sesión de 45 minutos. Por separado, si solicitas que MeterKit haga la integración por ti, el servicio opcional de implementación cuesta USD 100. El software open source nunca exige ese servicio.",
     offerBoundary:
       "MeterKit nunca solicita claves de wallet, fondos mainnet, URLs privadas ni permiso para nombrarte. La participación técnica, retención privada, seguimiento al día siete y atribución pública son decisiones separadas que puedes negar o retirar.",
     paths: "ELIGE TU PUNTO DE PARTIDA",
     pathsTitle: "Usa el SDK público o genera un proyecto revisable.",
     pathsBody:
-      "El SDK y el inicializador create-meterkit son releases públicas 0.2.0 con provenance. Ambos recorridos son sólo devnet y no generan claves de wallet.",
+      "El SDK y el inicializador candidato 0.3.0 son sólo devnet y no generan claves. Úsalos después del gate exacto contra el registry.",
     released: "A · SDK PUBLICADO",
-    releasedTitle: "Agrega el paquete público e inmutable 0.2.0.",
+    releasedTitle: "Agrega el paquete exacto 0.3.0 verificado.",
     generated: "B · PROYECTO GENERADO",
     generatedTitle:
       "Genera un proyecto revisable con el inicializador público.",
@@ -220,18 +226,20 @@ const copy = {
     prerequisites: "Pré-requisitos",
     prerequisitesBody:
       "Node.js 22+, pnpm 11 e um endpoint de teste que retorne um desafio x402. Localhost funciona com uma opção explícita de desenvolvimento. A preparação não requer carteira.",
-    offer: "OFERTA DE PILOTO ASSISTIDO",
-    offerTitle: "A MeterKit integra e verifica seu endpoint por USD 100.",
+    releasePending:
+      "Os pacotes de autosserviço 0.3.0 ainda são candidatos. Os comandos ficam desativados até a matriz exata do npm passar.",
+    offer: "BETA DEVNET GRATUITA PARA CINCO PESSOAS",
+    offerTitle: "Instale e verifique um endpoint sem custo.",
     offerBody:
-      "Você paga USD 100 à MeterKit pelo serviço de integração assistida; participantes não recebem pagamento nem compensação para testá-lo. O serviço inclui um endpoint Express, Next.js, Hono ou MCP na Solana devnet, revisão de preparação, uma sessão guiada de até 45 minutos, evidência de liquidação e replay e relatório final. Você fornece um endpoint de teste não sensível e cerca de 60–90 minutos. A hospedagem posterior é opcional e só recebe preço depois do piloto.",
+      "Cinco builders independentes podem usar gratuitamente a beta devnet. Participantes não pagam e não recebem pagamento ou compensação pelo teste. Comece pelo inicializador público e tente sem chamada; o suporte opcional é limitado a uma sessão de 45 minutos. Separadamente, se você pedir que a MeterKit faça a integração, o serviço opcional custa USD 100. O software open source nunca exige esse serviço.",
     offerBoundary:
       "MeterKit nunca solicita chaves da carteira, fundos mainnet, URLs privadas ou permissão para identificar você. Participação técnica, retenção privada, acompanhamento no dia sete e atribuição pública são escolhas separadas que podem ser negadas ou retiradas.",
     paths: "ESCOLHA SEU PONTO DE PARTIDA",
     pathsTitle: "Use o SDK público ou gere um projeto revisável.",
     pathsBody:
-      "O SDK e o inicializador create-meterkit são releases públicas 0.2.0 com provenance. Ambos os caminhos são apenas devnet e não geram chaves de carteira.",
+      "O SDK e o inicializador candidato 0.3.0 são apenas devnet e não geram chaves. Use-os após o gate exato no registry.",
     released: "A · SDK PUBLICADO",
-    releasedTitle: "Adicione o pacote público e imutável 0.2.0.",
+    releasedTitle: "Adicione o pacote exato 0.3.0 verificado.",
     generated: "B · PROJETO GERADO",
     generatedTitle: "Gere um projeto revisável com o inicializador público.",
     readiness: "FASE A · PREPARAÇÃO",
@@ -391,6 +399,11 @@ export default function PilotsPage() {
       >
         <h2 id="starting-path-title">{text.pathsTitle}</h2>
         <p>{text.pathsBody}</p>
+        {!selfServiceReleaseAvailable ? (
+          <p className="errorBanner" role="status">
+            {text.releasePending}
+          </p>
+        ) : null}
       </section>
       <ol className={`pilotCommands ${styles.commandList}`}>
         <CommandStep
@@ -400,6 +413,7 @@ export default function PilotsPage() {
           copyLabel={text.copy}
           copiedLabel={text.copied}
           failedLabel={text.copyFailed}
+          disabled={!selfServiceReleaseAvailable}
         />
         <CommandStep
           label={text.generated}
@@ -408,6 +422,7 @@ export default function PilotsPage() {
           copyLabel={text.copy}
           copiedLabel={text.copied}
           failedLabel={text.copyFailed}
+          disabled={!selfServiceReleaseAvailable}
         />
       </ol>
 
@@ -564,6 +579,7 @@ function CommandStep({
   copyLabel,
   copiedLabel,
   failedLabel,
+  disabled = false,
 }: {
   label: string;
   title: string;
@@ -571,6 +587,7 @@ function CommandStep({
   copyLabel: string;
   copiedLabel: string;
   failedLabel: string;
+  disabled?: boolean;
 }) {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle",
@@ -597,6 +614,7 @@ function CommandStep({
           <pre tabIndex={0}>{command}</pre>
           <button
             type="button"
+            disabled={disabled}
             onClick={() => void copyCommand()}
             aria-label={`${copyLabel}: ${title}`}
           >

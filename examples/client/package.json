@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "@usemeterkit/core": "workspace:*",
-    "@solana/kit": "^5.5.1",
+    "@solana/kit": "5.5.1",
     "@solana/sysvars": "5.5.1",
-    "@x402/fetch": "2.21.0",
-    "@x402/svm": "2.21.0"
+    "@x402/fetch": "2.22.0",
+    "@x402/svm": "2.22.0"
   },
   "devDependencies": {
-    "tsx": "^4.23.11"
+    "tsx": "^4.23.12"
   }
 }

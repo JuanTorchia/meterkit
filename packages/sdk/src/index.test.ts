@@ -54,7 +54,6 @@ const product = productSchema.parse({
 
 describe("official x402 v2 middleware", () => {
   it("challenges, settles once, records receipt and rejects replay", async () => {
-    let used = false;
     const officialFacilitator: FacilitatorClient = {
       async getSupported() {
         return {
@@ -75,12 +74,9 @@ describe("official x402 v2 middleware", () => {
         };
       },
       async verify() {
-        if (used)
-          return { isValid: false, invalidReason: "payment_already_settled" };
         return { isValid: true, payer: product.payTo };
       },
       async settle(_payload, requirements) {
-        used = true;
         return {
           success: true,
           payer: product.payTo,
@@ -91,6 +87,7 @@ describe("official x402 v2 middleware", () => {
       },
     };
     const store = new MemoryPaymentStore();
+    let protectedExecutions = 0;
     const app = express();
     app.get(
       "/premium",
@@ -100,7 +97,10 @@ describe("official x402 v2 middleware", () => {
         facilitatorClient: officialFacilitator,
         rpcUrl: false,
       }),
-      (_request, response) => response.json({ protected: true }),
+      (_request, response) => {
+        protectedExecutions += 1;
+        response.json({ protected: true });
+      },
     );
     const listener = app.listen(0);
     await new Promise<void>((resolve) => listener.once("listening", resolve));
@@ -140,6 +140,7 @@ describe("official x402 v2 middleware", () => {
         headers: { "PAYMENT-SIGNATURE": signature },
       });
       expect(replay.status).toBe(402);
+      expect(protectedExecutions).toBe(1);
     } finally {
       await new Promise<void>((resolve, reject) =>
         listener.close((error) => (error ? reject(error) : resolve())),

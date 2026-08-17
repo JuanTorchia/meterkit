@@ -36,6 +36,7 @@
     "README.md"
   ],
   "dependencies": {
+    "@usemeterkit/cli": "workspace:*",
     "@usemeterkit/core": "workspace:*",
     "zod": "^4.0.17"
   },

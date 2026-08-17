@@ -23,6 +23,8 @@ artifacts/docs-parity/
 activation-report*.json
 .meterkit-clean-*/
 .meterkit/
+.dependency-risk/private/
+dependency-risk-report*.json
 **/.source/
 
 # Impeccable: keep DESIGN.md and its design.json sidecar; drop local artifacts.

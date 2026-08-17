@@ -3,15 +3,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx src/server.ts",
-    "check:unpaid": "curl -i http://localhost:3000/premium"
+    "dev": "node --env-file=.env --import tsx src/server.ts",
+    "check:unpaid": "meterkit check http://localhost:3000/premium --allow-localhost",
+    "doctor": "meterkit doctor --project . --url http://localhost:3000/premium --allow-localhost",
+    "verify": "meterkit verify http://localhost:3000/premium --network solana-devnet --mint 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU --recipient {{RECIPIENT}} --max-amount 10000 --allow-localhost",
+    "pay:test": "meterkit pay http://localhost:3000/premium --keypair .local-wallets/payer.json --mint 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU --recipient {{RECIPIENT}} --max-amount 10000 --max-session 10000 --rpc-url https://api.devnet.solana.com --replay --yes"
   },
   "dependencies": {
-    "@usemeterkit/sdk": "0.2.0",
+    "@usemeterkit/database": "0.3.0",
+    "@usemeterkit/sdk": "0.3.0",
     "express": "5.1.0"
   },
   "devDependencies": {
-    "tsx": "^4.23.9",
+    "@usemeterkit/cli": "0.3.0",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3"
   }
 }

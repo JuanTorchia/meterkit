@@ -9,7 +9,7 @@ import {
   type InitializerPlan,
 } from "@usemeterkit/core";
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 const TEMPLATE_ROOT = fileURLToPath(new URL("../templates", import.meta.url));
 
 export interface InitializerOptions {
@@ -18,6 +18,7 @@ export interface InitializerOptions {
   targetDirectory: string;
   network?: unknown;
   recipient?: string;
+  durability?: unknown;
   templatePathOverride?: string;
 }
 
@@ -44,6 +45,13 @@ export async function createInitializerPlan(
     const packageManager = initializerPackageManagerSchema.parse(
       options.packageManager,
     );
+    if (
+      options.durability !== undefined &&
+      !["memory", "postgres"].includes(String(options.durability))
+    )
+      throw new Error("store must be memory or postgres");
+    const durability =
+      options.durability === "postgres" ? "postgres" : "memory";
     if ((options.network ?? "solana-devnet") !== "solana-devnet") {
       throw new Error("network must be solana-devnet");
     }
@@ -54,6 +62,12 @@ export async function createInitializerPlan(
       )
     ) {
       throw new Error("secret-like inputs are forbidden");
+    }
+    if (
+      options.recipient &&
+      !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(options.recipient)
+    ) {
+      throw new Error("recipient must be a valid Solana public key");
     }
     const directory = join(TEMPLATE_ROOT, surface);
     const sourceFiles = options.templatePathOverride
@@ -80,10 +94,24 @@ export async function createInitializerPlan(
       targetDirectory: resolve(options.targetDirectory),
       packageManager,
       network: "solana-devnet",
+      durability,
+      ...(options.recipient ? { recipient: options.recipient } : {}),
       files,
-      dependencies: { "@usemeterkit/sdk": "0.2.0" },
-      environmentKeys: ["MERCHANT_WALLET", "SOLANA_RPC_URL"],
-      warnings: ["DEVNET_ONLY", "DO_NOT_USE_PRIVATE_KEYS"],
+      dependencies: {
+        "@usemeterkit/sdk": "0.3.0",
+        "@usemeterkit/database": "0.3.0",
+      },
+      environmentKeys: [
+        "MERCHANT_WALLET",
+        "SOLANA_RPC_URL",
+        "DURABILITY_MODE",
+        ...(durability === "postgres" ? ["DATABASE_URL"] : []),
+      ],
+      warnings: [
+        "DEVNET_ONLY",
+        "DO_NOT_USE_PRIVATE_KEYS",
+        ...(durability === "memory" ? ["MEMORY_STORE_NON_DURABLE"] : []),
+      ],
     });
   } catch (error) {
     throw new Error(

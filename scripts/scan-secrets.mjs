@@ -6,8 +6,9 @@ const tracked = execFileSync("git", ["ls-files"], { encoding: "utf8" })
   .filter(Boolean);
 const forbiddenNames = tracked.filter(
   (file) =>
-    /(^|\/)(?:\.env(?:\..+)?|.*keypair.*\.json|.*\.(?:pem|key))$/i.test(file) &&
-    !file.endsWith(".env.example"),
+    /(^|\/)(?:\.env(?:\..+)?|.*keypair.*\.json|.*payment-proof.*|.*payment-session.*|.*\.(?:pem|key))$/i.test(
+      file,
+    ) && !file.endsWith(".env.example"),
 );
 if (forbiddenNames.length) {
   throw new Error(

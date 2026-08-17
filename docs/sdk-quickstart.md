@@ -1,53 +1,47 @@
-# Protect an Express route in under ten minutes
+# Reach the first HTTP 402 from public packages
 
-Activation target: install in 2 minutes, start the server in 3, inspect the 402
-challenge by minute 5, and complete the disposable devnet payment/replay journey
-by minute 10. Record actual times; these are targets, not measured claims.
+This is the canonical self-service devnet-beta path. It needs Node 22 and npm,
+but no repository clone, Docker, PostgreSQL, faucet funds or private key.
 
-This path is for API providers evaluating the public MeterKit package. It does
-not require cloning the MeterKit monorepo, PostgreSQL or Docker.
+> Release gate: 0.3.0 is currently a candidate. Do not run or recommend the
+> command below until the exact npm registry matrix has passed and this notice
+> is removed. The source-tree and packed checks are not publication evidence.
 
-## 1. Install
-
-```bash
-mkdir meterkit-provider && cd meterkit-provider
-pnpm init
-pnpm add @usemeterkit/sdk express
-pnpm add -D tsx typescript @types/express
-```
-
-## 2. Add one protected route
-
-Copy [`examples/express-quickstart/src/server.ts`](../examples/express-quickstart/src/server.ts)
-into `server.ts`. Set `MERCHANT_WALLET` to a disposable Solana devnet public
-address and run:
+## 1. Create and start
 
 ```bash
-MERCHANT_WALLET=<devnet-public-address> pnpm tsx server.ts
-curl -i http://localhost:3000/premium
+npm create meterkit@0.3.0 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
+cd meterkit-app
+npm run dev
 ```
 
-The request must return HTTP 402 with x402 v2 terms for Solana devnet, the Circle
-test-USDC mint, 10,000 atomic units and your exact recipient.
+Use a disposable Solana devnet public address for the recipient. The command
+installs dependencies and writes only public devnet configuration.
 
-## 3. Before accepting paid requests
+## 2. Inspect the unpaid challenge
 
-The quickstart uses an in-memory receipt store and disables the independent RPC
-revalidation only so the unpaid challenge can be inspected without
-infrastructure. Before processing a devnet payment:
-
-- use durable storage implementing `PaymentStore`;
-- configure a Solana devnet RPC and optional independent fallback;
-- keep exact network, mint, amount and recipient policies;
-- create the recipient test-USDC ATA;
-- verify replay rejection and finality.
-
-Use the [external pilot guide](pilot-quickstart.md) for a correlated settlement,
-protected response and rejected replay. Use the repository README only when
-self-hosting the complete dashboard and gateway.
+In a second terminal:
 
 ```bash
-pnpm quickstart:clean
-pnpm pilot:init -- http://localhost:3000/premium
-pnpm pilot:verify -- --config meterkit-pilot.json
+cd meterkit-app
+npm run check:unpaid
 ```
+
+Expected: HTTP 402 plus x402 version 2, Solana devnet, the Circle test-USDC
+mint, 10,000 atomic units, the exact recipient and `/premium` resource. The
+check fails if the policy is absent or malformed.
+
+## 3. Understand the safety boundary
+
+The generated first-402 project uses `MemoryPaymentStore`. It is intentionally
+zero-infrastructure and not restart-safe; startup states that limitation. Do
+not process paid requests with it. The durable PostgreSQL mode and the bounded
+`meterkit pay`/`verify` lifecycle are documented only after their release gate
+passes.
+
+Stop the development server with Ctrl+C. To reset this disposable demo, remove
+the generated `meterkit-app` directory. Never point the beta at mainnet or put a
+private key in a command, environment variable, repository or dashboard.
+
+For repository development, contribution and hosted gateway setup—not the
+public initializer—use the root README and `CONTRIBUTING.md`.

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "status": "devnet-beta",
+  "node": ["22"],
+  "surfaces": ["express", "next-route", "hono"],
+  "experimentalSurfaces": ["mcp"],
+  "packageManagers": ["npm", "pnpm"],
+  "operatingSystems": ["linux", "macos", "windows"],
+  "experimentalPackageManagers": ["yarn", "bun"]
+}

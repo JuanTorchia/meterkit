@@ -1,6 +1,6 @@
 # Dependencias técnicas verificadas
 
-Consulta y lockfile: **2026-08-10**.
+Consulta y lockfile: **2026-08-17**.
 
 ## Política de actualizaciones
 
@@ -20,19 +20,19 @@ revisable.
 Cadencia: revisar alertas de seguridad de inmediato y revisar versiones major al
 menos una vez por mes o cuando una dependencia soportada anuncie fin de vida.
 
-| Área                      | Selección fijada                   | Motivo                                                           |
-| ------------------------- | ---------------------------------- | ---------------------------------------------------------------- |
-| x402                      | `@x402/*` 2.21.0                   | Adoptado tras pasar fixtures coordinadas en cuatro superficies   |
-| Solana para x402          | `@solana/kit` 5.5.1                | combinación compatible con los paquetes SPL usados por x402 2.21 |
-| Subscriptions             | `@solana/subscriptions` 0.4.0      | SDK oficial del programa canónico                                |
-| Solana para subscriptions | `@solana/kit` 6.10.0               | peer requerido por Subscriptions 0.4                             |
-| Wallet                    | Wallet Standard React 1.0.3        | discovery, conexión, firma de mensajes y envío                   |
-| Dashboard                 | Next.js 16.2.12 / React 19.2.8     | App Router, build estático y cliente Wallet Standard             |
-| Gateway                   | Express 5.1                        | middleware HTTP portable y fácil de autohospedar                 |
-| Metadata                  | PostgreSQL 17                      | constraints atómicos, idempotencia y consultas de recibos        |
-| Docs                      | Fumadocs Core 16.14.3 / MDX 15.2.3 | MIT; contenido estático, búsqueda local y paridad bilingüe       |
-| Hono                      | Hono 4.13 / `@x402/hono` 2.21      | superficie mantenida tras superar la misma aceptación x402       |
-| Tests                     | Vitest 3.2 / Playwright 1.54       | unidad, integración DB/MCP y navegador                           |
+| Área                      | Selección fijada                   | Motivo                                                         |
+| ------------------------- | ---------------------------------- | -------------------------------------------------------------- |
+| x402                      | `@x402/*` 2.22.0                   | Candidato coordinado en cuatro superficies; Apache-2.0         |
+| Solana para x402          | `@solana/kit` 5.5.1                | cohorte fijada y separada del runtime de Subscriptions         |
+| Subscriptions             | `@solana/subscriptions` 0.4.0      | SDK oficial del programa canónico                              |
+| Solana para subscriptions | `@solana/kit` 6.10.0               | peer requerido por Subscriptions 0.4                           |
+| Wallet                    | Wallet Standard React 1.0.3        | discovery, conexión, firma de mensajes y envío                 |
+| Dashboard                 | Next.js 16.3.1 / React 19.2.8      | App Router, build estático y cliente Wallet Standard; MIT      |
+| Gateway                   | Express 5.1                        | middleware HTTP portable y fácil de autohospedar               |
+| Metadata                  | PostgreSQL 17                      | constraints atómicos, idempotencia y consultas de recibos      |
+| Docs                      | Fumadocs Core 16.14.3 / MDX 15.2.3 | MIT; contenido estático, búsqueda local y paridad bilingüe     |
+| Hono                      | Hono 4.13 / `@x402/hono` 2.22      | superficie mantenida dentro de la cohorte x402; MIT/Apache-2.0 |
+| Tests                     | Vitest 3.2 / Playwright 1.54       | unidad, integración DB/MCP y navegador                         |
 
 Kit 5 y Kit 6 no se fuerzan dentro de una única instancia: viven en los paquetes
 consumidores correspondientes. `@solana-program/token-2022@0.9.0`, incorporado
@@ -43,10 +43,36 @@ cliente y paquete de subscriptions declaran ambos peers explícitamente para que
 alinea ese rango; no silencia ningún otro peer. Esta separación evita fingir
 compatibilidad entre el stack SPL de x402 y el SDK más nuevo de Subscriptions.
 
+Los cambios de este ciclo mantienen los mismos roles: x402 implementa el
+protocolo de cobro (Apache-2.0), Next/React sirven el dashboard (MIT),
+`express-rate-limit` limita abuso del gateway (MIT), y `tsx` más
+`typescript-eslint` son herramientas de desarrollo (MIT). No se añadió una
+dependencia runtime ni cambió la propiedad: los dueños siguen siendo SDK,
+Web/Gateway y Tooling. La vigencia se revisa semanalmente con Dependabot y ante
+avisos del proveedor.
+
 Fumadocs Core y Fumadocs MDX usan líneas de versión distintas y compatibles;
 no se igualan artificialmente. Las exclusiones de edad mínima en pnpm sólo
 permiten estas versiones exactas ya verificadas por build, E2E y auditoría, sin
 abrir rangos para publicaciones nuevas.
+
+`scripts/verify-compatibility.mjs` hace cumplir esta tabla en CI y ya no depende
+de que alguien recuerde leerla. Recorre todos los manifests del workspace y
+falla con `SOLANA_KIT_DRIFT` si un paquete se sale de la versión fijada para su
+cohorte, `SOLANA_RANGE_NOT_PINNED` si aparece un rango flotante en `@solana/*`,
+`SOLANA_SUBSCRIPTIONS_COHORT` si Subscriptions se declara fuera de Kit 6, y
+`SOLANA_MANIFEST_UNGUARDED` si un paquete nuevo incorpora Kit sin que se le
+asigne una cohorte de forma deliberada. Las cohortes se mantienen separadas a
+propósito: unificarlas fingiría una compatibilidad que upstream no ofrece.
+
+### CLI de autoservicio
+
+`@usemeterkit/cli` usa `@solana/kit` 5.5.1 con versión exacta para validar claves
+públicas y, en fases posteriores, construir el pago devnet sin implementar una
+variante propietaria del protocolo. Kit tiene licencia MIT, mantenimiento activo
+y ya forma parte de la cohorte verificada del SDK. `zod` valida los límites y la
+salida estructurada. No se incorpora una biblioteca de prompts: la interacción
+se implementa con APIs estándar de Node para reducir superficie de supply chain.
 
 ## Clasificación de paquetes MeterKit
 

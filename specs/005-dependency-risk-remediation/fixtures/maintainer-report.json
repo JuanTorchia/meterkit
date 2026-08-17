@@ -1,0 +1,8 @@
+[
+  {
+    "id": "maintainer-2026-08-17-dependency-problems",
+    "reportedAt": "2026-08-17T00:00:00.000Z",
+    "summary": "Several automated dependency updates reported problems; classify every open update and distinguish security exposure from compatibility or CI failures.",
+    "status": "accounted_for"
+  }
+]

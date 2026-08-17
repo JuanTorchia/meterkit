@@ -123,6 +123,50 @@ export async function createDevnetPaymentClient(options: {
   };
 }
 
+export async function createDevnetPaymentProof(
+  options: Parameters<typeof createDevnetPaymentClient>[0],
+  endpoint: string,
+) {
+  const signer = await createKeyPairSignerFromBytes(options.privateKeyBytes);
+  const client = new x402Client()
+    .register(
+      SOLANA_DEVNET,
+      new ExactSvmScheme(signer, {
+        rpcUrl: options.rpcUrl ?? "https://api.devnet.solana.com",
+      }),
+    )
+    .registerPolicy((_version, requirements) =>
+      requirements.filter((requirement) => {
+        const amount = BigInt(requirement.amount);
+        return (
+          requirement.network === SOLANA_DEVNET &&
+          requirement.asset === options.expectedAssetMint &&
+          requirement.payTo === options.expectedPayTo &&
+          amount <= (options.maxPerRequestAtomic ?? 100_000n) &&
+          isResourceAllowed(
+            new URL(endpoint),
+            parseAllowedResource(options.allowedResourcePrefix),
+            options.allowResourceSubpaths ?? false,
+          )
+        );
+      }),
+    );
+  let proof: string | undefined;
+  const captureFetch: typeof fetch = async (input, init) => {
+    const headers =
+      input instanceof Request ? input.headers : new Headers(init?.headers);
+    const candidate = headers.get("PAYMENT-SIGNATURE");
+    if (candidate) {
+      proof = candidate;
+      return new Response(JSON.stringify({ captured: true }), { status: 409 });
+    }
+    return fetch(input, init);
+  };
+  await wrapFetchWithPayment(captureFetch, client)(endpoint);
+  if (!proof) throw new Error("PAYMENT_PROOF_NOT_CREATED");
+  return proof;
+}
+
 export function parseAllowedResource(value: string) {
   const resource = new URL(value);
   if (

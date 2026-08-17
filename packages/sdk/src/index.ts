@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import {
   SOLANA_DEVNET,
+  X402_PROTOCOL_VERSION,
   fingerprintSignature,
   paymentRecordSchema,
   publicPaymentReceiptSchema,
@@ -157,6 +158,12 @@ function ownerMintDelta(
   return sum(after) - sum(before);
 }
 
+async function paymentPayloadFingerprint(paymentPayload: unknown) {
+  const bytes = new TextEncoder().encode(JSON.stringify(paymentPayload));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Buffer.from(digest).toString("hex");
+}
+
 export function createMeterKitMiddleware(options: {
   product: Product;
   facilitator: Facilitator;
@@ -185,7 +192,7 @@ export function createMeterKitMiddleware(options: {
     if (!raw) {
       const encoded = Buffer.from(
         JSON.stringify({
-          x402Version: 2,
+          x402Version: X402_PROTOCOL_VERSION,
           error: "Payment required",
           resource: requirements.resource,
           accepts: [requirements],
@@ -241,7 +248,11 @@ export function createMeterKitMiddleware(options: {
         ).toString("base64"),
       );
       next();
-    } catch {
+    } catch (error) {
+      if (error instanceof Error && error.message === "PAYMENT_REPLAYED") {
+        response.status(409).json({ error: "payment_replayed" });
+        return;
+      }
       response.status(400).json({ error: "malformed_payment" });
     }
   };
@@ -260,7 +271,7 @@ export class HttpFacilitator implements Facilitator {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        x402Version: 2,
+        x402Version: X402_PROTOCOL_VERSION,
         paymentPayload,
         paymentRequirements: requirements,
       }),
@@ -278,9 +289,12 @@ export class HttpFacilitator implements Facilitator {
 }
 
 /**
- * Protocol-native x402 v2 middleware. This is the recommended integration.
+ * Protocol-native x402 middleware. This is the recommended integration.
  * It delegates challenge parsing, verification and settlement to the audited
  * upstream x402 packages, while MeterKit owns persistence and analytics hooks.
+ * The protocol revision on the wire is whatever those packages emit, so this
+ * path is deliberately not pinned to a number here; see X402_PROTOCOL_VERSION
+ * in @usemeterkit/core for the revision MeterKit itself writes and verifies.
  */
 export function createX402Middleware(options: {
   product: Product;
@@ -342,12 +356,53 @@ export function createMeterKitResourceServer(options: {
     new HTTPFacilitatorClient({
       url: options.facilitatorUrl ?? "https://x402.org/facilitator",
     });
+  const settledRecords = new WeakMap<
+    object,
+    z.infer<typeof paymentRecordSchema>
+  >();
+  // x402 deliberately treats after-settlement hooks as observational and
+  // swallows their failures. Persistence is authorization-critical for
+  // MeterKit, so it must complete inside the facilitator boundary before a
+  // successful settlement can reach any framework's protected handler.
+  const durableFacilitator: FacilitatorClient = {
+    getSupported: () => facilitator.getSupported(),
+    verify: (paymentPayload, requirements) =>
+      facilitator.verify(paymentPayload, requirements),
+    settle: async (paymentPayload, requirements) => {
+      const result = await facilitator.settle(paymentPayload, requirements);
+      if (!result.success || !result.payer || !result.transaction)
+        return result;
+      await settlementValidator?.validate({
+        signature: result.transaction,
+        payer: result.payer,
+        payTo: requirements.payTo,
+        mint: requirements.asset,
+        amountAtomic: requirements.amount,
+      });
+      const record = paymentRecordSchema.parse({
+        id: crypto.randomUUID(),
+        productId: options.product.id,
+        payer: result.payer,
+        payTo: requirements.payTo,
+        mint: requirements.asset,
+        amountAtomic: requirements.amount,
+        network: SOLANA_DEVNET,
+        signature: result.transaction,
+        settledAt: new Date().toISOString(),
+        status: "confirmed",
+      });
+      await options.store.save(record);
+      settledRecords.set(paymentPayload, record);
+      return result;
+    },
+  };
   const policyResults = new WeakMap<object, PolicyDecision[]>();
   const budgetReservations = new WeakMap<
     object,
     import("./agent-budget.js").AgentBudgetReservation
   >();
-  const server = new x402ResourceServer(facilitator)
+  const localAuthorizationReservations = new Set<string>();
+  const server = new x402ResourceServer(durableFacilitator)
     // Do not embed a volatile recentBlockhash in route requirements. The
     // middleware rebuilds requirements on the paid retry; a new blockhash would
     // make an otherwise identical payload fail requirement matching. The SVM
@@ -404,32 +459,24 @@ export function createMeterKitResourceServer(options: {
           };
         }
       }
+      const authorizationFingerprint =
+        await paymentPayloadFingerprint(paymentPayload);
+      const reserved = options.store.reserveAuthorization
+        ? await options.store.reserveAuthorization(authorizationFingerprint)
+        : !localAuthorizationReservations.has(authorizationFingerprint);
+      if (!options.store.reserveAuthorization && reserved)
+        localAuthorizationReservations.add(authorizationFingerprint);
+      if (!reserved)
+        return {
+          abort: true as const,
+          reason: "PAYMENT_REPLAYED",
+          message: "Payment authorization was already consumed",
+        };
     })
     .onAfterSettle(async ({ result, requirements, paymentPayload }) => {
       if (!result.success || !result.payer || !result.transaction) return;
-      await settlementValidator?.validate({
-        signature: result.transaction,
-        payer: result.payer,
-        payTo: requirements.payTo,
-        mint: requirements.asset,
-        amountAtomic: requirements.amount,
-      });
-      const record = paymentRecordSchema.parse({
-        id: crypto.randomUUID(),
-        productId: options.product.id,
-        payer: result.payer,
-        payTo: requirements.payTo,
-        mint: requirements.asset,
-        amountAtomic: requirements.amount,
-        network: SOLANA_DEVNET,
-        signature: result.transaction,
-        settledAt: new Date().toISOString(),
-        status: "confirmed",
-      });
-      // Keep this write in the request path. A unique-key conflict must stop
-      // the protected handler, even if a facilitator incorrectly accepts a
-      // previously settled payload.
-      await options.store.save(record);
+      const record = settledRecords.get(paymentPayload);
+      if (!record) return;
       const budget = budgetReservations.get(paymentPayload);
       if (budget && !(await options.agentBudget?.consume(budget.reservationId)))
         throw new Error("AGENT_BUDGET_CONSUME_FAILED");

@@ -63,6 +63,11 @@ export const initializerPlanSchema = z
     targetDirectory: z.string().min(1).max(4_096),
     packageManager: initializerPackageManagerSchema,
     network: z.literal("solana-devnet"),
+    durability: z.enum(["memory", "postgres"]),
+    recipient: z
+      .string()
+      .regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/)
+      .optional(),
     files: z
       .array(
         z

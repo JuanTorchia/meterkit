@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "cohorts": [
+    {
+      "id": "x402-solana-kit-5",
+      "purpose": "x402 payment and provider surfaces compatible with Solana Kit 5",
+      "constraints": {
+        "@solana/kit": "5.5.1"
+      },
+      "manifests": [
+        "package.json",
+        "packages/sdk/package.json",
+        "packages/cli/package.json",
+        "apps/web/package.json",
+        "examples/client/package.json",
+        "examples/hono-quickstart/package.json",
+        "examples/mcp-scout/package.json"
+      ],
+      "requiredChecks": [
+        "x402-policy",
+        "settlement-finality",
+        "concurrent-replay",
+        "restart-replay"
+      ]
+    },
+    {
+      "id": "subscriptions-solana-kit-6",
+      "purpose": "Solana native subscriptions consumers requiring Kit 6",
+      "constraints": {
+        "@solana/kit": "6.10.0",
+        "@solana/subscriptions": "0.4.0"
+      },
+      "manifests": [
+        "packages/subscriptions/package.json",
+        "examples/subscriptions-client/package.json"
+      ],
+      "requiredChecks": [
+        "subscription-builders",
+        "allowance-lifecycle",
+        "peer-compatibility"
+      ]
+    }
+  ],
+  "artifactRules": [
+    {
+      "prefix": "packages/create-meterkit/templates/",
+      "kind": "generated_template"
+    },
+    {
+      "prefix": "packages/",
+      "kind": "public_package"
+    },
+    {
+      "prefix": "apps/",
+      "kind": "deployed_app"
+    },
+    {
+      "prefix": "examples/",
+      "kind": "example"
+    },
+    {
+      "prefix": "package.json",
+      "kind": "development_tool"
+    }
+  ]
+}

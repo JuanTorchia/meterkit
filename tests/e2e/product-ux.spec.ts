@@ -5,7 +5,7 @@ test("landing leads with installation and exposes accessible controls", async ({
 }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("link", { name: /Install the SDK/ }),
+    page.getByRole("link", { name: /Review the free devnet beta/ }),
   ).toBeVisible();
   await expect(
     page.getByRole("region", { name: /LIVE PRODUCT FLOW/ }),

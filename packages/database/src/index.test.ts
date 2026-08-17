@@ -109,6 +109,16 @@ suite("PostgresStore integration", () => {
     expect(await store.markFinalized(payment.signature)).toBe(true);
     expect((await store.list())[0]?.status).toBe("finalized");
 
+    const restartedStore = PostgresStore.connect(url!);
+    try {
+      expect(await restartedStore.has(payment.signature)).toBe(true);
+      await expect(
+        restartedStore.save({ ...payment, id: crypto.randomUUID() }),
+      ).rejects.toThrow("PAYMENT_REPLAYED");
+    } finally {
+      await restartedStore.close();
+    }
+
     await store.createSession(
       "session-token-hash",
       product.payTo,
