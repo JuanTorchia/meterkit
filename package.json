@@ -48,9 +48,9 @@
     "bs58": "6.0.0",
     "eslint": "^9.39.1",
     "prettier": "^3.6.2",
-    "tsx": "4.23.11",
+    "tsx": "4.23.12",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.66.0",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^3.2.4"
   }
 }
