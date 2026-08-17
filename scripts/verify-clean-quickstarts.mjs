@@ -46,6 +46,10 @@ if (
 const merchantWallet = "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE";
 const pnpmCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
+function managerCommand(manager) {
+  return process.platform === "win32" ? `${manager}.cmd` : manager;
+}
+
 function run(command, args, cwd) {
   return execFileSync(command, args, {
     cwd,
@@ -115,7 +119,8 @@ async function availablePort() {
 
 async function exercise(project, surface, manager) {
   const port = await availablePort();
-  const child = spawn(manager, manager === "npm" ? ["run", "dev"] : ["dev"], {
+  const command = managerCommand(manager);
+  const child = spawn(command, manager === "npm" ? ["run", "dev"] : ["dev"], {
     cwd: project,
     env: { ...process.env, PORT: String(port) },
     detached: process.platform !== "win32",
@@ -134,7 +139,7 @@ async function exercise(project, surface, manager) {
     );
     const checkUrl = `http://127.0.0.1:${port}${resource}`;
     run(
-      manager,
+      command,
       manager === "npm"
         ? ["exec", "--", "meterkit", "check", checkUrl, "--allow-localhost"]
         : ["exec", "meterkit", "check", checkUrl, "--allow-localhost"],
@@ -157,7 +162,7 @@ async function exercise(project, surface, manager) {
 
 function exerciseExperimentalMcp(project, manager) {
   const output = run(
-    manager,
+    managerCommand(manager),
     manager === "npm" ? ["run", "--silent", "check:unpaid"] : ["check:unpaid"],
     project,
   );
@@ -172,7 +177,7 @@ function install(project, manager) {
     pnpm: ["install", "--ignore-scripts", "--no-frozen-lockfile"],
     npm: ["install", "--ignore-scripts", "--no-audit", "--no-fund"],
   };
-  run(manager, commands[manager], project);
+  run(managerCommand(manager), commands[manager], project);
 }
 
 try {
@@ -198,7 +203,10 @@ try {
     ],
     tool,
   );
-  const binary = join(tool, "node_modules/.bin/create-meterkit");
+  const binary = join(
+    tool,
+    `node_modules/.bin/create-meterkit${process.platform === "win32" ? ".cmd" : ""}`,
+  );
   const results = [];
 
   for (const manager of managers) {
@@ -269,5 +277,10 @@ try {
     `${JSON.stringify({ passed: true, kind: "meterkit-clean-generated-smoke", initializer: basename(initializerPack), combinations: results })}\n`,
   );
 } finally {
-  rmSync(temporary, { recursive: true, force: true });
+  rmSync(temporary, {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 100,
+  });
 }
