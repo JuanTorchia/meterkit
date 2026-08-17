@@ -287,9 +287,9 @@ try {
       retryDelay: 100,
     });
   } catch (error) {
-    if (!error || !["EBUSY", "ENOTEMPTY"].includes(error.code)) throw error;
+    const code = error?.code ?? "UNKNOWN";
     process.stderr.write(
-      `warning: deferred temporary quickstart cleanup (${error.code})\n`,
+      `warning: deferred temporary quickstart cleanup (${code})\n`,
     );
   }
 }
