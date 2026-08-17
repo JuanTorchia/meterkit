@@ -279,10 +279,17 @@ try {
     `${JSON.stringify({ passed: true, kind: "meterkit-clean-generated-smoke", initializer: basename(initializerPack), combinations: results })}\n`,
   );
 } finally {
-  rmSync(temporary, {
-    recursive: true,
-    force: true,
-    maxRetries: 10,
-    retryDelay: 100,
-  });
+  try {
+    rmSync(temporary, {
+      recursive: true,
+      force: true,
+      maxRetries: 10,
+      retryDelay: 100,
+    });
+  } catch (error) {
+    if (!error || !["EBUSY", "ENOTEMPTY"].includes(error.code)) throw error;
+    process.stderr.write(
+      `warning: deferred temporary quickstart cleanup (${error.code})\n`,
+    );
+  }
 }
