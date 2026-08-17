@@ -44,6 +44,7 @@ if (
   throw new Error("QUICKSTART_MATRIX_SELECTION_EMPTY");
 }
 const merchantWallet = "7NXuBzJ3EQV4CuxpSVELD3t1bs5xZ6ocfGvwjFDbCZUE";
+const pnpmCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
 function run(command, args, cwd) {
   return execFileSync(command, args, {
@@ -55,9 +56,9 @@ function run(command, args, cwd) {
 }
 
 function pack(filter, destination) {
-  run("pnpm", ["--filter", filter, "build"], root);
+  run(pnpmCommand, ["--filter", filter, "build"], root);
   run(
-    "pnpm",
+    pnpmCommand,
     ["--filter", filter, "pack", "--pack-destination", destination],
     root,
   );
