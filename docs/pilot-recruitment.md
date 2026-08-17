@@ -8,14 +8,13 @@ health checks, interest and unpaid starts are not customers.
 
 ## Funnel
 
-| Stage                  | Target | Evidence                                        |
-| ---------------------- | -----: | ----------------------------------------------- |
-| Qualified contacts     |     15 | dated private outreach register                 |
-| Positive replies       |      5 | consented conversation record                   |
-| Pilot calls            |      3 | scheduled session                               |
-| Accepted USD 100 offer |      1 | explicit acceptance of disclosed scope/price    |
-| Payment received       |      1 | private commercial payment evidence             |
-| Completed integration  |      1 | consented devnet settlement and replay evidence |
+| Stage                 | Target | Evidence                                        |
+| --------------------- | -----: | ----------------------------------------------- |
+| Qualified contacts    |     15 | dated private outreach register                 |
+| Consented starts      |      5 | minimized engagement record                     |
+| First valid HTTP 402  |      4 | sanitized policy evidence                       |
+| Completed integration |      3 | consented devnet settlement and replay evidence |
+| Day-seven eligible    | report | consent and observation state kept distinct     |
 
 ## Where to recruit
 
@@ -35,24 +34,22 @@ projects. No bots, scraped emails or mass direct messages.
 ## One public post — English
 
 > I built MeterKit, non-custodial TypeScript middleware that lets an API or MCP
-> tool charge test USDC per request on Solana using x402. I am offering one
-> USD 100 assisted integration service, paid by the customer to MeterKit: we
-> integrate and verify one endpoint you control,
-> including a readiness review, up to 45 minutes together, settlement/protected
-> response/replay evidence, and a closing report. You provide a non-sensitive
-> test endpoint and about 60–90 minutes. It is devnet-only and I never request
-> wallet keys, mainnet funds, private URLs or public attribution. Details:
+> tool charge test USDC per request on Solana using x402. I am looking for five
+> independent builders to try the free, uncompensated devnet beta using only the
+> public quickstart first. Optional support is limited to one 45-minute session.
+> Separately, a done-for-you setup is available for USD 100 only if you ask for
+> it. I never request wallet keys, mainnet funds, private URLs or public
+> attribution. Details:
 > https://meterkit.juanchi.dev/pilots
 
 ## One public post — Spanish
 
 > Construí MeterKit, middleware TypeScript no custodial para que una API o
 > herramienta MCP cobre USDC de prueba por solicitud en Solana usando x402.
-> Ofrezco un servicio de integración asistida por USD 100, pagados por el
-> cliente a MeterKit: integramos y verificamos un endpoint
-> bajo tu control, con revisión previa, hasta 45 minutos juntos, evidencia de
-> settlement/respuesta protegida/replay y reporte de cierre. Tú aportas un
-> endpoint no sensible y unos 60–90 minutos. Es sólo devnet y nunca solicito
+> Busco cinco builders independientes para probar gratis y sin compensación la
+> beta devnet, intentando primero sólo con el quickstart público. El soporte
+> opcional se limita a una sesión de 45 minutos. Por separado, si me pides que
+> haga la integración, existe un servicio opcional de USD 100. Nunca solicito
 > claves, fondos mainnet, URLs privadas ni atribución pública. Detalles:
 > https://meterkit.juanchi.dev/pilots
 
@@ -60,13 +57,13 @@ projects. No bots, scraped emails or mass direct messages.
 
 - Day 1: publish one language-appropriate post and contact five qualified people;
   save URLs and private outcomes without copying personal data into Git.
-- Day 2: answer questions and offer two integration time slots.
+- Day 2: answer questions without intervening in starts already underway.
 - Day 3: contact five more qualified people and share the public readiness path.
 - Day 4–5: support started pilots; turn repeated friction into documentation.
 - Day 6: contact the final five candidates and send at most one respectful
   follow-up to people who previously engaged.
-- Day 7: close the campaign with factual funnel totals, including zero sales if
-  nobody accepted or paid.
+- Day 7: close the campaign with factual activation totals, including unknown
+  and abandoned states rather than inferring success.
 
 ## What is automated
 
