@@ -62,5 +62,6 @@ change midway through a deterministic review.
   expiry and an append-only lifecycle. Expired exceptions block release.
 - Review triggers are a new exploit path, upstream fix, changed reachability,
   artifact promotion, or expiry—whichever occurs first.
-- Release staging consumes sanitized evidence for the exact commit and lockfile;
-  a missing CI artifact, unavailable source or digest mismatch fails closed.
+- Release staging consumes a sanitized release asset produced on the designated
+  server for the exact commit and lockfile; a missing asset, unavailable source
+  or digest mismatch fails closed.
