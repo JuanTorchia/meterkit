@@ -3,14 +3,14 @@
 This is the canonical self-service devnet-beta path. It needs Node 22 and npm,
 but no repository clone, Docker, PostgreSQL, faucet funds or private key.
 
-> Release gate: 0.3.0 is currently a candidate. Do not run or recommend the
+> Release gate: 0.3.1 is currently a candidate. Do not run or recommend the
 > command below until the exact npm registry matrix has passed and this notice
 > is removed. The source-tree and packed checks are not publication evidence.
 
 ## 1. Create and start
 
 ```bash
-npm create meterkit@0.3.0 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
+npm create meterkit@0.3.1 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
 cd meterkit-app
 npm run dev
 ```

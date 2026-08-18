@@ -12,7 +12,7 @@ test("registry promotion becomes eligible only when every cell passes", () => {
 
 function expectState(status, expected) {
   const decision = decideRegistryPromotion({
-    candidateVersion: "0.3.0",
+    candidateVersion: "0.3.1",
     previousRecommendedVersion: "0.2.0",
     cells: [{ status }],
   });

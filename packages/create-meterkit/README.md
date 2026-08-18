@@ -1,18 +1,18 @@
 # create-meterkit
 
-Public devnet-beta initializer for MeterKit 0.3.0. It creates Express, Next.js,
+Public devnet-beta initializer for MeterKit 0.3.1. It creates Express, Next.js,
 Hono or experimental MCP projects without cloning the monorepo.
 
 Interactive:
 
 ```bash
-npm create meterkit@0.3.0
+npm create meterkit@0.3.1
 ```
 
 Reproducible non-interactive Express path:
 
 ```bash
-npm create meterkit@0.3.0 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
+npm create meterkit@0.3.1 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
 cd meterkit-app
 npm run dev
 ```

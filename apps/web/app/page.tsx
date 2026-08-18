@@ -69,7 +69,7 @@ const copy = {
     sdkBody:
       "MeterKit is middleware, not a custody layer. Your API, your wallet, your customer relationship. Two published packages and one line around the handler.",
     releaseNote:
-      "The 0.3.0 release candidate adds the CLI and standalone PostgreSQL adapter. It becomes recommended only after exact registry smoke passes; the site never treats a source build as a published release.",
+      "The 0.3.1 release candidate adds the CLI and standalone PostgreSQL adapter. It becomes recommended only after exact registry smoke passes; the site never treats a source build as a published release.",
     openWorkspace: "Open provider workspace",
     footer: "USDC commerce infrastructure for APIs and agents.",
   },
@@ -133,7 +133,7 @@ const copy = {
     sdkBody:
       "MeterKit es middleware, no una capa de custodia. Tu API, tu wallet, tu relación con el cliente. Dos paquetes publicados y una línea alrededor del handler.",
     releaseNote:
-      "El candidato 0.3.0 agrega la CLI y el adaptador PostgreSQL standalone. Sólo se recomienda después del smoke exacto contra el registry; un build local nunca cuenta como release publicada.",
+      "El candidato 0.3.1 agrega la CLI y el adaptador PostgreSQL standalone. Sólo se recomienda después del smoke exacto contra el registry; un build local nunca cuenta como release publicada.",
     openWorkspace: "Abrir workspace del proveedor",
     footer: "Infraestructura comercial en USDC para APIs y agentes.",
   },
@@ -197,7 +197,7 @@ const copy = {
     sdkBody:
       "MeterKit é middleware, não uma camada de custódia. Sua API, sua carteira, sua relação com o cliente. Dois pacotes publicados e uma linha ao redor do handler.",
     releaseNote:
-      "O candidato 0.3.0 adiciona a CLI e o adaptador PostgreSQL standalone. Só será recomendado após o smoke exato no registry; um build local nunca conta como release publicada.",
+      "O candidato 0.3.1 adiciona a CLI e o adaptador PostgreSQL standalone. Só será recomendado após o smoke exato no registry; um build local nunca conta como release publicada.",
     openWorkspace: "Abrir workspace do provedor",
     footer: "Infraestrutura comercial em USDC para APIs e agentes.",
   },

@@ -11,7 +11,7 @@ import { verifyEndpoint } from "./verify.js";
 import { payEndpoint } from "./pay.js";
 import { doctorProject } from "./doctor.js";
 
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 const COMMANDS = ["check", "doctor", "verify", "pay"] as const;
 type Command = (typeof COMMANDS)[number];
 

@@ -21,7 +21,7 @@ function evidence(
     engagementId,
     classification,
     recordedAt: new Date().toISOString(),
-    packageVersion: "0.3.0",
+    packageVersion: "0.3.1",
     surface: "express",
     packageManager: "npm",
     milestone,

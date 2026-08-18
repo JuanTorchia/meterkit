@@ -14,9 +14,9 @@ Project status: technical devnet beta maintained by
 integrations: **0**. Automated registry checks, npm downloads, repository
 traffic and maintainer runs are reported separately and never counted as users.
 
-Release candidate 0.3.0 publishes `@usemeterkit/core`, `@usemeterkit/database`,
+Release candidate 0.3.1 publishes `@usemeterkit/core`, `@usemeterkit/database`,
 `@usemeterkit/sdk`, `@usemeterkit/cli` and `create-meterkit` together with npm
-provenance. Until the v0.3.0 registry gate passes, use v0.2.0 only for the older
+provenance. Until the v0.3.1 registry gate passes, use v0.2.0 only for the older
 challenge-only flow and do not infer that the new CLI/database artifacts exist.
 
 MeterKit lets an API or MCP provider set a USDC price, add TypeScript middleware
@@ -45,7 +45,7 @@ USDC budget for paid APIs and MCP tools over standard HTTP.
 Generate a new Express, Next.js, Hono or MCP integration from npm:
 
 ```bash
-npm create meterkit@0.3.0 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
+npm create meterkit@0.3.1 -- meterkit-app --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET> --yes
 cd meterkit-app
 npm run dev
 ```
