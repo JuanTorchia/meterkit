@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { createInitializerPlan } from "./plan.js";
 import { installGeneratedProject, writeInitializerPlan } from "./write.js";
 
-export const CREATE_METERKIT_VERSION = "0.3.0";
+export const CREATE_METERKIT_VERSION = "0.3.1";
 
 interface CliArguments {
   directory: string;

@@ -1,6 +1,6 @@
 {
   "name": "create-meterkit",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Safe devnet-first project initializer for MeterKit API and MCP payments",
   "license": "Apache-2.0",
   "engines": {

@@ -211,7 +211,7 @@ test("landing, guided demo and workspace communicate the non-custodial product",
   ).toBeVisible();
   await expect(page.getByText(/still a release candidate/i)).toBeVisible();
   await expect(
-    page.getByText("npm create meterkit@0.3.0", { exact: false }).first(),
+    page.getByText("npm create meterkit@0.3.1", { exact: false }).first(),
   ).toBeVisible();
   await expect(page).toHaveTitle("External developer pilot | MeterKit");
   const copyButtons = page.getByRole("button", { name: /^Copy:/ });

@@ -103,11 +103,11 @@ try {
     command("pnpm", ["--filter", filter, "build"]);
     command("pnpm", ["--filter", filter, "pack", "--pack-destination", packs]);
   }
-  const corePack = join(packs, "usemeterkit-core-0.3.0.tgz");
-  const databasePack = join(packs, "usemeterkit-database-0.3.0.tgz");
-  const sdkPack = join(packs, "usemeterkit-sdk-0.3.0.tgz");
-  const cliPack = join(packs, "usemeterkit-cli-0.3.0.tgz");
-  const initializerPack = join(packs, "create-meterkit-0.3.0.tgz");
+  const corePack = join(packs, "usemeterkit-core-0.3.1.tgz");
+  const databasePack = join(packs, "usemeterkit-database-0.3.1.tgz");
+  const sdkPack = join(packs, "usemeterkit-sdk-0.3.1.tgz");
+  const cliPack = join(packs, "usemeterkit-cli-0.3.1.tgz");
+  const initializerPack = join(packs, "create-meterkit-0.3.1.tgz");
   const tool = join(temporary, "tool");
   await mkdir(tool);
   await writeFile(

@@ -9,7 +9,7 @@ import {
   type InitializerPlan,
 } from "@usemeterkit/core";
 
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 const TEMPLATE_ROOT = fileURLToPath(new URL("../templates", import.meta.url));
 
 export interface InitializerOptions {
@@ -98,8 +98,8 @@ export async function createInitializerPlan(
       ...(options.recipient ? { recipient: options.recipient } : {}),
       files,
       dependencies: {
-        "@usemeterkit/sdk": "0.3.0",
-        "@usemeterkit/database": "0.3.0",
+        "@usemeterkit/sdk": "0.3.1",
+        "@usemeterkit/database": "0.3.1",
       },
       environmentKeys: [
         "MERCHANT_WALLET",

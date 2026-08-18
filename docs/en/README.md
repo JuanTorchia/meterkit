@@ -4,7 +4,7 @@ MeterKit is devnet-only software for non-custodial USDC payments to API and MCP
 providers. This page is the maintained English entry point; Spanish remains a
 first-class documentation path for Latin American builders.
 
-The 0.3.0 release candidate adds the public CLI and standalone database adapter
+The 0.3.1 release candidate adds the public CLI and standalone database adapter
 to core, SDK and initializer. It becomes the recommended registry baseline only
 after its post-publish smoke gate passes.
 
@@ -25,8 +25,8 @@ and never required to use the open-source software. Verified external
 integrations currently reported: **0**. Internal and synthetic tests do not
 count as external traction.
 
-For an existing service, install `@usemeterkit/sdk@0.3.0`. For a generated
-project, use the fully specified `npm create meterkit@0.3.0 -- meterkit-app
+For an existing service, install `@usemeterkit/sdk@0.3.1`. For a generated
+project, use the fully specified `npm create meterkit@0.3.1 -- meterkit-app
 --surface express --package-manager npm --recipient <DEVNET_PUBLIC_WALLET>
 --yes` command.
 

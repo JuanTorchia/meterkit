@@ -122,6 +122,13 @@ export async function writeInitializerPlan(
         mode: 0o600,
       });
     }
+    if (plan.packageManager === "pnpm") {
+      await writeFile(
+        join(staging, "pnpm-workspace.yaml"),
+        "onlyBuiltDependencies:\n  - esbuild\n",
+        { flag: "wx", mode: 0o600 },
+      );
+    }
     if (plan.recipient) {
       const examplePath = join(staging, ".env.example");
       const environment = (await readFile(examplePath, "utf8")).replace(

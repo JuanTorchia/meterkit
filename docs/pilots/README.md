@@ -20,13 +20,13 @@ Neither path authorizes custody, mainnet funds or public attribution.
 Choose one factual installation path:
 
 - Existing service: install the public immutable
-  `@usemeterkit/sdk@0.3.0` package after its registry gate and protect a participant-controlled
+  `@usemeterkit/sdk@0.3.1` package after its registry gate and protect a participant-controlled
   route.
-- Generated project: run `npm create meterkit@0.3.0 -- <directory> --surface
+- Generated project: run `npm create meterkit@0.3.1 -- <directory> --surface
 <express|next-route|hono|mcp> --package-manager pnpm --recipient
 <DEVNET_PUBLIC_WALLET> --yes`.
 
-The 0.3.0 initializer, CLI, SDK and database adapter are release candidates
+The 0.3.1 initializer, CLI, SDK and database adapter are release candidates
 until the exact registry smoke passes. `@usemeterkit/pilot` remains a workspace
 evidence package. Registry verification is synthetic engineering evidence, not
 adoption.
