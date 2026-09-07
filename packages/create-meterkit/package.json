@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@usemeterkit/core": "workspace:*",
-    "zod": "^4.0.17"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",

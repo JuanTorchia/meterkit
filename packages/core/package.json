@@ -46,6 +46,6 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
-    "zod": "^4.0.17"
+    "zod": "^4.5.4"
   }
 }
