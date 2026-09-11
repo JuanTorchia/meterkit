@@ -13,7 +13,7 @@
     "@usemeterkit/database": "0.3.0",
     "@usemeterkit/sdk": "0.3.0",
     "@x402/next": "2.22.0",
-    "next": "16.3.1",
+    "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
