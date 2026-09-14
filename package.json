@@ -45,15 +45,15 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@playwright/test": "^1.54.2",
+    "@playwright/test": "^1.63.0",
     "@solana/kit": "5.5.1",
-    "@types/node": "^24.3.0",
+    "@types/node": "^24.13.4",
     "bs58": "6.0.0",
     "eslint": "^9.39.1",
     "prettier": "^3.6.2",
-    "tsx": "4.23.12",
+    "tsx": "4.23.13",
     "typescript": "^5.9.2",
-    "typescript-eslint": "^8.67.0",
+    "typescript-eslint": "^8.70.0",
     "vitest": "^3.2.4"
   }
 }
