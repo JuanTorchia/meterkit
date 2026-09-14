@@ -38,7 +38,7 @@
   "dependencies": {
     "@usemeterkit/cli": "workspace:*",
     "@usemeterkit/core": "workspace:*",
-    "zod": "^4.0.17"
+    "zod": "^4.6.2"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
