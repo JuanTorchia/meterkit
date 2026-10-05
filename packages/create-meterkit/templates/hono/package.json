@@ -13,7 +13,7 @@
     "@usemeterkit/database": "0.3.0",
     "@usemeterkit/sdk": "0.3.0",
     "@x402/hono": "2.22.0",
-    "hono": "4.13.0",
+    "hono": "4.13.7",
     "@hono/node-server": "2.1.0"
   },
   "devDependencies": {
