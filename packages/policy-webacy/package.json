@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@usemeterkit/core": "workspace:*",
-    "zod": "^4.0.17"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "typescript": "^5.9.2",
