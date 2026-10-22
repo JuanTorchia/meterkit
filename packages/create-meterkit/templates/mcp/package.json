@@ -8,7 +8,7 @@
     "doctor": "meterkit doctor --project ."
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.30.0",
+    "@modelcontextprotocol/sdk": "1.32.0",
     "@usemeterkit/database": "0.3.0",
     "@usemeterkit/sdk": "0.3.0",
     "@x402/core": "2.22.0",
