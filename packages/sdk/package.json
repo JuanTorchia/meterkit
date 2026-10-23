@@ -54,7 +54,7 @@
     "@x402/express": "2.22.0",
     "@x402/svm": "2.22.0",
     "express": "^5.1.0",
-    "zod": "^4.0.17"
+    "zod": "^4.6.6"
   },
   "peerDependencies": {
     "express": ">=5"
