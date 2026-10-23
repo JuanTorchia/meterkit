@@ -63,4 +63,14 @@ describe("initializer filesystem and installation recovery", () => {
     expect(observed).toEqual([["pnpm", "install"]]);
     expect(result).toEqual({ state: "ready" });
   });
+
+  it("allows the esbuild install script in generated pnpm projects", async () => {
+    const cwd = await mkdtemp(join(tmpdir(), "meterkit-pnpm-policy-"));
+    const target = join(cwd, "generated");
+    await writeInitializerPlan(await planAt(target, "pnpm"));
+
+    await expect(
+      readFile(join(target, "pnpm-workspace.yaml"), "utf8"),
+    ).resolves.toBe("onlyBuiltDependencies:\n  - esbuild\n");
+  });
 });

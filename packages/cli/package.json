@@ -1,6 +1,6 @@
 {
   "name": "@usemeterkit/cli",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Self-service check, diagnosis, verification, and devnet payment CLI for MeterKit",
   "license": "Apache-2.0",
   "engines": {

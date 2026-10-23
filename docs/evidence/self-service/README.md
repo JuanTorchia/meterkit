@@ -1,4 +1,4 @@
-# Self-service 0.3.0 release-candidate evidence
+# Self-service 0.3.1 release-candidate evidence
 
 Evidence date: 2026-08-17 UTC. Execution host: Linux server, Node 22.22.1,
 pnpm 11.10.0. This is synthetic engineering evidence and is not external
@@ -16,7 +16,7 @@ adoption.
   middleware protected-handler execution exactly once under concurrency, and
   replay rejection after recreating the store.
 - Live Solana devnet lifecycle passed for generated Express, Next Route and
-  Hono projects using packed 0.3.0 candidate artifacts and PostgreSQL. Each
+  Hono projects using packed 0.3.1 candidate artifacts and PostgreSQL. Each
   surface settled exactly `10000` atomic test-USDC, produced concurrent statuses
   `200/402`, executed the protected handler exactly once, and rejected the same
   proof both immediately and after restart with status `402`.
@@ -52,7 +52,7 @@ validation server was securely removed after the run.
 
 ## Intentionally pending
 
-- Exact registry smoke cannot run until immutable 0.3.0 packages are published.
+- Exact registry smoke cannot run until immutable 0.3.1 packages are published.
 - macOS and Windows anchors run in CI, not on this Linux host.
 - Five-person evidence requires real independent, consented participants and is
   tracked separately; it must never be synthesized from these checks.

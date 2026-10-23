@@ -22,7 +22,7 @@ test("public release allowlist is deliberately small and version aligned", async
     "packages/cli/package.json",
     "packages/create-meterkit/package.json",
   ]);
-  const result = await verifyReleaseVersion("v0.3.0", root);
+  const result = await verifyReleaseVersion("v0.3.1", root);
   assert.deepEqual(
     result.packages.map(({ name }) => name),
     [
@@ -72,8 +72,8 @@ test("rejects invalid tags and version drift", async () => {
   sdk.version = "9.9.9";
   await writeFile(sdkPath, JSON.stringify(sdk));
   await assert.rejects(
-    verifyReleaseVersion("v0.3.0", temporary),
-    /expected 0.3.0/,
+    verifyReleaseVersion("v0.3.1", temporary),
+    /expected 0.3.1/,
   );
 });
 
@@ -119,7 +119,7 @@ test("release manifests bind the allowlist to the exact source commit", async ()
   ];
   assert.equal(
     await verifyReleaseManifest(
-      { tag: "v0.3.0", version: "0.3.0", sourceCommit, packages },
+      { tag: "v0.3.1", version: "0.3.1", sourceCommit, packages },
       root,
     ),
     true,
@@ -127,8 +127,8 @@ test("release manifests bind the allowlist to the exact source commit", async ()
   await assert.rejects(
     verifyReleaseManifest(
       {
-        tag: "v0.3.0",
-        version: "0.3.0",
+        tag: "v0.3.1",
+        version: "0.3.1",
         sourceCommit: "0".repeat(40),
         packages,
       },

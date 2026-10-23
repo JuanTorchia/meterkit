@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-08-18
+
+- Allow pnpm 11 to run the required `esbuild` install script in generated projects.
+- Keep the documented and generated self-service package versions synchronized.
+
 ## [0.3.0] - 2026-08-17
 
 - Add the public `@usemeterkit/cli` check, verify, doctor and bounded devnet pay flow.

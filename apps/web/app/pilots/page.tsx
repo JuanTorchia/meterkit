@@ -10,9 +10,9 @@ import styles from "./pilots.module.css";
 
 const commands = {
   released:
-    "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.3.0 express",
+    "mkdir meterkit-pilot && cd meterkit-pilot\npnpm init\npnpm add @usemeterkit/sdk@0.3.1 express",
   generated:
-    "npm create meterkit@0.3.0 -- meterkit-pilot --surface express --package-manager pnpm --recipient <DEVNET_PUBLIC_WALLET> --yes",
+    "npm create meterkit@0.3.1 -- meterkit-pilot --surface express --package-manager pnpm --recipient <DEVNET_PUBLIC_WALLET> --yes",
   install:
     "git clone https://github.com/JuanTorchia/meterkit.git\ncd meterkit\npnpm install --frozen-lockfile",
   configure: "pnpm pilot:init -- https://your-api.test/premium",
@@ -20,7 +20,7 @@ const commands = {
     "pnpm pilot:verify -- \\\n  --config meterkit-pilot.json \\\n  --out pilot-report.json",
 } as const;
 const selfServiceReleaseAvailable =
-  process.env.NEXT_PUBLIC_SELF_SERVICE_VERSION === "0.3.0";
+  process.env.NEXT_PUBLIC_SELF_SERVICE_VERSION === "0.3.1";
 
 const copy = {
   en: {
@@ -38,7 +38,7 @@ const copy = {
     prerequisitesBody:
       "Node.js 22+, pnpm 11 and a test endpoint that returns an x402 challenge. Localhost is supported with an explicit development flag. No wallet is required for readiness.",
     releasePending:
-      "The 0.3.0 self-service packages are still a release candidate. Installation commands stay disabled until the exact npm registry matrix passes.",
+      "The 0.3.1 self-service packages are still a release candidate. Installation commands stay disabled until the exact npm registry matrix passes.",
     offer: "FREE FIVE-PERSON DEVNET BETA",
     offerTitle: "Install and verify one endpoint at no charge.",
     offerBody:
@@ -48,9 +48,9 @@ const copy = {
     paths: "CHOOSE YOUR STARTING PATH",
     pathsTitle: "Use the public SDK or generate a reviewable project.",
     pathsBody:
-      "The 0.3.0 SDK and initializer candidate is devnet-only and generates no wallet keys. Use it only after the exact-version registry gate passes.",
+      "The 0.3.1 SDK and initializer candidate is devnet-only and generates no wallet keys. Use it only after the exact-version registry gate passes.",
     released: "A · RELEASED SDK",
-    releasedTitle: "Add the exact verified 0.3.0 package.",
+    releasedTitle: "Add the exact verified 0.3.1 package.",
     generated: "B · GENERATED PROJECT",
     generatedTitle:
       "Generate a reviewable project from the public initializer.",
@@ -132,7 +132,7 @@ const copy = {
     prerequisitesBody:
       "Node.js 22+, pnpm 11 y un endpoint de prueba que devuelva un desafío x402. Localhost funciona con una opción explícita de desarrollo. La preparación no requiere wallet.",
     releasePending:
-      "Los paquetes de autoservicio 0.3.0 todavía son candidatos. Los comandos permanecen deshabilitados hasta pasar la matriz exacta contra npm.",
+      "Los paquetes de autoservicio 0.3.1 todavía son candidatos. Los comandos permanecen deshabilitados hasta pasar la matriz exacta contra npm.",
     offer: "BETA DEVNET GRATUITA PARA CINCO PERSONAS",
     offerTitle: "Instala y verifica un endpoint sin costo.",
     offerBody:
@@ -142,9 +142,9 @@ const copy = {
     paths: "ELIGE TU PUNTO DE PARTIDA",
     pathsTitle: "Usa el SDK público o genera un proyecto revisable.",
     pathsBody:
-      "El SDK y el inicializador candidato 0.3.0 son sólo devnet y no generan claves. Úsalos después del gate exacto contra el registry.",
+      "El SDK y el inicializador candidato 0.3.1 son sólo devnet y no generan claves. Úsalos después del gate exacto contra el registry.",
     released: "A · SDK PUBLICADO",
-    releasedTitle: "Agrega el paquete exacto 0.3.0 verificado.",
+    releasedTitle: "Agrega el paquete exacto 0.3.1 verificado.",
     generated: "B · PROYECTO GENERADO",
     generatedTitle:
       "Genera un proyecto revisable con el inicializador público.",
@@ -227,7 +227,7 @@ const copy = {
     prerequisitesBody:
       "Node.js 22+, pnpm 11 e um endpoint de teste que retorne um desafio x402. Localhost funciona com uma opção explícita de desenvolvimento. A preparação não requer carteira.",
     releasePending:
-      "Os pacotes de autosserviço 0.3.0 ainda são candidatos. Os comandos ficam desativados até a matriz exata do npm passar.",
+      "Os pacotes de autosserviço 0.3.1 ainda são candidatos. Os comandos ficam desativados até a matriz exata do npm passar.",
     offer: "BETA DEVNET GRATUITA PARA CINCO PESSOAS",
     offerTitle: "Instale e verifique um endpoint sem custo.",
     offerBody:
@@ -237,9 +237,9 @@ const copy = {
     paths: "ESCOLHA SEU PONTO DE PARTIDA",
     pathsTitle: "Use o SDK público ou gere um projeto revisável.",
     pathsBody:
-      "O SDK e o inicializador candidato 0.3.0 são apenas devnet e não geram chaves. Use-os após o gate exato no registry.",
+      "O SDK e o inicializador candidato 0.3.1 são apenas devnet e não geram chaves. Use-os após o gate exato no registry.",
     released: "A · SDK PUBLICADO",
-    releasedTitle: "Adicione o pacote exato 0.3.0 verificado.",
+    releasedTitle: "Adicione o pacote exato 0.3.1 verificado.",
     generated: "B · PROJETO GERADO",
     generatedTitle: "Gere um projeto revisável com o inicializador público.",
     readiness: "FASE A · PREPARAÇÃO",

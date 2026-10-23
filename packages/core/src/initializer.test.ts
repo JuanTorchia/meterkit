@@ -3,7 +3,7 @@ import { initializerPlanSchema } from "./initializer.js";
 
 const plan = {
   schemaVersion: 1,
-  initializerVersion: "0.3.0",
+  initializerVersion: "0.3.1",
   surface: "express",
   targetDirectory: "/tmp/weather-api",
   packageManager: "pnpm",
@@ -11,8 +11,8 @@ const plan = {
   durability: "memory",
   files: [{ path: "src/server.ts", fingerprint: `sha256:${"a".repeat(64)}` }],
   dependencies: {
-    "@usemeterkit/sdk": "0.3.0",
-    "@usemeterkit/database": "0.3.0",
+    "@usemeterkit/sdk": "0.3.1",
+    "@usemeterkit/database": "0.3.1",
   },
   environmentKeys: ["MERCHANT_WALLET", "SOLANA_RPC_URL"],
   warnings: ["TEST_ASSETS_REQUIRED"],

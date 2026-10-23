@@ -66,7 +66,7 @@ test("truthful claims pass", async () => {
     packageVersion: "0.2.0",
     note: "core, sdk and create-meterkit are published at 0.2.0.",
     snippet: "@usemeterkit/sdk@0.2.0 express",
-    range: ">=0.2.0 <0.3.0",
+    range: ">=0.2.0 <0.3.1",
   });
   try {
     const result = await verifyVersionClaims(base);
@@ -82,12 +82,12 @@ test("public release packages drifting apart is reported before anything else", 
     packageVersion: "0.2.0",
     note: "published at 0.2.0.",
     snippet: "@usemeterkit/sdk@0.2.0 express",
-    range: ">=0.2.0 <0.3.0",
+    range: ">=0.2.0 <0.3.1",
   });
   try {
     await writeFile(
       join(base, "packages/sdk/package.json"),
-      JSON.stringify({ name: "sdk", version: "0.3.0" }),
+      JSON.stringify({ name: "sdk", version: "0.3.1" }),
     );
     const result = await verifyVersionClaims(base);
     assert.equal(result.passed, false);

@@ -380,7 +380,7 @@ export async function doctorProject(options: {
   return diagnosticReportSchema.parse({
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
-    toolVersion: "0.3.0",
+    toolVersion: "0.3.1",
     findings,
   });
 }
