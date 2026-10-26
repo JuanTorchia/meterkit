@@ -169,7 +169,7 @@ jobs:
           METERKIT_QUICKSTART_SURFACES: ${{ matrix.surface }}
         run: node scripts/verify-registry-quickstarts.mjs > registry-smoke.json
       - if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: registry-smoke-${{ inputs.registry_version }}-${{ matrix.manager }}-${{ matrix.surface }}
           path: registry-smoke.json
@@ -196,7 +196,7 @@ jobs:
         env:
           METERKIT_REGISTRY_VERSION: ${{ inputs.registry_version }}
         run: node scripts/aggregate-registry-smoke.mjs registry-smoke-results > registry-promotion.json
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: registry-promotion-${{ inputs.registry_version }}
           path: registry-promotion.json
