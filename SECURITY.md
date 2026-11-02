@@ -67,3 +67,8 @@ Out of scope:
 
 The detailed threat model and residual risks live in
 [docs/security.md](docs/security.md).
+
+
+## Erratas del runtime — 2026-11-02
+
+La capa final de la imagen refresca únicamente `libsasl2-2`, `libsasl2-modules-db`. La marca de fecha invalida la caché de ese paso; se conserva el usuario original. No cambia código de aplicación, lockfiles, datos, credenciales ni configuración funcional. Antes de promover: construir y escanear la imagen, comprobar el endpoint/health del servicio y conservar la imagen anterior para rollback.
