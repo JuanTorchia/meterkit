@@ -30,3 +30,11 @@ ENV SOURCE_COMMIT=$SOURCE_COMMIT
 
 USER node
 CMD ["node", "dist/server.js"]
+
+# Refrescar erratas de la imagen final junto con las dependencias del gateway.
+ARG BULBASAUR_SECURITY_REFRESH=20261102
+USER root
+RUN test "$BULBASAUR_SECURITY_REFRESH" = 20261102 \
+  && apt-get update && apt-get upgrade -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
+USER node
